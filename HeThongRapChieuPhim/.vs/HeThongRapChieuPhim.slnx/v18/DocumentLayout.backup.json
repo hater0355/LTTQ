@@ -1,0 +1,225 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\database\\nhhcinema.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\database\\nhhcinema.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\usercontrols\\uccaivoucher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\usercontrols\\uccaivoucher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\usercontrols\\ucdanhmuc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\usercontrols\\ucdanhmuc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\usercontrols\\ucdashboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\usercontrols\\ucdashboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\usercontrols\\ucdoan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\usercontrols\\ucdoan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\usercontrols\\uchoadon.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\usercontrols\\uchoadon.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\usercontrols\\ucnhanvien.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\usercontrols\\ucnhanvien.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\usercontrols\\ucphongchieu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\usercontrols\\ucphongchieu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\usercontrols\\uctaikhoanthungan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\usercontrols\\uctaikhoanthungan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\forms\\formmain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\forms\\formmain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\usercontrols\\ucbanhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\usercontrols\\ucbanhang.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\uihelpers\\chartcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\uihelpers\\chartcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|c:\\users\\admin\\onedrive\\desktop\\btl_lttq\\hethongrapchieuphim\\hethongrapchieuphim\\database\\nhhcinema.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame",
+      "RelativeMoniker": "D:0:0:{D07ECC7B-5D5D-64E2-2DDF-B50954DF26D6}|HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj|solutionrelative:hethongrapchieuphim\\database\\nhhcinema.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "NHHCinema.sql ",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\Database\\NHHCinema.sql",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\Database\\NHHCinema.sql",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\Database\\NHHCinema.sql",
+              "RelativeToolTip": "HeThongRapChieuPhim\\Database\\NHHCinema.sql",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
+              "WhenOpened": "2026-10-15T01:28:58.083Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ucDanhMuc.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucDanhMuc.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\UserControls\\ucDanhMuc.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucDanhMuc.cs [Design]",
+              "RelativeToolTip": "HeThongRapChieuPhim\\UserControls\\ucDanhMuc.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:38:32.197Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ucDashboard.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucDashboard.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\UserControls\\ucDashboard.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucDashboard.cs [Design]",
+              "RelativeToolTip": "HeThongRapChieuPhim\\UserControls\\ucDashboard.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:38:26.314Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ucDoAn.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucDoAn.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\UserControls\\ucDoAn.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucDoAn.cs [Design]",
+              "RelativeToolTip": "HeThongRapChieuPhim\\UserControls\\ucDoAn.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:38:24.948Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ucHoaDon.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucHoaDon.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\UserControls\\ucHoaDon.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucHoaDon.cs [Design]",
+              "RelativeToolTip": "HeThongRapChieuPhim\\UserControls\\ucHoaDon.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:38:21.109Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ucNhanVien.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucNhanVien.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\UserControls\\ucNhanVien.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucNhanVien.cs [Design]",
+              "RelativeToolTip": "HeThongRapChieuPhim\\UserControls\\ucNhanVien.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:38:19.803Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ucPhongChieu.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucPhongChieu.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\UserControls\\ucPhongChieu.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucPhongChieu.cs [Design]",
+              "RelativeToolTip": "HeThongRapChieuPhim\\UserControls\\ucPhongChieu.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:38:15.019Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ucTaiKhoanThuNgan.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucTaiKhoanThuNgan.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\UserControls\\ucTaiKhoanThuNgan.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucTaiKhoanThuNgan.cs [Design]",
+              "RelativeToolTip": "HeThongRapChieuPhim\\UserControls\\ucTaiKhoanThuNgan.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:38:10.559Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ucCaiVoucher.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucCaiVoucher.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\UserControls\\ucCaiVoucher.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucCaiVoucher.cs [Design]",
+              "RelativeToolTip": "HeThongRapChieuPhim\\UserControls\\ucCaiVoucher.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:37:56.849Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ucBanHang.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucBanHang.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\UserControls\\ucBanHang.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UserControls\\ucBanHang.cs [Design]*",
+              "RelativeToolTip": "HeThongRapChieuPhim\\UserControls\\ucBanHang.cs [Design]*",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:37:46.028Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ChartControl.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UIHelpers\\ChartControl.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\UIHelpers\\ChartControl.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\UIHelpers\\ChartControl.cs",
+              "RelativeToolTip": "HeThongRapChieuPhim\\UIHelpers\\ChartControl.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:37:36.227Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "FormMain.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\Forms\\FormMain.cs",
+              "RelativeDocumentMoniker": "HeThongRapChieuPhim\\Forms\\FormMain.cs",
+              "ToolTip": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\Forms\\FormMain.cs [Design]",
+              "RelativeToolTip": "HeThongRapChieuPhim\\Forms\\FormMain.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-15T00:37:16.892Z",
+              "EditorCaption": " [Design]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

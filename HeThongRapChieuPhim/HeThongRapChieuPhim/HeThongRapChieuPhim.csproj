@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>$(NoWarn);WFO1000;CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="QRCoder" Version="1.8.0" />
+    <ProjectReference Include="Core\HeThongRapChieuPhim.Core.csproj" />
+    <Compile Remove="Classes\**\*.cs;Data\CurrentUser.cs;Data\AccessRoles.cs;Core\**\*.cs;PaymentsApi\**\*.cs" />
+    <Content Remove="Core\**\*;PaymentsApi\**\*" />
+    <None Remove="Core\**\*;PaymentsApi\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Assets\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Database\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\" />
+  </ItemGroup>
+
+
+
+</Project>

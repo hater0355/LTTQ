@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="9.0.21" />
+    <Compile Include="..\Classes\**\*.cs" Link="Classes\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Data\CurrentUser.cs" Link="Data\CurrentUser.cs" />
+    <Compile Include="..\Data\AccessRoles.cs" Link="Data\AccessRoles.cs" />
+  </ItemGroup>
+</Project>

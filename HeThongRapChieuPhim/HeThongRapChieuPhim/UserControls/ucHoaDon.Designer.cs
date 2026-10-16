@@ -18,6 +18,16 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlContainer = new System.Windows.Forms.Panel();
             this.pnlGrid = new System.Windows.Forms.Panel();
             this.dgvHoaDon = new System.Windows.Forms.DataGridView();
+            this.colMaHD = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colThoiGianXuat = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colTenPhim = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colPhong = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colSuatChieu = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colGheNgoi = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colSoLuongVe = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colTongThanhToan = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colHinhThucTT = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colTrangThaiTT = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pnlActions = new System.Windows.Forms.Panel();
             this.btnPrintAgain = new System.Windows.Forms.Button();
             this.lblTotalRevenue = new System.Windows.Forms.Label();
@@ -65,11 +75,83 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // dgvHoaDon
             // 
+            this.dgvHoaDon.AllowUserToAddRows = false;
+            this.dgvHoaDon.AllowUserToDeleteRows = false;
+            this.dgvHoaDon.AutoGenerateColumns = false;
             this.dgvHoaDon.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvHoaDon.Location = new System.Drawing.Point(5, 5);
+            this.dgvHoaDon.ReadOnly = true;
+            this.dgvHoaDon.RowHeadersVisible = false;
+            this.dgvHoaDon.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvHoaDon.MultiSelect = false;
+            this.dgvHoaDon.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvHoaDon.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+                this.colMaHD,
+                this.colThoiGianXuat,
+                this.colTenPhim,
+                this.colPhong,
+                this.colSuatChieu,
+                this.colGheNgoi,
+                this.colSoLuongVe,
+                this.colTongThanhToan,
+                this.colHinhThucTT,
+                this.colTrangThaiTT});
             this.dgvHoaDon.Name = "dgvHoaDon";
             this.dgvHoaDon.Size = new System.Drawing.Size(1030, 440);
             this.dgvHoaDon.TabIndex = 0;
+            //
+            // Invoice history columns
+            //
+            this.colMaHD.DataPropertyName = "Mã HĐ";
+            this.colMaHD.HeaderText = "Mã HĐ";
+            this.colMaHD.Name = "colMaHD";
+            this.colMaHD.ReadOnly = true;
+            this.colMaHD.FillWeight = 75F;
+            this.colThoiGianXuat.DataPropertyName = "Thời Gian Xuất";
+            this.colThoiGianXuat.HeaderText = "Thời Gian Xuất";
+            this.colThoiGianXuat.Name = "colThoiGianXuat";
+            this.colThoiGianXuat.ReadOnly = true;
+            this.colThoiGianXuat.FillWeight = 115F;
+            this.colTenPhim.DataPropertyName = "Tên Phim";
+            this.colTenPhim.HeaderText = "Tên Phim";
+            this.colTenPhim.Name = "colTenPhim";
+            this.colTenPhim.ReadOnly = true;
+            this.colTenPhim.FillWeight = 135F;
+            this.colPhong.DataPropertyName = "Phòng";
+            this.colPhong.HeaderText = "Phòng";
+            this.colPhong.Name = "colPhong";
+            this.colPhong.ReadOnly = true;
+            this.colPhong.FillWeight = 75F;
+            this.colSuatChieu.DataPropertyName = "Suất Chiếu";
+            this.colSuatChieu.HeaderText = "Suất Chiếu";
+            this.colSuatChieu.Name = "colSuatChieu";
+            this.colSuatChieu.ReadOnly = true;
+            this.colSuatChieu.FillWeight = 80F;
+            this.colGheNgoi.DataPropertyName = "Ghế Ngồi";
+            this.colGheNgoi.HeaderText = "Ghế Ngồi";
+            this.colGheNgoi.Name = "colGheNgoi";
+            this.colGheNgoi.ReadOnly = true;
+            this.colGheNgoi.FillWeight = 95F;
+            this.colSoLuongVe.DataPropertyName = "SL Vé";
+            this.colSoLuongVe.HeaderText = "SL Vé";
+            this.colSoLuongVe.Name = "colSoLuongVe";
+            this.colSoLuongVe.ReadOnly = true;
+            this.colSoLuongVe.FillWeight = 55F;
+            this.colTongThanhToan.DataPropertyName = "Tổng Thanh Toán";
+            this.colTongThanhToan.HeaderText = "Tổng Thanh Toán";
+            this.colTongThanhToan.Name = "colTongThanhToan";
+            this.colTongThanhToan.ReadOnly = true;
+            this.colTongThanhToan.FillWeight = 100F;
+            this.colHinhThucTT.DataPropertyName = "Hình Thức TT";
+            this.colHinhThucTT.HeaderText = "Hình Thức TT";
+            this.colHinhThucTT.Name = "colHinhThucTT";
+            this.colHinhThucTT.ReadOnly = true;
+            this.colHinhThucTT.FillWeight = 90F;
+            this.colTrangThaiTT.DataPropertyName = "Trạng Thái Thanh Toán";
+            this.colTrangThaiTT.HeaderText = "Trạng Thái Thanh Toán";
+            this.colTrangThaiTT.Name = "colTrangThaiTT";
+            this.colTrangThaiTT.ReadOnly = true;
+            this.colTrangThaiTT.FillWeight = 115F;
             // 
             // pnlActions
             // 
@@ -283,5 +365,15 @@ namespace HeThongRapChieuPhim.UserControls
         private System.Windows.Forms.Label lblTotalRevenue;
         private System.Windows.Forms.Panel pnlGrid;
         private System.Windows.Forms.DataGridView dgvHoaDon;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colMaHD;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colThoiGianXuat;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTenPhim;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPhong;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colSuatChieu;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colGheNgoi;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colSoLuongVe;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTongThanhToan;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colHinhThucTT;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTrangThaiTT;
     }
 }

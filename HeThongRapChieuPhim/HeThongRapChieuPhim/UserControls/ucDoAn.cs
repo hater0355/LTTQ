@@ -15,7 +15,7 @@ namespace HeThongRapChieuPhim.UserControls
         {
             InitializeComponent();
             ThemeHelper.StyleDataGridView(dgvDoAn);
-            LoadDoAn();
+            if (!DesignTimeHelper.IsDesignTime(this)) LoadDoAn();
         }
 
         private void BtnLamMoi_Click(object? sender, EventArgs e)

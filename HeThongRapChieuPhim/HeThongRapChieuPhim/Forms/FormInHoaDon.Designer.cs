@@ -19,6 +19,8 @@ namespace HeThongRapChieuPhim.Forms
             this.btnPrint = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
             this.pnlTicket = new System.Windows.Forms.Panel();
+            this.lblTicketHeading = new System.Windows.Forms.Label();
+            this.lblTicketPreview = new System.Windows.Forms.Label();
             this.pnlBottom.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -69,13 +71,38 @@ namespace HeThongRapChieuPhim.Forms
             // pnlTicket
             // 
             this.pnlTicket.BackColor = System.Drawing.Color.White;
+            this.pnlTicket.Controls.Add(this.lblTicketPreview);
+            this.pnlTicket.Controls.Add(this.lblTicketHeading);
             this.pnlTicket.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlTicket.Location = new System.Drawing.Point(0, 0);
             this.pnlTicket.Name = "pnlTicket";
             this.pnlTicket.Padding = new System.Windows.Forms.Padding(25);
             this.pnlTicket.Size = new System.Drawing.Size(484, 621);
             this.pnlTicket.TabIndex = 1;
-            this.pnlTicket.Paint += new System.Windows.Forms.PaintEventHandler(this.PnlTicket_Paint);
+            // 
+            // lblTicketHeading
+            // 
+            this.lblTicketHeading.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblTicketHeading.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
+            this.lblTicketHeading.ForeColor = System.Drawing.Color.FromArgb(180, 100, 0);
+            this.lblTicketHeading.Location = new System.Drawing.Point(25, 25);
+            this.lblTicketHeading.Name = "lblTicketHeading";
+            this.lblTicketHeading.Size = new System.Drawing.Size(434, 36);
+            this.lblTicketHeading.TabIndex = 0;
+            this.lblTicketHeading.Text = "★ RẠP CHIẾU PHIM NHH CINEMA ★";
+            this.lblTicketHeading.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblTicketPreview
+            // 
+            this.lblTicketPreview.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblTicketPreview.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lblTicketPreview.ForeColor = System.Drawing.Color.FromArgb(35, 35, 35);
+            this.lblTicketPreview.Location = new System.Drawing.Point(25, 61);
+            this.lblTicketPreview.Name = "lblTicketPreview";
+            this.lblTicketPreview.Padding = new System.Windows.Forms.Padding(8, 8, 8, 0);
+            this.lblTicketPreview.Size = new System.Drawing.Size(434, 535);
+            this.lblTicketPreview.TabIndex = 1;
+            this.lblTicketPreview.TextAlign = System.Drawing.ContentAlignment.TopLeft;
             // 
             // FormInHoaDon
             // 
@@ -101,5 +128,7 @@ namespace HeThongRapChieuPhim.Forms
         private System.Windows.Forms.Button btnPrint;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Panel pnlTicket;
+        private System.Windows.Forms.Label lblTicketHeading;
+        private System.Windows.Forms.Label lblTicketPreview;
     }
 }

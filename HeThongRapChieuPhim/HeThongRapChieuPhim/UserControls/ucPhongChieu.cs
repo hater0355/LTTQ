@@ -15,7 +15,8 @@ namespace HeThongRapChieuPhim.UserControls
         {
             InitializeComponent();
             ThemeHelper.StyleDataGridView(dgvPhongChieu);
-            LoadPhongChieu();
+            ConfigureSeatPreviewGrid();
+            if (!DesignTimeHelper.IsDesignTime(this)) LoadPhongChieu();
             UpdateTotalSeatsAndPreview();
         }
 
@@ -46,61 +47,47 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void RenderSeatPreview(int rows, int cols)
         {
-            pnlSeatPreview.SuspendLayout();
-            pnlSeatPreview.Controls.Clear();
-
-            // Màn hình chiếu biểu trưng
-            var lblScreen = new Label
+            for (int row = 0; row < pnlSeatPreview.Rows.Count; row++)
             {
-                Text = "──────── MÀN HÌNH CHIẾU PHIM (SCREEN) ────────",
-                ForeColor = ThemeHelper.AccentGold,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
-                Location = new Point(20, 15),
-                Size = new Size(cols * 38 + 50, 22),
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-            pnlSeatPreview.Controls.Add(lblScreen);
-
-            int startX = 25;
-            int startY = 48;
-            int seatSize = 32;
-            int gap = 6;
-
-            for (int r = 0; r < rows; r++)
-            {
-                char rowChar = (char)('A' + r);
-
-                var lblRow = new Label
+                DataGridViewRow gridRow = pnlSeatPreview.Rows[row];
+                gridRow.Visible = row < rows;
+                gridRow.HeaderCell.Value = row < rows ? ((char)('A' + row)).ToString() : null;
+                for (int column = 0; column < pnlSeatPreview.Columns.Count; column++)
                 {
-                    Text = rowChar.ToString(),
-                    ForeColor = ThemeHelper.TextMuted,
-                    Font = new Font("Segoe UI", 9f, FontStyle.Bold),
-                    Location = new Point(startX - 20, startY + r * (seatSize + gap) + 6),
-                    Size = new Size(18, 20),
-                    TextAlign = ContentAlignment.MiddleCenter
-                };
-                pnlSeatPreview.Controls.Add(lblRow);
-
-                for (int c = 1; c <= cols; c++)
-                {
-                    string seatName = $"{rowChar}{c}";
-                    var btnSeat = new Button
-                    {
-                        Text = c.ToString(),
-                        Location = new Point(startX + (c - 1) * (seatSize + gap), startY + r * (seatSize + gap)),
-                        Size = new Size(seatSize, seatSize),
-                        BackColor = ThemeHelper.SeatAvailable,
-                        ForeColor = ThemeHelper.TextPrimary,
-                        FlatStyle = FlatStyle.Flat,
-                        Font = new Font("Segoe UI", 8f, FontStyle.Bold),
-                        Tag = seatName
-                    };
-                    btnSeat.FlatAppearance.BorderSize = 0;
-                    pnlSeatPreview.Controls.Add(btnSeat);
+                    DataGridViewCell cell = gridRow.Cells[column];
+                    bool visibleSeat = row < rows && column < cols;
+                    pnlSeatPreview.Columns[column].Visible = column < cols;
+                    cell.Value = visibleSeat ? (column + 1).ToString() : string.Empty;
+                    cell.Style.BackColor = ThemeHelper.SeatAvailable;
+                    cell.Style.ForeColor = ThemeHelper.TextPrimary;
+                    cell.Style.SelectionBackColor = cell.Style.BackColor;
+                    cell.Style.SelectionForeColor = cell.Style.ForeColor;
                 }
             }
+        }
 
-            pnlSeatPreview.ResumeLayout();
+        private void ConfigureSeatPreviewGrid()
+        {
+            pnlSeatPreview.AutoGenerateColumns = false;
+            pnlSeatPreview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            pnlSeatPreview.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            pnlSeatPreview.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            pnlSeatPreview.RowTemplate.Height = 32;
+            pnlSeatPreview.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            pnlSeatPreview.Columns.Clear();
+            pnlSeatPreview.Rows.Clear();
+            for (int column = 1; column <= 30; column++)
+            {
+                pnlSeatPreview.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    Name = $"colPreviewSeat{column}",
+                    HeaderText = column.ToString(),
+                    Width = 38,
+                    SortMode = DataGridViewColumnSortMode.NotSortable
+                });
+            }
+            for (int row = 0; row < 26; row++) pnlSeatPreview.Rows.Add();
+            RenderSeatPreview((int)numSoHangGhe.Value, (int)numSoGheMoiHang.Value);
         }
 
         private void LoadPhongChieu()

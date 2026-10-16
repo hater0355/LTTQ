@@ -21,25 +21,11 @@ namespace HeThongRapChieuPhim.Forms
             _selectedRole = AccessRoles.Normalize(selectedRole);
             if (_selectedRole.Length == 0) throw new ArgumentException("Chức vụ đăng nhập không hợp lệ.", nameof(selectedRole));
             InitializeComponent();
-            SetupCardStyle();
             LoadLogo();
             lblSub.Text = AccessRoles.DisplayName(_selectedRole).ToUpperInvariant();
             lblDemo.Visible = false;
             btnFillAdmin.Visible = false;
             btnExit.Text = "QUAY LẠI";
-        }
-
-        private void SetupCardStyle()
-        {
-            pnlCard.Paint += (s, e) =>
-            {
-                var g = e.Graphics;
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                var rect = new RectangleF(0, 0, pnlCard.Width - 1, pnlCard.Height - 1);
-                using var path = ThemeHelper.CreateRoundedPath(rect, 14);
-                using var pen = new Pen(ThemeHelper.BorderColor, 1.2f);
-                g.DrawPath(pen, path);
-            };
         }
 
         private void LoadLogo()

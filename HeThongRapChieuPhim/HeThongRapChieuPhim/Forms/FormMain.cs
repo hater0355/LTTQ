@@ -12,6 +12,11 @@ namespace HeThongRapChieuPhim.Forms
     public partial class FormMain : Form
     {
         private Button? _activeNavButton = null;
+        private Panel[] _navSectionPool = Array.Empty<Panel>();
+        private Label[] _navSectionLabels = Array.Empty<Label>();
+        private Button[] _navButtonPool = Array.Empty<Button>();
+        private int _nextNavSection;
+        private int _nextNavButton;
 
         // UserControls
         private ucDashboard? _ucDashboard;
@@ -24,26 +29,24 @@ namespace HeThongRapChieuPhim.Forms
         public FormMain()
         {
             InitializeComponent();
+            _navSectionPool = [pnlNavSection1, pnlNavSection2, pnlNavSection3, pnlNavSection4];
+            _navSectionLabels = [lblNavSection1, lblNavSection2, lblNavSection3, lblNavSection4];
+            _navButtonPool = [btnNav1, btnNav2, btnNav3, btnNav4, btnNav5, btnNav6, btnNav7, btnNav8, btnNav9, btnNav10];
+            foreach (var button in _navButtonPool)
+            {
+                button.MouseEnter += NavButton_MouseEnter;
+                button.MouseLeave += NavButton_MouseLeave;
+                button.Click += NavButton_Click;
+            }
         }
 
         private void FormMain_Load(object? sender, EventArgs e)
         {
+            if (DesignTimeHelper.IsDesignTime(this)) return;
             if (!string.IsNullOrEmpty(CurrentUser.HoTen))
             {
                 lblUserTop.Text = $"{CurrentUser.HoTen} • {AccessRoles.DisplayName(CurrentUser.VaiTro)}";
             }
-
-            pnlTop.Paint += (s, e) =>
-            {
-                var g = e.Graphics;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                // Draw clean slate/card icon before lblCurrentTitle
-                using var b = new SolidBrush(ThemeHelper.PrimaryDark);
-                g.FillRectangle(b, 16, 21, 14, 13);
-                using var bWhite = new SolidBrush(Color.White);
-                g.FillRectangle(bWhite, 19, 24, 8, 2);
-                g.FillRectangle(bWhite, 19, 28, 5, 2);
-            };
 
             BuildSidebar();
             timerClock.Start();
@@ -63,25 +66,14 @@ namespace HeThongRapChieuPhim.Forms
 
         private void BuildSidebar()
         {
-            pnlSidebar.Controls.Clear();
             pnlSidebar.BackColor = ThemeHelper.SidebarBackground;
-
-            // Brand Logo in Sidebar (clean centered emblem matching mockup)
-            var pnlBrand = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 112,
-                BackColor = ThemeHelper.SidebarBackground
-            };
-
-            // Logo Icon PictureBox
-            var picLogo = new PictureBox
-            {
-                Size = new Size(88, 88),
-                Location = new Point((pnlSidebar.Width - 88) / 2, 12),
-                SizeMode = PictureBoxSizeMode.Zoom,
-                BackColor = Color.Transparent
-            };
+            pnlNav.Controls.Clear();
+            _nextNavSection = 0;
+            _nextNavButton = 0;
+            pnlBrand.BackColor = ThemeHelper.SidebarBackground;
+            pnlNav.BackColor = ThemeHelper.SidebarBackground;
+            pnlBottomNav.BackColor = ThemeHelper.SidebarBackground;
+            picLogo.Location = new Point((pnlSidebar.Width - picLogo.Width) / 2, 12);
 
             string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Logo_Icon.png");
             if (!File.Exists(logoPath))
@@ -97,19 +89,6 @@ namespace HeThongRapChieuPhim.Forms
                 }
                 catch { }
             }
-
-            pnlBrand.Controls.Add(picLogo);
-
-            // Nav buttons container
-            var pnlNav = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.TopDown,
-                WrapContents = false,
-                AutoScroll = true,
-                Padding = new Padding(6, 4, 6, 4),
-                BackColor = ThemeHelper.SidebarBackground
-            };
 
             Button? firstButton = null;
             if (CurrentUser.IsSuperAdmin)
@@ -170,154 +149,65 @@ namespace HeThongRapChieuPhim.Forms
                 HighlightButton(firstButton);
             }
 
-            // Bottom logout in sidebar
-            var pnlBottomNav = new Panel
-            {
-                Dock = DockStyle.Bottom,
-                Height = 60,
-                BackColor = ThemeHelper.SidebarBackground,
-                Padding = new Padding(12, 10, 12, 10)
-            };
+        }
 
-            var btnLogout = new Button
-            {
-                Text = "",
-                BackColor = Color.FromArgb(60, 107, 80),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Dock = DockStyle.Fill,
-                Cursor = Cursors.Hand
-            };
-            btnLogout.FlatAppearance.BorderSize = 0;
-            btnLogout.Paint += (s, e) =>
-            {
-                var g = e.Graphics;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                var r = new RectangleF(1, 1, btnLogout.Width - 3, btnLogout.Height - 3);
-                using var path = ThemeHelper.CreateRoundedPath(r, 10);
-                using var brush = new SolidBrush(btnLogout.BackColor);
-                g.FillPath(brush, path);
+        private void BtnLogout_MouseEnter(object? sender, EventArgs e)
+        {
+            btnLogout.BackColor = Color.FromArgb(42, 78, 58);
+            btnLogout.Invalidate();
+        }
 
-                // Draw door icon and text
-                using var fontEmoji = new Font("Segoe UI Emoji", 10f);
-                var iconR = new Rectangle(50, 0, 22, btnLogout.Height);
-                TextRenderer.DrawText(g, "🚪", fontEmoji, iconR, Color.White, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
-
-                using var fontText = new Font("Segoe UI", 9.5f, FontStyle.Bold);
-                var textR = new Rectangle(74, 0, btnLogout.Width - 78, btnLogout.Height);
-                TextRenderer.DrawText(g, "ĐĂNG XUẤT", fontText, textR, Color.White, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
-            };
-            btnLogout.MouseEnter += (s, e) => { btnLogout.BackColor = Color.FromArgb(42, 78, 58); btnLogout.Invalidate(); };
-            btnLogout.MouseLeave += (s, e) => { btnLogout.BackColor = Color.FromArgb(60, 107, 80); btnLogout.Invalidate(); };
-            btnLogout.Click += BtnLogout_Click;
-            pnlBottomNav.Controls.Add(btnLogout);
-
-            pnlSidebar.Controls.Add(pnlNav);
-            pnlSidebar.Controls.Add(pnlBottomNav);
-            pnlSidebar.Controls.Add(pnlBrand);
+        private void BtnLogout_MouseLeave(object? sender, EventArgs e)
+        {
+            btnLogout.BackColor = Color.FromArgb(60, 107, 80);
+            btnLogout.Invalidate();
         }
 
         private void AddNavSection(FlowLayoutPanel pnl, string icon, string title)
         {
-            var pnlS = new Panel
-            {
-                Width = 228,
-                Height = 24,
-                Margin = new Padding(4, 10, 4, 2),
-                BackColor = Color.Transparent
-            };
-            pnlS.Paint += (s, e) =>
-            {
-                var g = e.Graphics;
-                using var fontEmoji = new Font("Segoe UI Emoji", 8f);
-                using var fontText = new Font("Segoe UI", 8.2f, FontStyle.Bold);
-                Color c = Color.FromArgb(55, 90, 70);
-
-                var iconR = new Rectangle(6, 0, 18, pnlS.Height);
-                TextRenderer.DrawText(g, icon, fontEmoji, iconR, c, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
-
-                var textR = new Rectangle(24, 0, pnlS.Width - 26, pnlS.Height);
-                TextRenderer.DrawText(g, title, fontText, textR, c, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
-            };
-            pnl.Controls.Add(pnlS);
+            if (_nextNavSection >= _navSectionPool.Length) return;
+            int index = _nextNavSection++;
+            var section = _navSectionPool[index];
+            _navSectionLabels[index].Text = $"{icon}  {title}";
+            section.BackColor = Color.Transparent;
+            pnl.Controls.Add(section);
         }
 
         private Button AddNavButton(FlowLayoutPanel pnl, string icon, string title, EventHandler onClick, bool isChild = false)
         {
-            var btn = new Button
-            {
-                Text = "",
-                Width = 228,
-                Height = 36,
-                FlatStyle = FlatStyle.Flat,
-                BackColor = ThemeHelper.SidebarBackground,
-                Margin = new Padding(4, 2, 4, 2),
-                Cursor = Cursors.Hand
-            };
-            btn.FlatAppearance.BorderSize = 0;
-
-            btn.Paint += (s, e) =>
-            {
-                var b = (Button)s!;
-                var g = e.Graphics;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-
-                bool isActive = (b == _activeNavButton);
-                if (isActive)
-                {
-                    var r = new RectangleF(1, 1, b.Width - 3, b.Height - 3);
-                    using var path = ThemeHelper.CreateRoundedPath(r, 8);
-                    using var brush = new SolidBrush(Color.White);
-                    g.FillPath(brush, path);
-                    using var pen = new Pen(Color.FromArgb(179, 209, 189), 1.2f);
-                    g.DrawPath(pen, path);
-                }
-
-                int iconX = isChild ? 22 : 12;
-                int textX = isChild ? 44 : 34;
-
-                // Draw Icon
-                if (!string.IsNullOrEmpty(icon))
-                {
-                    using var fontEmoji = new Font("Segoe UI Emoji", 9.5f);
-                    var iconRect = new Rectangle(iconX, 0, 20, b.Height);
-                    TextRenderer.DrawText(g, icon, fontEmoji, iconRect,
-                        isActive ? Color.FromArgb(15, 81, 50) : Color.FromArgb(45, 75, 58),
-                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
-                }
-
-                // Draw Text
-                using var fontText = new Font("Segoe UI", 9.2f, isActive ? FontStyle.Bold : FontStyle.Regular);
-                var textRect = new Rectangle(textX, 0, b.Width - textX - 6, b.Height);
-                TextRenderer.DrawText(g, title, fontText, textRect,
-                    isActive ? Color.FromArgb(15, 81, 50) : Color.FromArgb(30, 55, 40),
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
-            };
-
-            btn.MouseEnter += (s, e) =>
-            {
-                if (btn != _activeNavButton)
-                {
-                    btn.BackColor = Color.FromArgb(218, 232, 222);
-                    btn.Invalidate();
-                }
-            };
-            btn.MouseLeave += (s, e) =>
-            {
-                if (btn != _activeNavButton)
-                {
-                    btn.BackColor = ThemeHelper.SidebarBackground;
-                    btn.Invalidate();
-                }
-            };
-
-            btn.Click += (s, e) =>
-            {
-                HighlightButton(btn);
-                onClick(s, e);
-            };
+            if (_nextNavButton >= _navButtonPool.Length) return _navButtonPool[^1];
+            var btn = _navButtonPool[_nextNavButton++];
+            btn.Tag = onClick;
+            btn.Text = $"{icon}  {title}";
+            btn.Padding = new Padding(isChild ? 22 : 12, 0, 6, 0);
+            btn.BackColor = ThemeHelper.SidebarBackground;
             pnl.Controls.Add(btn);
             return btn;
+        }
+
+        private void NavButton_MouseEnter(object? sender, EventArgs e)
+        {
+            if (sender is Button button && button != _activeNavButton)
+            {
+                button.BackColor = Color.FromArgb(218, 232, 222);
+                button.Invalidate();
+            }
+        }
+
+        private void NavButton_MouseLeave(object? sender, EventArgs e)
+        {
+            if (sender is Button button && button != _activeNavButton)
+            {
+                button.BackColor = ThemeHelper.SidebarBackground;
+                button.Invalidate();
+            }
+        }
+
+        private void NavButton_Click(object? sender, EventArgs e)
+        {
+            if (sender is not Button button || button.Tag is not EventHandler action) return;
+            HighlightButton(button);
+            action(sender, e);
         }
 
         private void HighlightButton(Button btn)
@@ -332,7 +222,7 @@ namespace HeThongRapChieuPhim.Forms
             }
 
             btn.BackColor = Color.White;
-            btn.Invalidate();
+            btn.ForeColor = Color.FromArgb(15, 81, 50);
         }
 
         private void SwitchView(UserControl uc, string title)
@@ -346,7 +236,7 @@ namespace HeThongRapChieuPhim.Forms
                     break;
                 }
             }
-            lblCurrentTitle.Text = cleanTitle;
+            lblCurrentTitle.Text = $"🗂 {cleanTitle}";
             pnlContent.SuspendLayout();
             pnlContent.Controls.Clear();
             uc.Dock = DockStyle.Fill;

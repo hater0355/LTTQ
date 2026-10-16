@@ -35,6 +35,8 @@ namespace HeThongRapChieuPhim.UserControls
         public ucBanHang()
         {
             InitializeComponent();
+            ConfigureSeatGrid();
+            pnlSeatMap.CellClick += PnlSeatMap_CellClick;
             if (!DesignMode && System.ComponentModel.LicenseManager.UsageMode != System.ComponentModel.LicenseUsageMode.Designtime)
             {
                 LoadData();
@@ -246,60 +248,57 @@ namespace HeThongRapChieuPhim.UserControls
         {
             try
             {
-                pnlFoodList.Controls.Clear();
+                dgvFoodList.Rows.Clear();
                 var dt = Function.Query("SELECT MaDoAn, TenDoAn, Gia FROM DoAn ORDER BY MaDoAn ASC");
                 foreach (DataRow row in dt.Rows)
                 {
                     string ma = row["MaDoAn"].ToString() ?? "";
                     string ten = row["TenDoAn"].ToString() ?? "";
                     decimal gia = Convert.ToDecimal(row["Gia"]);
-
-                    var itemPanel = new Panel
-                    {
-                        Size = new Size(pnlFoodList.Width - 25, 38),
-                        BackColor = Color.FromArgb(240, 245, 241),
-                        Margin = new Padding(2)
-                    };
-
-                    var lblName = new Label
-                    {
-                        Text = $"{ten}\n{gia:N0} đ",
-                        ForeColor = ThemeHelper.TextWhite,
-                        Font = new Font("Segoe UI", 8.5f),
-                        Location = new Point(4, 2),
-                        Size = new Size(180, 34)
-                    };
-
-                    var numQty = new NumericUpDown
-                    {
-                        Location = new Point(190, 8),
-                        Width = 55,
-                        Minimum = 0,
-                        Maximum = 20,
-                        Value = 0,
-                        Font = new Font("Segoe UI", 9f)
-                    };
-
-                    numQty.ValueChanged += (s, e) =>
-                    {
-                        int qty = (int)numQty.Value;
-                        if (qty > 0)
-                            _selectedFood[ma] = (ten, gia, qty);
-                        else
-                            _selectedFood.Remove(ma);
-
-                        CalculateTotals();
-                    };
-
-                    itemPanel.Controls.Add(lblName);
-                    itemPanel.Controls.Add(numQty);
-                    pnlFoodList.Controls.Add(itemPanel);
+                    int quantity = _selectedFood.TryGetValue(ma, out var selected) ? selected.SoLuong : 0;
+                    dgvFoodList.Rows.Add(ma, ten, gia, quantity);
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi tải thực đơn đồ ăn: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void PnlFoodList_CurrentCellDirtyStateChanged(object? sender, EventArgs e)
+        {
+            if (dgvFoodList.IsCurrentCellDirty)
+                dgvFoodList.CommitEdit(DataGridViewDataErrorContexts.Commit);
+        }
+
+        private void PnlFoodList_CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex != colFoodQty.Index) return;
+            if (!int.TryParse(Convert.ToString(e.FormattedValue), out int quantity) || quantity < 0 || quantity > 20)
+            {
+                e.Cancel = true;
+                dgvFoodList.Rows[e.RowIndex].ErrorText = "Số lượng phải từ 0 đến 20.";
+            }
+            else
+            {
+                dgvFoodList.Rows[e.RowIndex].ErrorText = string.Empty;
+            }
+        }
+
+        private void PnlFoodList_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex != colFoodQty.Index) return;
+            var row = dgvFoodList.Rows[e.RowIndex];
+            string code = Convert.ToString(row.Cells[colFoodCode.Index].Value) ?? string.Empty;
+            string name = Convert.ToString(row.Cells[colFoodName.Index].Value) ?? string.Empty;
+            decimal price = Convert.ToDecimal(row.Cells[colFoodPrice.Index].Value);
+            int quantity = int.TryParse(Convert.ToString(row.Cells[colFoodQty.Index].Value), out var parsedQuantity)
+                ? Math.Clamp(parsedQuantity, 0, 20)
+                : 0;
+
+            if (quantity > 0) _selectedFood[code] = (name, price, quantity);
+            else _selectedFood.Remove(code);
+            CalculateTotals();
         }
 
         private void CboPhim_SelectedIndexChanged(object? sender, EventArgs e)
@@ -455,90 +454,77 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void RenderSeatMap()
         {
-            pnlSeatMap.SuspendLayout();
-            pnlSeatMap.Controls.Clear();
-
-            if (string.IsNullOrEmpty(_currentMaSuatChieu))
+            bool hasShowtime = !string.IsNullOrEmpty(_currentMaSuatChieu);
+            for (int row = 0; row < pnlSeatMap.Rows.Count; row++)
             {
-                pnlSeatMap.ResumeLayout();
-                return;
-            }
-
-            int startY = 15;
-            int seatWidth = 36;
-            int seatHeight = 32;
-            int gap = 5;
-
-            for (int r = 0; r < _roomRows; r++)
-            {
-                char rowLetter = (char)('A' + r);
-
-                var lblRow = new Label
+                char rowLetter = (char)('A' + row);
+                DataGridViewRow gridRow = pnlSeatMap.Rows[row];
+                gridRow.HeaderCell.Value = row < _roomRows ? rowLetter.ToString() : null;
+                gridRow.Visible = row < _roomRows;
+                for (int column = 0; column < pnlSeatMap.Columns.Count; column++)
                 {
-                    Text = rowLetter.ToString(),
-                    Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
-                    ForeColor = ThemeHelper.AccentGold,
-                    Size = new Size(24, seatHeight),
-                    TextAlign = ContentAlignment.MiddleCenter,
-                    Location = new Point(10, startY + r * (seatHeight + gap))
-                };
-                pnlSeatMap.Controls.Add(lblRow);
-
-                for (int c = 1; c <= _roomCols; c++)
-                {
-                    string seatCode = $"{rowLetter}{c}";
-                    bool isBooked = _bookedSeats.Contains(seatCode);
-                    bool isSelected = _selectedSeats.Contains(seatCode);
-
-                    var btnSeat = new Button
-                    {
-                        Text = seatCode,
-                        Size = new Size(seatWidth, seatHeight),
-                        Location = new Point(38 + (c - 1) * (seatWidth + gap), startY + r * (seatHeight + gap)),
-                        FlatStyle = FlatStyle.Flat,
-                        Font = new Font("Segoe UI", 8f, FontStyle.Bold),
-                        Cursor = isBooked ? Cursors.No : Cursors.Hand,
-                        Enabled = !isBooked
-                    };
-                    btnSeat.FlatAppearance.BorderSize = 1;
-
-                    if (isBooked)
-                    {
-                        btnSeat.BackColor = ThemeHelper.SeatBooked;
-                        btnSeat.ForeColor = Color.White;
-                        btnSeat.FlatAppearance.BorderColor = Color.FromArgb(180, 30, 30);
-                    }
-                    else if (isSelected)
-                    {
-                        btnSeat.BackColor = ThemeHelper.SeatSelected;
-                        btnSeat.ForeColor = Color.White;
-                        btnSeat.FlatAppearance.BorderColor = Color.FromArgb(10, 150, 100);
-                    }
-                    else
-                    {
-                        btnSeat.BackColor = ThemeHelper.SeatAvailable;
-                        btnSeat.ForeColor = ThemeHelper.TextPrimary;
-                        btnSeat.FlatAppearance.BorderColor = ThemeHelper.BorderColor;
-                    }
-
-                    btnSeat.Click += (s, e) => HandleSeatClick(seatCode, btnSeat);
-                    pnlSeatMap.Controls.Add(btnSeat);
+                    DataGridViewCell cell = gridRow.Cells[column];
+                    bool visibleSeat = row < _roomRows && column < _roomCols;
+                    pnlSeatMap.Columns[column].Visible = column < _roomCols;
+                    string seatCode = $"{rowLetter}{column + 1}";
+                    cell.Value = hasShowtime && visibleSeat ? seatCode : string.Empty;
+                    bool booked = hasShowtime && _bookedSeats.Contains(seatCode);
+                    bool selected = hasShowtime && _selectedSeats.Contains(seatCode);
+                    cell.Style.BackColor = booked ? ThemeHelper.SeatBooked : selected ? ThemeHelper.SeatSelected : ThemeHelper.SeatAvailable;
+                    cell.Style.ForeColor = booked || selected ? Color.White : ThemeHelper.TextPrimary;
+                    cell.Style.SelectionBackColor = cell.Style.BackColor;
+                    cell.Style.SelectionForeColor = cell.Style.ForeColor;
+                    cell.ToolTipText = booked ? "Ghế đã được đặt" : selected ? "Ghế đang chọn" : "Ghế trống";
+                    cell.ReadOnly = booked || !hasShowtime || !visibleSeat;
                 }
             }
-
-            pnlSeatMap.ResumeLayout();
         }
 
-        private void HandleSeatClick(string seatCode, Button btn)
+        private void ConfigureSeatGrid()
+        {
+            pnlSeatMap.AutoGenerateColumns = false;
+            pnlSeatMap.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            pnlSeatMap.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            pnlSeatMap.ColumnHeadersHeight = 28;
+            pnlSeatMap.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            pnlSeatMap.RowTemplate.Height = 34;
+            pnlSeatMap.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            pnlSeatMap.RowHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            pnlSeatMap.Columns.Clear();
+            pnlSeatMap.Rows.Clear();
+            for (int column = 1; column <= 30; column++)
+            {
+                pnlSeatMap.Columns.Add(new DataGridViewButtonColumn
+                {
+                    Name = $"colSeat{column}",
+                    HeaderText = column.ToString(),
+                    Width = 44,
+                    FlatStyle = FlatStyle.Flat,
+                    SortMode = DataGridViewColumnSortMode.NotSortable
+                });
+            }
+            for (int row = 0; row < 26; row++)
+            {
+                int index = pnlSeatMap.Rows.Add();
+                pnlSeatMap.Rows[index].HeaderCell.Value = ((char)('A' + row)).ToString();
+            }
+            RenderSeatMap();
+        }
+
+        private void PnlSeatMap_CellClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= _roomRows || e.ColumnIndex < 0 || e.ColumnIndex >= _roomCols ||
+                string.IsNullOrEmpty(_currentMaSuatChieu)) return;
+            HandleSeatClick($"{(char)('A' + e.RowIndex)}{e.ColumnIndex + 1}");
+        }
+
+        private void HandleSeatClick(string seatCode)
         {
             if (_bookedSeats.Contains(seatCode)) return;
 
             if (_selectedSeats.Contains(seatCode))
             {
                 _selectedSeats.Remove(seatCode);
-                btn.BackColor = ThemeHelper.SeatAvailable;
-                btn.ForeColor = ThemeHelper.TextPrimary;
-                btn.FlatAppearance.BorderColor = ThemeHelper.BorderColor;
             }
             else
             {
@@ -556,11 +542,9 @@ namespace HeThongRapChieuPhim.UserControls
                 }
 
                 _selectedSeats.Add(seatCode);
-                btn.BackColor = ThemeHelper.SeatSelected;
-                btn.ForeColor = Color.White;
-                btn.FlatAppearance.BorderColor = Color.FromArgb(10, 150, 100);
             }
 
+            RenderSeatMap();
             CalculateTotals();
         }
 
@@ -731,3 +715,4 @@ namespace HeThongRapChieuPhim.UserControls
         }
     }
 }
+

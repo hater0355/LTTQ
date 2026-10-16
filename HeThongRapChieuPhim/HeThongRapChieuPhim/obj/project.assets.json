@@ -1076,11 +1076,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj",
+      "projectUniqueName": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj",
       "projectName": "HeThongRapChieuPhim",
-      "projectPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj",
+      "projectPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\obj\\",
+      "outputPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -1103,8 +1103,8 @@
           "framework": "net10.0-windows7.0",
           "targetAlias": "net10.0-windows",
           "projectReferences": {
-            "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\Core\\HeThongRapChieuPhim.Core.csproj": {
-              "projectPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\Core\\HeThongRapChieuPhim.Core.csproj"
+            "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\Core\\HeThongRapChieuPhim.Core.csproj": {
+              "projectPath": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\Core\\HeThongRapChieuPhim.Core.csproj"
             }
           }
         }

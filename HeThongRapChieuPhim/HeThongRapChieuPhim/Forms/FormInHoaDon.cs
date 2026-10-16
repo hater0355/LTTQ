@@ -31,6 +31,7 @@ namespace HeThongRapChieuPhim.Forms
             InitializeComponent();
             printDoc = new PrintDocument();
             printDoc.PrintPage += PrintDoc_PrintPage;
+            Load += (_, _) => UpdateTicketPreview();
         }
 
         private void BtnClose_Click(object? sender, EventArgs e)
@@ -38,9 +39,45 @@ namespace HeThongRapChieuPhim.Forms
             this.Close();
         }
 
-        private void PnlTicket_Paint(object? sender, PaintEventArgs e)
+        private void UpdateTicketPreview()
         {
-            DrawTicketContent(e.Graphics, pnlTicket.ClientRectangle);
+            string comboLine = string.IsNullOrWhiteSpace(TenCombo) ? "" : $"\r\nCombo: {TenCombo}";
+            string foodLine = string.IsNullOrWhiteSpace(DanhSachDoAn) ? "" : $"\r\nBắp nước: {DanhSachDoAn}";
+            var lines = new System.Collections.Generic.List<string>
+            {
+                "Địa chỉ: Tầng 5, Vincom Mega Mall, Hà Nội",
+                "Hotline: 1900 6868 - Website: nhhcinema.vn",
+                "",
+                "HÓA ĐƠN XEM PHIM",
+                $"Mã hóa đơn: {MaHD}",
+                $"Thời gian: {NgayXuat:dd/MM/yyyy HH:mm:ss}",
+                "──────────────────────────────────",
+                $"Phim: {TenPhim}",
+                $"Phòng: {PhongChieu}     Suất: {SuatChieu}",
+                $"Ghế: {DanhSachGhe} ({SoLuongVe} vé)"
+            };
+
+            if (!string.IsNullOrWhiteSpace(comboLine)) lines.Add(comboLine.TrimStart());
+            if (!string.IsNullOrWhiteSpace(foodLine)) lines.Add(foodLine.TrimStart());
+
+            lines.AddRange(new[]
+            {
+                "──────────────────────────────────",
+                $"Tiền vé: {TienVe:N0} đ"
+            });
+            if (TienGiamGia > 0) lines.Add($"Giảm giá ưu đãi: -{TienGiamGia:N0} đ");
+            if (TienDoAn > 0) lines.Add($"Tiền bắp nước (F&B): {TienDoAn:N0} đ");
+            lines.AddRange(new[]
+            {
+                "──────────────────────────────────",
+                $"TỔNG THANH TOÁN: {TongTien:N0} đ",
+                $"Hình thức thanh toán: {PhuongThucTT}",
+                "",
+                "Cảm ơn quý khách & Chúc bạn xem phim vui vẻ!",
+                "Vé đã mua không hỗ trợ hoàn tiền mặt. Vui lòng giữ cuống vé."
+            });
+
+            lblTicketPreview.Text = string.Join(Environment.NewLine, lines);
         }
 
         private void PrintDoc_PrintPage(object sender, PrintPageEventArgs e)

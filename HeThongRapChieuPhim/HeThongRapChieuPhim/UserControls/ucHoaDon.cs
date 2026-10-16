@@ -15,7 +15,7 @@ namespace HeThongRapChieuPhim.UserControls
         {
             InitializeComponent();
             ThemeHelper.StyleDataGridView(dgvHoaDon);
-            LoadHoaDon();
+            if (!DesignTimeHelper.IsDesignTime(this)) LoadHoaDon();
         }
 
         private void BtnFilter_Click(object? sender, EventArgs e)
@@ -42,7 +42,7 @@ namespace HeThongRapChieuPhim.UserControls
                 dgvHoaDon.DataSource = dt;
 
                 // Format currency columns
-                string[] moneyCols = { "Tiền Vé", "Giảm Giá", "Tiền F&B", "Tổng Thanh Toán" };
+                string[] moneyCols = { "colTongThanhToan" };
                 foreach (var col in moneyCols)
                 {
                     if (dgvHoaDon.Columns[col] != null)
@@ -77,8 +77,8 @@ namespace HeThongRapChieuPhim.UserControls
             }
 
             var row = dgvHoaDon.SelectedRows[0];
-            string maHD = row.Cells["Mã HĐ"].Value?.ToString() ?? "";
-            if (!string.Equals(row.Cells["Trạng Thái Thanh Toán"].Value?.ToString(), "Paid", StringComparison.OrdinalIgnoreCase))
+            string maHD = row.Cells["colMaHD"].Value?.ToString() ?? "";
+            if (!string.Equals(row.Cells["colTrangThaiTT"].Value?.ToString(), "Paid", StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show("Chỉ hóa đơn đã thanh toán mới được in vé.", "Giao dịch chưa hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;

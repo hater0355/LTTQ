@@ -23,6 +23,7 @@ namespace HeThongRapChieuPhim.UserControls
         {
             InitializeComponent();
             _tabButtons = new[] { btnSuatChieu, btnCombo, btnVoucher };
+            if (DesignTimeHelper.IsDesignTime(this)) return;
             btnSuatChieu.Visible = CurrentUser.IsFilmAdmin || CurrentUser.IsSuperAdmin;
             btnCombo.Visible = CurrentUser.IsFoodAndPromotionsAdmin || CurrentUser.IsSuperAdmin;
             btnVoucher.Visible = CurrentUser.IsFoodAndPromotionsAdmin || CurrentUser.IsSuperAdmin;

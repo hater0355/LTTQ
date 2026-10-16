@@ -12,21 +12,19 @@ namespace HeThongRapChieuPhim.UserControls
 {
     public partial class ucDashboard : UserControl
     {
-        private Label lblTotalRevenue = null!;
-        private Label lblMonthRevenue = null!;
-        private Label lblTotalTickets = null!;
-        private Label lblTotalMovies = null!;
 
         public ucDashboard()
         {
             InitializeComponent();
-            StyleBottomCard();
             ThemeHelper.StyleDataGridView(dgvTopMovies);
-            SetupRankingBadgePainting();
-            InitKpiCards();
+            ThemeHelper.StyleDataGridView(dgvMonthlyRevenue);
+            ThemeHelper.StyleDataGridView(dgvMovieRevenue);
+            dgvMonthlyRevenue.Columns["colMonthRevenue"].DefaultCellStyle.Format = "N0";
+            dgvMovieRevenue.Columns["colMovieRevenue"].DefaultCellStyle.Format = "N0";
 
             this.Load += (s, e) =>
             {
+                if (DesignTimeHelper.IsDesignTime(this)) return;
                 if (!string.IsNullOrEmpty(CurrentUser.HoTen))
                 {
                     lblUserHeader.Text = $"{CurrentUser.HoTen} ∨";
@@ -35,150 +33,9 @@ namespace HeThongRapChieuPhim.UserControls
             };
         }
 
-        private void StyleBottomCard()
-        {
-            pnlBottom.Paint += (s, e) =>
-            {
-                var g = e.Graphics;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                var rect = new RectangleF(0, 0, pnlBottom.Width - 1, pnlBottom.Height - 1);
-                using var path = ThemeHelper.CreateRoundedPath(rect, 14);
-                using var brush = new SolidBrush(Color.White);
-                g.FillPath(brush, path);
-                using var pen = new Pen(ThemeHelper.BorderColor, 1.2f);
-                g.DrawPath(pen, path);
-
-                // Draw small stylized hourglass vector icon
-                int hx = 16, hy = 20;
-                using var hPen = new Pen(ThemeHelper.PrimaryDark, 1.5f);
-                using var hBrush = new SolidBrush(Color.FromArgb(120, ThemeHelper.PrimaryGreen));
-                g.DrawLine(hPen, hx, hy, hx + 12, hy);
-                g.DrawLine(hPen, hx, hy + 14, hx + 12, hy + 14);
-                var topTri = new Point[] { new Point(hx + 1, hy), new Point(hx + 11, hy), new Point(hx + 6, hy + 7) };
-                var botTri = new Point[] { new Point(hx + 6, hy + 7), new Point(hx + 1, hy + 14), new Point(hx + 11, hy + 14) };
-                g.DrawPolygon(hPen, topTri);
-                g.DrawPolygon(hPen, botTri);
-                g.FillPolygon(hBrush, botTri);
-            };
-        }
-
-        private void SetupRankingBadgePainting()
-        {
-            dgvTopMovies.CellPainting += (s, e) =>
-            {
-                if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && dgvTopMovies.Columns[e.ColumnIndex].Name == "Hạng")
-                {
-                    e.PaintBackground(e.CellBounds, true);
-                    var g = e.Graphics;
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-
-                    string rankText = e.Value?.ToString() ?? "";
-                    int.TryParse(rankText, out int rankNum);
-
-                    // Badge pill
-                    int badgeW = 28;
-                    int badgeH = 24;
-                    int bx = e.CellBounds.X + (e.CellBounds.Width - badgeW) / 2;
-                    int by = e.CellBounds.Y + (e.CellBounds.Height - badgeH) / 2;
-                    var bRect = new RectangleF(bx, by, badgeW, badgeH);
-
-                    Color bgPill = rankNum <= 3 ? Color.FromArgb(220, 252, 231) : Color.FromArgb(240, 245, 241);
-                    Color textPill = rankNum <= 3 ? Color.FromArgb(21, 128, 61) : ThemeHelper.TextMuted;
-
-                    using (var path = ThemeHelper.CreateRoundedPath(bRect, 8))
-                    using (var brushBg = new SolidBrush(bgPill))
-                    using (var brushText = new SolidBrush(textPill))
-                    using (var font = new Font("Segoe UI", 9f, FontStyle.Bold))
-                    using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-                    {
-                        g.FillPath(brushBg, path);
-                        g.DrawString(rankText, font, brushText, bRect, sf);
-                    }
-
-                    e.Handled = true;
-                }
-            };
-        }
-
         private void BtnRefresh_Click(object? sender, EventArgs e)
         {
             LoadDashboardData();
-        }
-
-        private void InitKpiCards()
-        {
-            lblTotalRevenue = new Label();
-            lblMonthRevenue = new Label();
-            lblTotalTickets = new Label();
-            lblTotalMovies = new Label();
-
-            pnlCards.Controls.Clear();
-            pnlCards.Controls.Add(CreateKpiCard("TỔNG DOANH THU", lblTotalRevenue, KpiIconHelper.GetCoinsIcon()), 0, 0);
-            pnlCards.Controls.Add(CreateKpiCard("DOANH THU THÁNG NÀY", lblMonthRevenue, KpiIconHelper.GetLogoEmblemIcon()), 1, 0);
-            pnlCards.Controls.Add(CreateKpiCard("TỔNG VÉ ĐÃ BÁN", lblTotalTickets, KpiIconHelper.GetTicketIcon()), 2, 0);
-            pnlCards.Controls.Add(CreateKpiCard("PHIM ĐANG CHIẾU", lblTotalMovies, KpiIconHelper.GetClapperIcon()), 3, 0);
-        }
-
-        private Panel CreateKpiCard(string title, Label lblValue, Image? iconImage)
-        {
-            var pnl = new Panel
-            {
-                Dock = DockStyle.Fill,
-                BackColor = Color.White,
-                Margin = new Padding(6, 4, 6, 4)
-            };
-
-            var lblT = new Label
-            {
-                Text = title,
-                ForeColor = ThemeHelper.TextMuted,
-                Font = new Font("Segoe UI", 8.2f, FontStyle.Bold),
-                Location = new Point(14, 12),
-                Size = new Size(200, 20),
-                BackColor = Color.Transparent,
-                TextAlign = ContentAlignment.MiddleLeft
-            };
-
-            lblValue.Text = "...";
-            lblValue.ForeColor = ThemeHelper.PrimaryDark;
-            lblValue.Font = new Font("Segoe UI", 15.5f, FontStyle.Bold);
-            lblValue.Location = new Point(14, 38);
-            lblValue.Size = new Size(185, 36);
-            lblValue.TextAlign = ContentAlignment.MiddleLeft;
-            lblValue.BackColor = Color.Transparent;
-
-            pnl.Resize += (s, e) =>
-            {
-                lblT.Width = Math.Max(160, pnl.Width - 24);
-                lblValue.Width = Math.Max(120, pnl.Width - 68);
-            };
-
-            pnl.Paint += (s, e) =>
-            {
-                var g = e.Graphics;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-                var rect = new RectangleF(0, 0, pnl.Width - 1, pnl.Height - 1);
-                using var path = ThemeHelper.CreateRoundedPath(rect, 14);
-                using var brush = new SolidBrush(Color.White);
-                g.FillPath(brush, path);
-                using var pen = new Pen(ThemeHelper.BorderColor, 1.2f);
-                g.DrawPath(pen, path);
-
-                // Draw decorative 3D icon on the right side of the card
-                if (iconImage != null)
-                {
-                    int iconSize = Math.Min(50, pnl.Height - 24);
-                    int iconX = pnl.Width - iconSize - 14;
-                    int iconY = (pnl.Height - iconSize) / 2 + 6;
-                    g.DrawImage(iconImage, new Rectangle(iconX, iconY, iconSize, iconSize));
-                }
-            };
-
-            pnl.Controls.Add(lblValue);
-            pnl.Controls.Add(lblT);
-            return pnl;
         }
 
         public void LoadDashboardData()
@@ -202,10 +59,10 @@ namespace HeThongRapChieuPhim.UserControls
                     int totalTickets = Convert.ToInt32(r["TongVe"]);
                     int totalMovies = Convert.ToInt32(r["TongPhim"]);
 
-                    lblTotalRevenue.Text = $"{totalRev:N0} đ";
-                    lblMonthRevenue.Text = $"{monthRev:N0} đ";
-                    lblTotalTickets.Text = $"{totalTickets:N0} vé";
-                    lblTotalMovies.Text = $"{totalMovies:N0} phim";
+                    lblKpiRevenue.Text = $"{totalRev:N0} đ";
+                    lblKpiMonth.Text = $"{monthRev:N0} đ";
+                    lblKpiTickets.Text = $"{totalTickets:N0} vé";
+                    lblKpiMovies.Text = $"{totalMovies:N0} phim";
                 }
 
                 // 2. Monthly Revenue Chart (Bar)
@@ -228,7 +85,7 @@ namespace HeThongRapChieuPhim.UserControls
                     salesByMonth[m] = Convert.ToDecimal(r["DoanhThu"]);
                 }
 
-                var monthlyData = new List<ChartDataItem>();
+                dgvMonthlyRevenue.Rows.Clear();
                 var now = DateTime.Now;
                 for (int i = 5; i >= 0; i--)
                 {
@@ -236,10 +93,8 @@ namespace HeThongRapChieuPhim.UserControls
                     string key = targetDate.ToString("MM/yyyy");
                     string label = "T" + targetDate.ToString("MM/yy");
                     decimal val = salesByMonth.ContainsKey(key) ? salesByMonth[key] : 0;
-                    monthlyData.Add(new ChartDataItem(label, val, Color.FromArgb(88, 145, 112)));
+                    dgvMonthlyRevenue.Rows.Add(label, val);
                 }
-
-                chartMonthly.SetData(monthlyData);
 
                 // 3. Movie Revenue Share Chart (Doughnut)
                 string qMovie = @"
@@ -254,33 +109,18 @@ namespace HeThongRapChieuPhim.UserControls
                     ORDER BY DoanhThu DESC";
 
                 var dtMovie = Function.Query(qMovie);
-                var movieData = new List<ChartDataItem>();
-                Color[] colors = {
-                    Color.FromArgb(88, 130, 105),
-                    Color.FromArgb(133, 182, 149),
-                    Color.FromArgb(183, 217, 195),
-                    Color.FromArgb(168, 163, 102),
-                    Color.FromArgb(55, 95, 72)
-                };
-
-                int ci = 0;
+                dgvMovieRevenue.Rows.Clear();
                 foreach (DataRow r in dtMovie.Rows)
                 {
                     string name = r["TenPhim"]?.ToString() ?? "";
                     if (name.Length > 16) name = name.Substring(0, 14) + "..";
-                    movieData.Add(new ChartDataItem(
-                        name,
-                        Convert.ToDecimal(r["DoanhThu"]),
-                        colors[ci % colors.Length]
-                    ));
-                    ci++;
+                    dgvMovieRevenue.Rows.Add(name, Convert.ToDecimal(r["DoanhThu"]));
                 }
 
-                if (movieData.Count == 0)
+                if (dgvMovieRevenue.Rows.Count == 0)
                 {
-                    movieData.Add(new ChartDataItem("Chưa có số liệu", 0, Color.FromArgb(88, 130, 105)));
+                    dgvMovieRevenue.Rows.Add("Chưa có số liệu", 0);
                 }
-                chartMovie.SetData(movieData);
 
                 // 4. Top Movies Grid
                 string qTop = @"

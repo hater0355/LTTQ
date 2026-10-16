@@ -21,7 +21,7 @@ namespace HeThongRapChieuPhim.UserControls
         {
             InitializeComponent();
             ThemeHelper.StyleDataGridView(dgvSuatChieu);
-            RefreshData();
+            if (!DesignTimeHelper.IsDesignTime(this)) RefreshData();
         }
 
         public void RefreshData()

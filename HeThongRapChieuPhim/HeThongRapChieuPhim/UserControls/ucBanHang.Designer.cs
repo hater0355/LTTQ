@@ -17,12 +17,17 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void InitializeComponent()
         {
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             pnlTop = new Panel();
             lblTitle = new Label();
             lblCashierInfo = new Label();
             pnlBody = new TableLayoutPanel();
             pnlLeft = new Panel();
-            pnlFoodList = new FlowLayoutPanel();
+            dgvFoodList = new DataGridView();
+            colFoodCode = new DataGridViewTextBoxColumn();
+            colFoodName = new DataGridViewTextBoxColumn();
+            colFoodPrice = new DataGridViewTextBoxColumn();
+            colFoodQty = new DataGridViewTextBoxColumn();
             lblSec4 = new Label();
             lblComboNote = new Label();
             cboCombo = new ComboBox();
@@ -36,7 +41,7 @@ namespace HeThongRapChieuPhim.UserControls
             cboPhim = new ComboBox();
             lblSec1 = new Label();
             pnlCenter = new Panel();
-            pnlSeatMap = new Panel();
+            pnlSeatMap = new DataGridView();
             lblScreen = new Label();
             pnlSeatHeader = new Panel();
             pnlLegend = new Panel();
@@ -76,9 +81,11 @@ namespace HeThongRapChieuPhim.UserControls
             pnlTop.SuspendLayout();
             pnlBody.SuspendLayout();
             pnlLeft.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvFoodList).BeginInit();
             pnlMovieMeta.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picPoster).BeginInit();
             pnlCenter.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pnlSeatMap).BeginInit();
             pnlSeatHeader.SuspendLayout();
             pnlLegend.SuspendLayout();
             pnlLegendAvailable.SuspendLayout();
@@ -149,7 +156,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             pnlLeft.AutoScroll = true;
             pnlLeft.BackColor = Color.White;
-            pnlLeft.Controls.Add(pnlFoodList);
+            pnlLeft.Controls.Add(dgvFoodList);
             pnlLeft.Controls.Add(lblSec4);
             pnlLeft.Controls.Add(lblComboNote);
             pnlLeft.Controls.Add(cboCombo);
@@ -168,16 +175,56 @@ namespace HeThongRapChieuPhim.UserControls
             pnlLeft.Size = new Size(346, 672);
             pnlLeft.TabIndex = 0;
             // 
-            // pnlFoodList
+            // dgvFoodList
             // 
-            pnlFoodList.AutoScroll = true;
-            pnlFoodList.BackColor = Color.FromArgb(248, 250, 249);
-            pnlFoodList.Dock = DockStyle.Top;
-            pnlFoodList.Location = new Point(12, 437);
-            pnlFoodList.Name = "pnlFoodList";
-            pnlFoodList.Padding = new Padding(4);
-            pnlFoodList.Size = new Size(322, 160);
-            pnlFoodList.TabIndex = 10;
+            dgvFoodList.AllowUserToAddRows = false;
+            dgvFoodList.AllowUserToDeleteRows = false;
+            dgvFoodList.ColumnHeadersHeight = 29;
+            dgvFoodList.Columns.AddRange(new DataGridViewColumn[] { colFoodCode, colFoodName, colFoodPrice, colFoodQty });
+            dgvFoodList.Dock = DockStyle.Top;
+            dgvFoodList.Location = new Point(12, 437);
+            dgvFoodList.Name = "dgvFoodList";
+            dgvFoodList.RowHeadersVisible = false;
+            dgvFoodList.RowHeadersWidth = 51;
+            dgvFoodList.SelectionMode = DataGridViewSelectionMode.CellSelect;
+            dgvFoodList.Size = new Size(322, 160);
+            dgvFoodList.TabIndex = 10;
+            dgvFoodList.CellValidating += PnlFoodList_CellValidating;
+            dgvFoodList.CellValueChanged += PnlFoodList_CellValueChanged;
+            dgvFoodList.CurrentCellDirtyStateChanged += PnlFoodList_CurrentCellDirtyStateChanged;
+            // 
+            // colFoodCode
+            // 
+            colFoodCode.HeaderText = "Mã";
+            colFoodCode.MinimumWidth = 6;
+            colFoodCode.Name = "colFoodCode";
+            colFoodCode.Visible = false;
+            colFoodCode.Width = 125;
+            // 
+            // colFoodName
+            // 
+            colFoodName.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            colFoodName.HeaderText = "Món";
+            colFoodName.MinimumWidth = 6;
+            colFoodName.Name = "colFoodName";
+            colFoodName.ReadOnly = true;
+            // 
+            // colFoodPrice
+            // 
+            dataGridViewCellStyle1.Format = "N0 'đ'";
+            colFoodPrice.DefaultCellStyle = dataGridViewCellStyle1;
+            colFoodPrice.HeaderText = "Giá";
+            colFoodPrice.MinimumWidth = 6;
+            colFoodPrice.Name = "colFoodPrice";
+            colFoodPrice.ReadOnly = true;
+            colFoodPrice.Width = 75;
+            // 
+            // colFoodQty
+            // 
+            colFoodQty.HeaderText = "SL";
+            colFoodQty.MinimumWidth = 6;
+            colFoodQty.Name = "colFoodQty";
+            colFoodQty.Width = 42;
             // 
             // lblSec4
             // 
@@ -330,12 +377,18 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // pnlSeatMap
             // 
-            pnlSeatMap.AutoScroll = true;
-            pnlSeatMap.BackColor = Color.FromArgb(248, 250, 249);
+            pnlSeatMap.AllowUserToAddRows = false;
+            pnlSeatMap.AllowUserToDeleteRows = false;
+            pnlSeatMap.AllowUserToResizeColumns = false;
+            pnlSeatMap.AllowUserToResizeRows = false;
+            pnlSeatMap.ColumnHeadersHeight = 29;
             pnlSeatMap.Dock = DockStyle.Fill;
             pnlSeatMap.Location = new Point(12, 105);
+            pnlSeatMap.MultiSelect = false;
             pnlSeatMap.Name = "pnlSeatMap";
-            pnlSeatMap.Padding = new Padding(15);
+            pnlSeatMap.ReadOnly = true;
+            pnlSeatMap.RowHeadersWidth = 42;
+            pnlSeatMap.SelectionMode = DataGridViewSelectionMode.CellSelect;
             pnlSeatMap.Size = new Size(499, 555);
             pnlSeatMap.TabIndex = 2;
             // 
@@ -801,9 +854,11 @@ namespace HeThongRapChieuPhim.UserControls
             pnlTop.PerformLayout();
             pnlBody.ResumeLayout(false);
             pnlLeft.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvFoodList).EndInit();
             pnlMovieMeta.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)picPoster).EndInit();
             pnlCenter.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pnlSeatMap).EndInit();
             pnlSeatHeader.ResumeLayout(false);
             pnlLegend.ResumeLayout(false);
             pnlLegendAvailable.ResumeLayout(false);
@@ -841,7 +896,11 @@ namespace HeThongRapChieuPhim.UserControls
         private System.Windows.Forms.ComboBox cboCombo;
         private System.Windows.Forms.Label lblComboNote;
         private System.Windows.Forms.Label lblSec4;
-        private System.Windows.Forms.FlowLayoutPanel pnlFoodList;
+        private System.Windows.Forms.DataGridView dgvFoodList;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colFoodCode;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colFoodName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colFoodPrice;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colFoodQty;
         private System.Windows.Forms.Panel pnlCenter;
         private System.Windows.Forms.Panel pnlSeatHeader;
         private System.Windows.Forms.Label lblSeatMapTitle;
@@ -856,7 +915,7 @@ namespace HeThongRapChieuPhim.UserControls
         private System.Windows.Forms.Panel boxLegendBooked;
         private System.Windows.Forms.Label lblLegendBooked;
         private System.Windows.Forms.Label lblScreen;
-        private System.Windows.Forms.Panel pnlSeatMap;
+        private System.Windows.Forms.DataGridView pnlSeatMap;
         private System.Windows.Forms.Panel pnlRight;
         private System.Windows.Forms.Label lblBillTitle;
         private System.Windows.Forms.Panel pnlBillDetails;
@@ -882,3 +941,4 @@ namespace HeThongRapChieuPhim.UserControls
         private System.Windows.Forms.Button btnReset;
     }
 }
+

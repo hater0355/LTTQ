@@ -150,7 +150,6 @@ HeThongRapChieuPhim/
 │   ├── ucBanHang.cs               # Bán vé, sơ đồ ghế, QR, in hóa đơn
 │   └── ucHoaDon.cs                # Lịch sử hóa đơn
 ├── UIHelpers/
-│   ├── ChartControl.cs            # Biểu đồ tùy biến GDI+ (Cột, Tròn)
 │   ├── QrCodeHelper.cs            # Tạo mã QR Code
 │   └── ThemeHelper.cs             # Bảng màu Cinema, style DataGridView
 └── Program.cs                     # Điểm khởi chạy ứng dụng

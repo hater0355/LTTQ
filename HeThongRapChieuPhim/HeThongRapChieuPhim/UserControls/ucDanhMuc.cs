@@ -22,6 +22,7 @@ namespace HeThongRapChieuPhim.UserControls
         public ucDanhMuc(int initialTab = 0)
         {
             InitializeComponent();
+            if (DesignTimeHelper.IsDesignTime(this)) return;
             btnNV.Visible = CurrentUser.IsHumanResourcesAdmin || CurrentUser.IsSuperAdmin;
             btnPhim.Visible = CurrentUser.IsFilmAdmin || CurrentUser.IsSuperAdmin;
             btnDoAn.Visible = CurrentUser.IsFoodAndPromotionsAdmin || CurrentUser.IsSuperAdmin;

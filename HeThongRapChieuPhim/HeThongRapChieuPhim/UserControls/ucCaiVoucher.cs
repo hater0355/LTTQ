@@ -18,7 +18,10 @@ namespace HeThongRapChieuPhim.UserControls
             cboLoaiGiam.SelectedIndex = 0;
             cboTrangThai.SelectedIndex = 0;
             dtpHanSuDung.Value = DateTime.Today.AddMonths(3);
-            this.Load += (s, e) => RefreshData();
+            this.Load += (s, e) =>
+            {
+                if (!DesignTimeHelper.IsDesignTime(this)) RefreshData();
+            };
         }
 
         public void RefreshData()

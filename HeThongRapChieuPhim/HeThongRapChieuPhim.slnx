@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="HeThongRapChieuPhim/HeThongRapChieuPhim.csproj" />
+  <Project Path="HeThongRapChieuPhim/Core/HeThongRapChieuPhim.Core.csproj" />
 </Solution>

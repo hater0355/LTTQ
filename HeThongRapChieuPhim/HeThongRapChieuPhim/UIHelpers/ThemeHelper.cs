@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace HeThongRapChieuPhim.UIHelpers
@@ -79,32 +78,5 @@ namespace HeThongRapChieuPhim.UIHelpers
             dgv.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 81, 50);
         }
 
-        public static GraphicsPath CreateRoundedPath(RectangleF rect, float radius)
-        {
-            var path = new GraphicsPath();
-            float d = radius * 2;
-            path.AddArc(rect.X, rect.Y, d, d, 180, 90);
-            path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
-            path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
-
-        public static Button CreateStyledButton(string text, Color backColor, Color foreColor, int width = 120, int height = 40)
-        {
-            var btn = new Button
-            {
-                Text = text,
-                BackColor = backColor,
-                ForeColor = foreColor,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
-                Size = new Size(width, height),
-                Cursor = Cursors.Hand
-            };
-            btn.FlatAppearance.BorderSize = 0;
-            return btn;
-        }
     }
 }

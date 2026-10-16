@@ -20,7 +20,8 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlLeft = new System.Windows.Forms.Panel();
             this.dgvPhongChieu = new System.Windows.Forms.DataGridView();
             this.pnlRight = new System.Windows.Forms.GroupBox();
-            this.pnlSeatPreview = new System.Windows.Forms.Panel();
+            this.pnlSeatPreview = new System.Windows.Forms.DataGridView();
+            this.lblSeatPreviewScreen = new System.Windows.Forms.Label();
             this.pnlActions = new System.Windows.Forms.Panel();
             this.btnThem = new System.Windows.Forms.Button();
             this.btnSua = new System.Windows.Forms.Button();
@@ -100,6 +101,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             this.pnlRight.BackColor = System.Drawing.Color.White;
             this.pnlRight.Controls.Add(this.pnlSeatPreview);
+            this.pnlRight.Controls.Add(this.lblSeatPreviewScreen);
             this.pnlRight.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlRight.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.pnlRight.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(83)))), ((int)(((byte)(45)))));
@@ -113,13 +115,31 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // pnlSeatPreview
             // 
-            this.pnlSeatPreview.AutoScroll = true;
+            this.pnlSeatPreview.AllowUserToAddRows = false;
+            this.pnlSeatPreview.AllowUserToDeleteRows = false;
+            this.pnlSeatPreview.AllowUserToResizeColumns = false;
+            this.pnlSeatPreview.AllowUserToResizeRows = false;
+            this.pnlSeatPreview.ColumnHeadersHeight = 24;
+            this.pnlSeatPreview.MultiSelect = false;
             this.pnlSeatPreview.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(249)))));
             this.pnlSeatPreview.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlSeatPreview.Location = new System.Drawing.Point(10, 28);
+            this.pnlSeatPreview.Location = new System.Drawing.Point(10, 50);
             this.pnlSeatPreview.Name = "pnlSeatPreview";
-            this.pnlSeatPreview.Size = new System.Drawing.Size(515, 371);
+            this.pnlSeatPreview.ReadOnly = true;
+            this.pnlSeatPreview.RowHeadersWidth = 42;
+            this.pnlSeatPreview.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.pnlSeatPreview.Size = new System.Drawing.Size(515, 349);
             this.pnlSeatPreview.TabIndex = 0;
+            this.lblSeatPreviewScreen.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(249)))));
+            this.lblSeatPreviewScreen.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblSeatPreviewScreen.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblSeatPreviewScreen.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(181)))), ((int)(((byte)(130)))), ((int)(((byte)(30)))));
+            this.lblSeatPreviewScreen.Location = new System.Drawing.Point(10, 28);
+            this.lblSeatPreviewScreen.Name = "lblSeatPreviewScreen";
+            this.lblSeatPreviewScreen.Size = new System.Drawing.Size(515, 22);
+            this.lblSeatPreviewScreen.TabIndex = 1;
+            this.lblSeatPreviewScreen.Text = "MÀN HÌNH CHIẾU PHIM";
+            this.lblSeatPreviewScreen.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // pnlActions
             // 
@@ -395,6 +415,7 @@ namespace HeThongRapChieuPhim.UserControls
         private System.Windows.Forms.Panel pnlLeft;
         private System.Windows.Forms.DataGridView dgvPhongChieu;
         private System.Windows.Forms.GroupBox pnlRight;
-        private System.Windows.Forms.Panel pnlSeatPreview;
+        private System.Windows.Forms.DataGridView pnlSeatPreview;
+        private System.Windows.Forms.Label lblSeatPreviewScreen;
     }
 }

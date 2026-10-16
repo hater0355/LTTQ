@@ -35,6 +35,7 @@ namespace HeThongRapChieuPhim.Forms
             // pnlCard
             // 
             pnlCard.BackColor = Color.White;
+            pnlCard.BorderStyle = BorderStyle.FixedSingle;
             pnlCard.Controls.Add(picLogo);
             pnlCard.Controls.Add(lblBrand);
             pnlCard.Controls.Add(lblSub);

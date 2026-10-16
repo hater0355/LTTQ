@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "YS6tpqPsOAk=",
+  "dgSpecHash": "RDkThQRJm7Q=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\OneDrive\\Desktop\\BTL_LTTQ\\LTTQ\\HeThongRapChieuPhim\\HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.bcl.cryptography\\9.0.18\\microsoft.bcl.cryptography.9.0.18.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.data.sqlclient\\7.1.1\\microsoft.data.sqlclient.7.1.1.nupkg.sha512",

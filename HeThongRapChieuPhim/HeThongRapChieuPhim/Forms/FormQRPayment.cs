@@ -8,15 +8,19 @@ namespace HeThongRapChieuPhim.Forms
 {
     public partial class FormQRPayment : Form
     {
-        private readonly PayOsCheckout _checkout;
+        private readonly PayOsCheckout? _checkout;
         private readonly System.Windows.Forms.Timer _pollTimer = new() { Interval = 3000 };
         private bool _closingAfterResult;
         public bool IsPaymentConfirmed { get; private set; }
 
-        public FormQRPayment(PayOsCheckout checkout)
+        public FormQRPayment()
         {
             InitializeComponent();
-            _checkout = checkout;
+        }
+
+        public FormQRPayment(PayOsCheckout checkout) : this()
+        {
+            _checkout = checkout ?? throw new ArgumentNullException(nameof(checkout));
             GenerateQr();
             btnConfirm.Text = "Mở trang PayOS";
             lblInfo.Text = $"Hóa đơn: {checkout.MaHD}\nSố tiền: {checkout.TongTien:N0} VNĐ\n" +
@@ -29,12 +33,14 @@ namespace HeThongRapChieuPhim.Forms
 
         private void BtnConfirm_Click(object? sender, EventArgs e)
         {
+            if (_checkout is null) return;
             try { Process.Start(new ProcessStartInfo(_checkout.CheckoutUrl) { UseShellExecute = true }); }
             catch (Exception ex) { MessageBox.Show("Không thể mở trang PayOS: " + ex.Message, "PayOS", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
         }
 
         private void BtnCancel_Click(object? sender, EventArgs e)
         {
+            if (_checkout is null) return;
             _pollTimer.Stop();
             try
             {
@@ -56,6 +62,7 @@ namespace HeThongRapChieuPhim.Forms
 
         private void PollTimer_Tick(object? sender, EventArgs e)
         {
+            if (_checkout is null) return;
             try
             {
                 string status = PaymentsApiClient.GetStatus(_checkout.OrderCode);
@@ -82,12 +89,13 @@ namespace HeThongRapChieuPhim.Forms
         private void FormQRPayment_FormClosing(object? sender, FormClosingEventArgs e)
         {
             _pollTimer.Stop();
-            if (_closingAfterResult || IsPaymentConfirmed) return;
+            if (_checkout is null || _closingAfterResult || IsPaymentConfirmed) return;
             try { PaymentsApiClient.Cancel(_checkout.OrderCode); } catch { }
         }
 
         private void GenerateQr()
         {
+            if (_checkout is null) return;
             try { picQr.Image = QrCodeHelper.GenerateQrCode(_checkout.QrCode, 8); }
             catch (Exception ex) { lblInfo.Text = "Không thể tạo mã QR PayOS: " + ex.Message; }
         }

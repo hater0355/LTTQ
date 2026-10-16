@@ -16,8 +16,11 @@ namespace HeThongRapChieuPhim.UserControls
         {
             InitializeComponent();
             ThemeHelper.StyleDataGridView(dgvPhim);
-            EnsureMoTaColumn();
-            LoadPhim();
+            if (!DesignTimeHelper.IsDesignTime(this))
+            {
+                EnsureMoTaColumn();
+                LoadPhim();
+            }
         }
 
         private static void EnsureMoTaColumn()

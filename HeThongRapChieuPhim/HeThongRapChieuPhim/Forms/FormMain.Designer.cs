@@ -16,446 +16,224 @@ namespace HeThongRapChieuPhim.Forms
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            pnlSidebar = new Panel();
-            pnlNav = new FlowLayoutPanel();
-            pnlNavSection1 = new Panel();
-            lblNavSection1 = new Label();
-            btnNav1 = new Button();
-            btnNav2 = new Button();
-            pnlNavSection2 = new Panel();
-            lblNavSection2 = new Label();
-            btnNav3 = new Button();
-            btnNav4 = new Button();
-            btnNav5 = new Button();
-            btnNav6 = new Button();
-            pnlNavSection3 = new Panel();
-            lblNavSection3 = new Label();
-            btnNav7 = new Button();
-            btnNav8 = new Button();
-            btnNav9 = new Button();
-            pnlNavSection4 = new Panel();
-            lblNavSection4 = new Label();
-            btnNav10 = new Button();
-            pnlBottomNav = new Panel();
-            btnLogout = new Button();
-            pnlBrand = new Panel();
-            picLogo = new PictureBox();
-            pnlTop = new Panel();
-            lblUserTop = new Label();
-            lblClock = new Label();
-            lblCurrentTitle = new Label();
+            menuStripMain = new System.Windows.Forms.MenuStrip();
+            menuHeThong = new System.Windows.Forms.ToolStripMenuItem();
+            menuDoiMatKhau = new System.Windows.Forms.ToolStripMenuItem();
+            menuTaiKhoanThuNgan = new System.Windows.Forms.ToolStripMenuItem();
+            sepHeThong1 = new System.Windows.Forms.ToolStripSeparator();
+            menuDangXuat = new System.Windows.Forms.ToolStripMenuItem();
+            menuThoat = new System.Windows.Forms.ToolStripMenuItem();
+            menuPhim = new System.Windows.Forms.ToolStripMenuItem();
+            menuPhongChieu = new System.Windows.Forms.ToolStripMenuItem();
+            menuSuatChieu = new System.Windows.Forms.ToolStripMenuItem();
+            menuBanHang = new System.Windows.Forms.ToolStripMenuItem();
+            menuHoaDon = new System.Windows.Forms.ToolStripMenuItem();
+            menuDoAn = new System.Windows.Forms.ToolStripMenuItem();
+            menuCombo = new System.Windows.Forms.ToolStripMenuItem();
+            menuVoucher = new System.Windows.Forms.ToolStripMenuItem();
+            menuNhanVien = new System.Windows.Forms.ToolStripMenuItem();
+            menuDoanhThu = new System.Windows.Forms.ToolStripMenuItem();
+            statusStripMain = new System.Windows.Forms.StatusStrip();
+            lblStatusUser = new System.Windows.Forms.ToolStripStatusLabel();
+            lblStatusSpring1 = new System.Windows.Forms.ToolStripStatusLabel();
+            lblStatusView = new System.Windows.Forms.ToolStripStatusLabel();
+            lblStatusSpring2 = new System.Windows.Forms.ToolStripStatusLabel();
+            lblStatusClock = new System.Windows.Forms.ToolStripStatusLabel();
             timerClock = new System.Windows.Forms.Timer(components);
-            pnlContent = new Panel();
-            pnlSidebar.SuspendLayout();
-            pnlNav.SuspendLayout();
-            pnlNavSection1.SuspendLayout();
-            pnlNavSection2.SuspendLayout();
-            pnlNavSection3.SuspendLayout();
-            pnlNavSection4.SuspendLayout();
-            pnlBottomNav.SuspendLayout();
-            pnlBrand.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)picLogo).BeginInit();
-            pnlTop.SuspendLayout();
+            pnlContent = new System.Windows.Forms.Panel();
+            menuStripMain.SuspendLayout();
+            statusStripMain.SuspendLayout();
             SuspendLayout();
             // 
-            // pnlSidebar
+            // menuStripMain
             // 
-            pnlSidebar.BackColor = Color.FromArgb(227, 237, 229);
-            pnlSidebar.Controls.Add(pnlNav);
-            pnlSidebar.Controls.Add(pnlBottomNav);
-            pnlSidebar.Controls.Add(pnlBrand);
-            pnlSidebar.Dock = DockStyle.Left;
-            pnlSidebar.Location = new Point(0, 0);
-            pnlSidebar.Name = "pnlSidebar";
-            pnlSidebar.Size = new Size(245, 729);
-            pnlSidebar.TabIndex = 0;
+            menuStripMain.BackColor = System.Drawing.SystemColors.Control;
+            menuStripMain.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            menuStripMain.ImageScalingSize = new System.Drawing.Size(20, 20);
+            menuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+                menuHeThong,
+                menuPhim,
+                menuPhongChieu,
+                menuSuatChieu,
+                menuBanHang,
+                menuHoaDon,
+                menuDoAn,
+                menuCombo,
+                menuVoucher,
+                menuNhanVien,
+                menuTaiKhoanThuNgan,
+                menuDoanhThu
+            });
+            menuStripMain.Location = new System.Drawing.Point(0, 0);
+            menuStripMain.Name = "menuStripMain";
+            menuStripMain.Padding = new System.Windows.Forms.Padding(6, 4, 0, 4);
+            menuStripMain.Size = new System.Drawing.Size(1200, 33);
+            menuStripMain.TabIndex = 0;
+            menuStripMain.Text = "menuStripMain";
             // 
-            // pnlNav
+            // menuHeThong
             // 
-            pnlNav.AutoScroll = true;
-            pnlNav.BackColor = Color.FromArgb(227, 237, 229);
-            pnlNav.Controls.Add(pnlNavSection1);
-            pnlNav.Controls.Add(btnNav1);
-            pnlNav.Controls.Add(btnNav2);
-            pnlNav.Controls.Add(pnlNavSection2);
-            pnlNav.Controls.Add(btnNav3);
-            pnlNav.Controls.Add(btnNav4);
-            pnlNav.Controls.Add(btnNav5);
-            pnlNav.Controls.Add(btnNav6);
-            pnlNav.Controls.Add(pnlNavSection3);
-            pnlNav.Controls.Add(btnNav7);
-            pnlNav.Controls.Add(btnNav8);
-            pnlNav.Controls.Add(btnNav9);
-            pnlNav.Controls.Add(pnlNavSection4);
-            pnlNav.Controls.Add(btnNav10);
-            pnlNav.Dock = DockStyle.Fill;
-            pnlNav.FlowDirection = FlowDirection.TopDown;
-            pnlNav.Location = new Point(0, 112);
-            pnlNav.Name = "pnlNav";
-            pnlNav.Padding = new Padding(6, 4, 6, 4);
-            pnlNav.Size = new Size(245, 557);
-            pnlNav.TabIndex = 0;
-            pnlNav.WrapContents = false;
+            menuHeThong.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+                menuDoiMatKhau,
+                sepHeThong1,
+                menuDangXuat,
+                menuThoat
+            });
+            menuHeThong.Name = "menuHeThong";
+            menuHeThong.Size = new System.Drawing.Size(86, 25);
+            menuHeThong.Text = "&Hệ thống";
             // 
-            // pnlNavSection1
+            // menuDoiMatKhau
             // 
-            pnlNavSection1.BackColor = Color.Transparent;
-            pnlNavSection1.Controls.Add(lblNavSection1);
-            pnlNavSection1.Location = new Point(10, 14);
-            pnlNavSection1.Margin = new Padding(4, 10, 4, 2);
-            pnlNavSection1.Name = "pnlNavSection1";
-            pnlNavSection1.Size = new Size(228, 24);
-            pnlNavSection1.TabIndex = 0;
+            menuDoiMatKhau.Name = "menuDoiMatKhau";
+            menuDoiMatKhau.Size = new System.Drawing.Size(180, 26);
+            menuDoiMatKhau.Text = "Đổi mật khẩu";
+            menuDoiMatKhau.Click += MenuDoiMatKhau_Click;
             // 
-            // lblNavSection1
+            // sepHeThong1
             // 
-            lblNavSection1.Dock = DockStyle.Fill;
-            lblNavSection1.Font = new Font("Segoe UI", 8.2F, FontStyle.Bold);
-            lblNavSection1.ForeColor = Color.FromArgb(55, 90, 70);
-            lblNavSection1.Location = new Point(0, 0);
-            lblNavSection1.Name = "lblNavSection1";
-            lblNavSection1.Size = new Size(228, 24);
-            lblNavSection1.TabIndex = 0;
-            lblNavSection1.Text = "👑  TOÀN QUYỀN QUẢN TRỊ";
-            lblNavSection1.TextAlign = ContentAlignment.MiddleLeft;
+            sepHeThong1.Name = "sepHeThong1";
+            sepHeThong1.Size = new System.Drawing.Size(177, 6);
             // 
-            // btnNav1
+            // menuDangXuat
             // 
-            btnNav1.BackColor = Color.FromArgb(227, 237, 229);
-            btnNav1.Cursor = Cursors.Hand;
-            btnNav1.FlatAppearance.BorderSize = 0;
-            btnNav1.FlatStyle = FlatStyle.Flat;
-            btnNav1.Font = new Font("Segoe UI Emoji", 9.2F);
-            btnNav1.ForeColor = Color.FromArgb(30, 55, 40);
-            btnNav1.Location = new Point(10, 42);
-            btnNav1.Margin = new Padding(4, 2, 4, 2);
-            btnNav1.Name = "btnNav1";
-            btnNav1.Size = new Size(228, 36);
-            btnNav1.TabIndex = 1;
-            btnNav1.Text = "Doanh thu tổng quan";
-            btnNav1.TextAlign = ContentAlignment.MiddleLeft;
-            btnNav1.UseVisualStyleBackColor = false;
+            menuDangXuat.Name = "menuDangXuat";
+            menuDangXuat.Size = new System.Drawing.Size(180, 26);
+            menuDangXuat.Text = "Đăng xuất";
+            menuDangXuat.Click += MenuDangXuat_Click;
             // 
-            // btnNav2
+            // menuThoat
             // 
-            btnNav2.BackColor = Color.FromArgb(227, 237, 229);
-            btnNav2.Cursor = Cursors.Hand;
-            btnNav2.FlatAppearance.BorderSize = 0;
-            btnNav2.FlatStyle = FlatStyle.Flat;
-            btnNav2.Font = new Font("Segoe UI Emoji", 9.2F);
-            btnNav2.ForeColor = Color.FromArgb(30, 55, 40);
-            btnNav2.Location = new Point(10, 82);
-            btnNav2.Margin = new Padding(4, 2, 4, 2);
-            btnNav2.Name = "btnNav2";
-            btnNav2.Size = new Size(228, 36);
-            btnNav2.TabIndex = 2;
-            btnNav2.Text = "Tra cứu hóa đơn";
-            btnNav2.TextAlign = ContentAlignment.MiddleLeft;
-            btnNav2.UseVisualStyleBackColor = false;
+            menuThoat.Name = "menuThoat";
+            menuThoat.Size = new System.Drawing.Size(180, 26);
+            menuThoat.Text = "Thoát";
+            menuThoat.Click += MenuThoat_Click;
             // 
-            // pnlNavSection2
+            // menuPhim
             // 
-            pnlNavSection2.BackColor = Color.Transparent;
-            pnlNavSection2.Controls.Add(lblNavSection2);
-            pnlNavSection2.Location = new Point(10, 130);
-            pnlNavSection2.Margin = new Padding(4, 10, 4, 2);
-            pnlNavSection2.Name = "pnlNavSection2";
-            pnlNavSection2.Size = new Size(228, 24);
-            pnlNavSection2.TabIndex = 3;
+            menuPhim.Name = "menuPhim";
+            menuPhim.Size = new System.Drawing.Size(125, 25);
+            menuPhim.Text = "Phim Chiếu Rạp";
+            menuPhim.Click += MenuPhim_Click;
             // 
-            // lblNavSection2
+            // menuPhongChieu
             // 
-            lblNavSection2.Dock = DockStyle.Fill;
-            lblNavSection2.Font = new Font("Segoe UI", 8.2F, FontStyle.Bold);
-            lblNavSection2.ForeColor = Color.FromArgb(55, 90, 70);
-            lblNavSection2.Location = new Point(0, 0);
-            lblNavSection2.Name = "lblNavSection2";
-            lblNavSection2.Size = new Size(228, 24);
-            lblNavSection2.TabIndex = 0;
-            lblNavSection2.Text = "📁  QUẢN LÝ DANH MỤC";
-            lblNavSection2.TextAlign = ContentAlignment.MiddleLeft;
+            menuPhongChieu.Name = "menuPhongChieu";
+            menuPhongChieu.Size = new System.Drawing.Size(105, 25);
+            menuPhongChieu.Text = "Phòng Chiếu";
+            menuPhongChieu.Click += MenuPhongChieu_Click;
             // 
-            // btnNav3
+            // menuSuatChieu
             // 
-            btnNav3.BackColor = Color.FromArgb(227, 237, 229);
-            btnNav3.Cursor = Cursors.Hand;
-            btnNav3.FlatAppearance.BorderSize = 0;
-            btnNav3.FlatStyle = FlatStyle.Flat;
-            btnNav3.Font = new Font("Segoe UI Emoji", 9.2F);
-            btnNav3.ForeColor = Color.FromArgb(30, 55, 40);
-            btnNav3.Location = new Point(10, 158);
-            btnNav3.Margin = new Padding(4, 2, 4, 2);
-            btnNav3.Name = "btnNav3";
-            btnNav3.Size = new Size(228, 36);
-            btnNav3.TabIndex = 4;
-            btnNav3.Text = "Nhân viên";
-            btnNav3.TextAlign = ContentAlignment.MiddleLeft;
-            btnNav3.UseVisualStyleBackColor = false;
+            menuSuatChieu.Name = "menuSuatChieu";
+            menuSuatChieu.Size = new System.Drawing.Size(170, 25);
+            menuSuatChieu.Text = "Lịch Chiếu && Suất Chiếu";
+            menuSuatChieu.Click += MenuSuatChieu_Click;
             // 
-            // btnNav4
+            // menuBanHang
             // 
-            btnNav4.BackColor = Color.FromArgb(227, 237, 229);
-            btnNav4.Cursor = Cursors.Hand;
-            btnNav4.FlatAppearance.BorderSize = 0;
-            btnNav4.FlatStyle = FlatStyle.Flat;
-            btnNav4.Font = new Font("Segoe UI Emoji", 9.2F);
-            btnNav4.ForeColor = Color.FromArgb(30, 55, 40);
-            btnNav4.Location = new Point(10, 198);
-            btnNav4.Margin = new Padding(4, 2, 4, 2);
-            btnNav4.Name = "btnNav4";
-            btnNav4.Size = new Size(228, 36);
-            btnNav4.TabIndex = 5;
-            btnNav4.Text = "Phim";
-            btnNav4.TextAlign = ContentAlignment.MiddleLeft;
-            btnNav4.UseVisualStyleBackColor = false;
+            menuBanHang.Name = "menuBanHang";
+            menuBanHang.Size = new System.Drawing.Size(145, 25);
+            menuBanHang.Text = "Bán Vé && Bắp Nước";
+            menuBanHang.Click += MenuBanHang_Click;
             // 
-            // btnNav5
+            // menuHoaDon
             // 
-            btnNav5.BackColor = Color.FromArgb(227, 237, 229);
-            btnNav5.Cursor = Cursors.Hand;
-            btnNav5.FlatAppearance.BorderSize = 0;
-            btnNav5.FlatStyle = FlatStyle.Flat;
-            btnNav5.Font = new Font("Segoe UI Emoji", 9.2F);
-            btnNav5.ForeColor = Color.FromArgb(30, 55, 40);
-            btnNav5.Location = new Point(10, 238);
-            btnNav5.Margin = new Padding(4, 2, 4, 2);
-            btnNav5.Name = "btnNav5";
-            btnNav5.Size = new Size(228, 36);
-            btnNav5.TabIndex = 6;
-            btnNav5.Text = "Đồ ăn nước uống";
-            btnNav5.TextAlign = ContentAlignment.MiddleLeft;
-            btnNav5.UseVisualStyleBackColor = false;
+            menuHoaDon.Name = "menuHoaDon";
+            menuHoaDon.Size = new System.Drawing.Size(130, 25);
+            menuHoaDon.Text = "Tra Cứu Hóa Đơn";
+            menuHoaDon.Click += MenuHoaDon_Click;
             // 
-            // btnNav6
+            // menuDoAn
             // 
-            btnNav6.BackColor = Color.FromArgb(227, 237, 229);
-            btnNav6.Cursor = Cursors.Hand;
-            btnNav6.FlatAppearance.BorderSize = 0;
-            btnNav6.FlatStyle = FlatStyle.Flat;
-            btnNav6.Font = new Font("Segoe UI Emoji", 9.2F);
-            btnNav6.ForeColor = Color.FromArgb(30, 55, 40);
-            btnNav6.Location = new Point(10, 278);
-            btnNav6.Margin = new Padding(4, 2, 4, 2);
-            btnNav6.Name = "btnNav6";
-            btnNav6.Size = new Size(228, 36);
-            btnNav6.TabIndex = 7;
-            btnNav6.Text = "Phòng chiếu";
-            btnNav6.TextAlign = ContentAlignment.MiddleLeft;
-            btnNav6.UseVisualStyleBackColor = false;
+            menuDoAn.Name = "menuDoAn";
+            menuDoAn.Size = new System.Drawing.Size(145, 25);
+            menuDoAn.Text = "Đồ Ăn && Nước Uống";
+            menuDoAn.Click += MenuDoAn_Click;
             // 
-            // pnlNavSection3
+            // menuCombo
             // 
-            pnlNavSection3.BackColor = Color.Transparent;
-            pnlNavSection3.Controls.Add(lblNavSection3);
-            pnlNavSection3.Location = new Point(10, 326);
-            pnlNavSection3.Margin = new Padding(4, 10, 4, 2);
-            pnlNavSection3.Name = "pnlNavSection3";
-            pnlNavSection3.Size = new Size(228, 24);
-            pnlNavSection3.TabIndex = 8;
+            menuCombo.Name = "menuCombo";
+            menuCombo.Size = new System.Drawing.Size(160, 25);
+            menuCombo.Text = "Cài Đặt Ưu Đãi Combo";
+            menuCombo.Click += MenuCombo_Click;
             // 
-            // lblNavSection3
+            // menuVoucher
             // 
-            lblNavSection3.Dock = DockStyle.Fill;
-            lblNavSection3.Font = new Font("Segoe UI", 8.2F, FontStyle.Bold);
-            lblNavSection3.ForeColor = Color.FromArgb(55, 90, 70);
-            lblNavSection3.Location = new Point(0, 0);
-            lblNavSection3.Name = "lblNavSection3";
-            lblNavSection3.Size = new Size(228, 24);
-            lblNavSection3.TabIndex = 0;
-            lblNavSection3.Text = "⚙  CẤU HÌNH RẠP";
-            lblNavSection3.TextAlign = ContentAlignment.MiddleLeft;
+            menuVoucher.Name = "menuVoucher";
+            menuVoucher.Size = new System.Drawing.Size(125, 25);
+            menuVoucher.Text = "Cài Đặt Voucher";
+            menuVoucher.Click += MenuVoucher_Click;
             // 
-            // btnNav7
+            // menuNhanVien
             // 
-            btnNav7.BackColor = Color.FromArgb(227, 237, 229);
-            btnNav7.Cursor = Cursors.Hand;
-            btnNav7.FlatAppearance.BorderSize = 0;
-            btnNav7.FlatStyle = FlatStyle.Flat;
-            btnNav7.Font = new Font("Segoe UI Emoji", 9.2F);
-            btnNav7.ForeColor = Color.FromArgb(30, 55, 40);
-            btnNav7.Location = new Point(10, 354);
-            btnNav7.Margin = new Padding(4, 2, 4, 2);
-            btnNav7.Name = "btnNav7";
-            btnNav7.Size = new Size(228, 36);
-            btnNav7.TabIndex = 9;
-            btnNav7.Text = "Suất chiếu";
-            btnNav7.TextAlign = ContentAlignment.MiddleLeft;
-            btnNav7.UseVisualStyleBackColor = false;
+            menuNhanVien.Name = "menuNhanVien";
+            menuNhanVien.Size = new System.Drawing.Size(90, 25);
+            menuNhanVien.Text = "Nhân Viên";
+            menuNhanVien.Click += MenuNhanVien_Click;
             // 
-            // btnNav8
+            // menuTaiKhoanThuNgan
             // 
-            btnNav8.BackColor = Color.FromArgb(227, 237, 229);
-            btnNav8.Cursor = Cursors.Hand;
-            btnNav8.FlatAppearance.BorderSize = 0;
-            btnNav8.FlatStyle = FlatStyle.Flat;
-            btnNav8.Font = new Font("Segoe UI Emoji", 9.2F);
-            btnNav8.ForeColor = Color.FromArgb(30, 55, 40);
-            btnNav8.Location = new Point(10, 394);
-            btnNav8.Margin = new Padding(4, 2, 4, 2);
-            btnNav8.Name = "btnNav8";
-            btnNav8.Size = new Size(228, 36);
-            btnNav8.TabIndex = 10;
-            btnNav8.Text = "Combo";
-            btnNav8.TextAlign = ContentAlignment.MiddleLeft;
-            btnNav8.UseVisualStyleBackColor = false;
+            menuTaiKhoanThuNgan.Name = "menuTaiKhoanThuNgan";
+            menuTaiKhoanThuNgan.Size = new System.Drawing.Size(135, 25);
+            menuTaiKhoanThuNgan.Text = "Quản Lý Tài Khoản";
+            menuTaiKhoanThuNgan.Click += MenuTaiKhoanThuNgan_Click;
             // 
-            // btnNav9
+            // menuDoanhThu
             // 
-            btnNav9.BackColor = Color.FromArgb(227, 237, 229);
-            btnNav9.Cursor = Cursors.Hand;
-            btnNav9.FlatAppearance.BorderSize = 0;
-            btnNav9.FlatStyle = FlatStyle.Flat;
-            btnNav9.Font = new Font("Segoe UI Emoji", 9.2F);
-            btnNav9.ForeColor = Color.FromArgb(30, 55, 40);
-            btnNav9.Location = new Point(10, 434);
-            btnNav9.Margin = new Padding(4, 2, 4, 2);
-            btnNav9.Name = "btnNav9";
-            btnNav9.Size = new Size(228, 36);
-            btnNav9.TabIndex = 11;
-            btnNav9.Text = "Voucher";
-            btnNav9.TextAlign = ContentAlignment.MiddleLeft;
-            btnNav9.UseVisualStyleBackColor = false;
+            menuDoanhThu.Name = "menuDoanhThu";
+            menuDoanhThu.Size = new System.Drawing.Size(145, 25);
+            menuDoanhThu.Text = "Báo Cáo Doanh Thu";
+            menuDoanhThu.Click += MenuDoanhThu_Click;
             // 
-            // pnlNavSection4
+            // statusStripMain
             // 
-            pnlNavSection4.BackColor = Color.Transparent;
-            pnlNavSection4.Controls.Add(lblNavSection4);
-            pnlNavSection4.Location = new Point(10, 482);
-            pnlNavSection4.Margin = new Padding(4, 10, 4, 2);
-            pnlNavSection4.Name = "pnlNavSection4";
-            pnlNavSection4.Size = new Size(228, 24);
-            pnlNavSection4.TabIndex = 12;
+            statusStripMain.Font = new System.Drawing.Font("Segoe UI", 9F);
+            statusStripMain.ImageScalingSize = new System.Drawing.Size(20, 20);
+            statusStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+                lblStatusUser,
+                lblStatusSpring1,
+                lblStatusView,
+                lblStatusSpring2,
+                lblStatusClock
+            });
+            statusStripMain.Location = new System.Drawing.Point(0, 674);
+            statusStripMain.Name = "statusStripMain";
+            statusStripMain.Size = new System.Drawing.Size(1200, 26);
+            statusStripMain.TabIndex = 1;
+            statusStripMain.Text = "statusStripMain";
             // 
-            // lblNavSection4
+            // lblStatusUser
             // 
-            lblNavSection4.Dock = DockStyle.Fill;
-            lblNavSection4.Font = new Font("Segoe UI", 8.2F, FontStyle.Bold);
-            lblNavSection4.ForeColor = Color.FromArgb(55, 90, 70);
-            lblNavSection4.Location = new Point(0, 0);
-            lblNavSection4.Name = "lblNavSection4";
-            lblNavSection4.Size = new Size(228, 24);
-            lblNavSection4.TabIndex = 0;
-            lblNavSection4.Text = "🔐  TÀI KHOẢN";
-            lblNavSection4.TextAlign = ContentAlignment.MiddleLeft;
+            lblStatusUser.Name = "lblStatusUser";
+            lblStatusUser.Size = new System.Drawing.Size(87, 20);
+            lblStatusUser.Text = "Người dùng:";
             // 
-            // btnNav10
+            // lblStatusSpring1
             // 
-            btnNav10.BackColor = Color.FromArgb(227, 237, 229);
-            btnNav10.Cursor = Cursors.Hand;
-            btnNav10.FlatAppearance.BorderSize = 0;
-            btnNav10.FlatStyle = FlatStyle.Flat;
-            btnNav10.Font = new Font("Segoe UI Emoji", 9.2F);
-            btnNav10.ForeColor = Color.FromArgb(30, 55, 40);
-            btnNav10.Location = new Point(10, 510);
-            btnNav10.Margin = new Padding(4, 2, 4, 2);
-            btnNav10.Name = "btnNav10";
-            btnNav10.Size = new Size(228, 36);
-            btnNav10.TabIndex = 13;
-            btnNav10.Text = "Admin & Thu ngân";
-            btnNav10.TextAlign = ContentAlignment.MiddleLeft;
-            btnNav10.UseVisualStyleBackColor = false;
+            lblStatusSpring1.Name = "lblStatusSpring1";
+            lblStatusSpring1.Size = new System.Drawing.Size(394, 20);
+            lblStatusSpring1.Spring = true;
             // 
-            // pnlBottomNav
+            // lblStatusView
             // 
-            pnlBottomNav.BackColor = Color.FromArgb(227, 237, 229);
-            pnlBottomNav.Controls.Add(btnLogout);
-            pnlBottomNav.Dock = DockStyle.Bottom;
-            pnlBottomNav.Location = new Point(0, 669);
-            pnlBottomNav.Name = "pnlBottomNav";
-            pnlBottomNav.Padding = new Padding(12, 10, 12, 10);
-            pnlBottomNav.Size = new Size(245, 60);
-            pnlBottomNav.TabIndex = 1;
+            lblStatusView.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            lblStatusView.ForeColor = System.Drawing.Color.FromArgb(0, 51, 102);
+            lblStatusView.Name = "lblStatusView";
+            lblStatusView.Size = new System.Drawing.Size(68, 20);
+            lblStatusView.Text = "Sẵn sàng";
             // 
-            // btnLogout
+            // lblStatusSpring2
             // 
-            btnLogout.BackColor = Color.FromArgb(60, 107, 80);
-            btnLogout.Cursor = Cursors.Hand;
-            btnLogout.Dock = DockStyle.Fill;
-            btnLogout.FlatAppearance.BorderSize = 0;
-            btnLogout.FlatStyle = FlatStyle.Flat;
-            btnLogout.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            btnLogout.ForeColor = Color.White;
-            btnLogout.Location = new Point(12, 10);
-            btnLogout.Name = "btnLogout";
-            btnLogout.Size = new Size(221, 40);
-            btnLogout.TabIndex = 0;
-            btnLogout.Text = "🚪  ĐĂNG XUẤT";
-            btnLogout.UseVisualStyleBackColor = false;
-            btnLogout.Click += BtnLogout_Click;
-            btnLogout.MouseEnter += BtnLogout_MouseEnter;
-            btnLogout.MouseLeave += BtnLogout_MouseLeave;
+            lblStatusSpring2.Name = "lblStatusSpring2";
+            lblStatusSpring2.Size = new System.Drawing.Size(394, 20);
+            lblStatusSpring2.Spring = true;
             // 
-            // pnlBrand
+            // lblStatusClock
             // 
-            pnlBrand.BackColor = Color.FromArgb(227, 237, 229);
-            pnlBrand.Controls.Add(picLogo);
-            pnlBrand.Dock = DockStyle.Top;
-            pnlBrand.Location = new Point(0, 0);
-            pnlBrand.Name = "pnlBrand";
-            pnlBrand.Size = new Size(245, 112);
-            pnlBrand.TabIndex = 2;
-            // 
-            // picLogo
-            // 
-            picLogo.BackColor = Color.Transparent;
-            picLogo.Location = new Point(78, 12);
-            picLogo.Name = "picLogo";
-            picLogo.Size = new Size(88, 88);
-            picLogo.SizeMode = PictureBoxSizeMode.Zoom;
-            picLogo.TabIndex = 0;
-            picLogo.TabStop = false;
-            // 
-            // pnlTop
-            // 
-            pnlTop.BackColor = Color.FromArgb(227, 237, 229);
-            pnlTop.Controls.Add(lblUserTop);
-            pnlTop.Controls.Add(lblClock);
-            pnlTop.Controls.Add(lblCurrentTitle);
-            pnlTop.Dock = DockStyle.Top;
-            pnlTop.Location = new Point(245, 0);
-            pnlTop.Name = "pnlTop";
-            pnlTop.Padding = new Padding(15, 8, 15, 8);
-            pnlTop.Size = new Size(1105, 58);
-            pnlTop.TabIndex = 1;
-            // 
-            // lblUserTop
-            // 
-            lblUserTop.AutoSize = true;
-            lblUserTop.Dock = DockStyle.Right;
-            lblUserTop.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            lblUserTop.ForeColor = Color.FromArgb(20, 83, 45);
-            lblUserTop.Location = new Point(697, 8);
-            lblUserTop.Name = "lblUserTop";
-            lblUserTop.Padding = new Padding(0, 10, 15, 0);
-            lblUserTop.Size = new Size(192, 33);
-            lblUserTop.TabIndex = 2;
-            lblUserTop.Text = "Quản trị viên NHH ∨";
-            lblUserTop.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // lblClock
-            // 
-            lblClock.AutoSize = true;
-            lblClock.Dock = DockStyle.Right;
-            lblClock.Font = new Font("Segoe UI", 10F);
-            lblClock.ForeColor = Color.FromArgb(45, 82, 64);
-            lblClock.Location = new Point(889, 8);
-            lblClock.Name = "lblClock";
-            lblClock.Padding = new Padding(0, 10, 10, 0);
-            lblClock.Size = new Size(201, 33);
-            lblClock.TabIndex = 1;
-            lblClock.Text = "🕒 11/10/2026 12:00:00";
-            lblClock.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // lblCurrentTitle
-            // 
-            lblCurrentTitle.AutoSize = true;
-            lblCurrentTitle.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            lblCurrentTitle.ForeColor = Color.FromArgb(20, 83, 45);
-            lblCurrentTitle.Location = new Point(38, 16);
-            lblCurrentTitle.Name = "lblCurrentTitle";
-            lblCurrentTitle.Size = new Size(424, 28);
-            lblCurrentTitle.TabIndex = 0;
-            lblCurrentTitle.Text = "TRANG CHÍNH (DASHBOARD DOANH THU)";
+            lblStatusClock.Name = "lblStatusClock";
+            lblStatusClock.Size = new System.Drawing.Size(74, 20);
+            lblStatusClock.Text = "Thời gian:";
             // 
             // timerClock
             // 
@@ -464,72 +242,61 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // pnlContent
             // 
-            pnlContent.BackColor = Color.FromArgb(240, 245, 241);
-            pnlContent.Dock = DockStyle.Fill;
-            pnlContent.Location = new Point(245, 58);
+            pnlContent.BackColor = System.Drawing.SystemColors.Control;
+            pnlContent.Dock = System.Windows.Forms.DockStyle.Fill;
+            pnlContent.Location = new System.Drawing.Point(0, 33);
             pnlContent.Name = "pnlContent";
-            pnlContent.Size = new Size(1105, 671);
+            pnlContent.Size = new System.Drawing.Size(1200, 641);
             pnlContent.TabIndex = 2;
             // 
             // FormMain
             // 
-            AutoScaleDimensions = new SizeF(9F, 23F);
-            AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(240, 245, 241);
-            ClientSize = new Size(1350, 729);
+            AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            BackColor = System.Drawing.SystemColors.Control;
+            ClientSize = new System.Drawing.Size(1200, 700);
             Controls.Add(pnlContent);
-            Controls.Add(pnlTop);
-            Controls.Add(pnlSidebar);
-            Font = new Font("Segoe UI", 10F);
-            MinimumSize = new Size(1100, 650);
+            Controls.Add(statusStripMain);
+            Controls.Add(menuStripMain);
+            Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            MainMenuStrip = menuStripMain;
+            MinimumSize = new System.Drawing.Size(1000, 600);
             Name = "FormMain";
-            StartPosition = FormStartPosition.CenterScreen;
-            Text = "HỆ THỐNG QUẢN LÝ RẠP CHIẾU PHIM - NHH CINEMA";
-            WindowState = FormWindowState.Maximized;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            Text = "HỆ THỐNG QUẢN LÝ RẠP CHIẾU PHIM - BÀI TẬP LỚN LẬP TRÌNH TRỰC QUAN";
+            WindowState = System.Windows.Forms.FormWindowState.Maximized;
             Load += FormMain_Load;
-            pnlSidebar.ResumeLayout(false);
-            pnlNav.ResumeLayout(false);
-            pnlNavSection1.ResumeLayout(false);
-            pnlNavSection2.ResumeLayout(false);
-            pnlNavSection3.ResumeLayout(false);
-            pnlNavSection4.ResumeLayout(false);
-            pnlBottomNav.ResumeLayout(false);
-            pnlBrand.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)picLogo).EndInit();
-            pnlTop.ResumeLayout(false);
-            pnlTop.PerformLayout();
+            menuStripMain.ResumeLayout(false);
+            menuStripMain.PerformLayout();
+            statusStripMain.ResumeLayout(false);
+            statusStripMain.PerformLayout();
             ResumeLayout(false);
-
+            PerformLayout();
         }
 
-        private System.Windows.Forms.Panel pnlSidebar;
-        private System.Windows.Forms.Panel pnlBrand;
-        private System.Windows.Forms.PictureBox picLogo;
-        private System.Windows.Forms.FlowLayoutPanel pnlNav;
-        private System.Windows.Forms.Panel pnlNavSection1;
-        private System.Windows.Forms.Label lblNavSection1;
-        private System.Windows.Forms.Panel pnlNavSection2;
-        private System.Windows.Forms.Label lblNavSection2;
-        private System.Windows.Forms.Panel pnlNavSection3;
-        private System.Windows.Forms.Label lblNavSection3;
-        private System.Windows.Forms.Panel pnlNavSection4;
-        private System.Windows.Forms.Label lblNavSection4;
-        private System.Windows.Forms.Button btnNav1;
-        private System.Windows.Forms.Button btnNav2;
-        private System.Windows.Forms.Button btnNav3;
-        private System.Windows.Forms.Button btnNav4;
-        private System.Windows.Forms.Button btnNav5;
-        private System.Windows.Forms.Button btnNav6;
-        private System.Windows.Forms.Button btnNav7;
-        private System.Windows.Forms.Button btnNav8;
-        private System.Windows.Forms.Button btnNav9;
-        private System.Windows.Forms.Button btnNav10;
-        private System.Windows.Forms.Panel pnlBottomNav;
-        private System.Windows.Forms.Button btnLogout;
-        private System.Windows.Forms.Panel pnlTop;
-        private System.Windows.Forms.Label lblCurrentTitle;
-        private System.Windows.Forms.Label lblUserTop;
-        private System.Windows.Forms.Label lblClock;
+        private System.Windows.Forms.MenuStrip menuStripMain;
+        private System.Windows.Forms.ToolStripMenuItem menuHeThong;
+        private System.Windows.Forms.ToolStripMenuItem menuDoiMatKhau;
+        private System.Windows.Forms.ToolStripMenuItem menuTaiKhoanThuNgan;
+        private System.Windows.Forms.ToolStripSeparator sepHeThong1;
+        private System.Windows.Forms.ToolStripMenuItem menuDangXuat;
+        private System.Windows.Forms.ToolStripMenuItem menuThoat;
+        private System.Windows.Forms.ToolStripMenuItem menuPhim;
+        private System.Windows.Forms.ToolStripMenuItem menuPhongChieu;
+        private System.Windows.Forms.ToolStripMenuItem menuSuatChieu;
+        private System.Windows.Forms.ToolStripMenuItem menuBanHang;
+        private System.Windows.Forms.ToolStripMenuItem menuHoaDon;
+        private System.Windows.Forms.ToolStripMenuItem menuDoAn;
+        private System.Windows.Forms.ToolStripMenuItem menuCombo;
+        private System.Windows.Forms.ToolStripMenuItem menuVoucher;
+        private System.Windows.Forms.ToolStripMenuItem menuNhanVien;
+        private System.Windows.Forms.ToolStripMenuItem menuDoanhThu;
+        private System.Windows.Forms.StatusStrip statusStripMain;
+        private System.Windows.Forms.ToolStripStatusLabel lblStatusUser;
+        private System.Windows.Forms.ToolStripStatusLabel lblStatusSpring1;
+        private System.Windows.Forms.ToolStripStatusLabel lblStatusView;
+        private System.Windows.Forms.ToolStripStatusLabel lblStatusSpring2;
+        private System.Windows.Forms.ToolStripStatusLabel lblStatusClock;
         private System.Windows.Forms.Timer timerClock;
         private System.Windows.Forms.Panel pnlContent;
     }

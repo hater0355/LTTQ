@@ -48,63 +48,48 @@ namespace HeThongRapChieuPhim.UserControls
             this.btnPhong.ForeColor = System.Drawing.Color.FromArgb(60, 95, 75);
             this.btnPhong.Location = new System.Drawing.Point(515, 8);
             this.btnPhong.Name = "btnPhong";
-            this.btnPhong.Size = new System.Drawing.Size(150, 36);
+            this.btnPhong.Size = new System.Drawing.Size(130, 32);
             this.btnPhong.TabIndex = 3;
-            this.btnPhong.Text = "🏛️  Phòng Chiếu";
-            this.btnPhong.UseVisualStyleBackColor = false;
+            this.btnPhong.Text = "Phòng Chiếu";
+            this.btnPhong.UseVisualStyleBackColor = true;
             this.btnPhong.Click += new System.EventHandler(this.BtnPhong_Click);
             // 
             // btnDoAn
             // 
-            this.btnDoAn.BackColor = System.Drawing.Color.Transparent;
-            this.btnDoAn.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnDoAn.FlatAppearance.BorderSize = 0;
-            this.btnDoAn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDoAn.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnDoAn.ForeColor = System.Drawing.Color.FromArgb(60, 95, 75);
-            this.btnDoAn.Location = new System.Drawing.Point(355, 8);
+            this.btnDoAn.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnDoAn.Location = new System.Drawing.Point(305, 8);
             this.btnDoAn.Name = "btnDoAn";
-            this.btnDoAn.Size = new System.Drawing.Size(150, 36);
+            this.btnDoAn.Size = new System.Drawing.Size(130, 32);
             this.btnDoAn.TabIndex = 2;
-            this.btnDoAn.Text = "🍿  Đồ Ăn (F&B)";
-            this.btnDoAn.UseVisualStyleBackColor = false;
+            this.btnDoAn.Text = "Đồ Ăn (F&B)";
+            this.btnDoAn.UseVisualStyleBackColor = true;
             this.btnDoAn.Click += new System.EventHandler(this.BtnDoAn_Click);
             // 
             // btnPhim
             // 
-            this.btnPhim.BackColor = System.Drawing.Color.Transparent;
-            this.btnPhim.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnPhim.FlatAppearance.BorderSize = 0;
-            this.btnPhim.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnPhim.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnPhim.ForeColor = System.Drawing.Color.FromArgb(60, 95, 75);
-            this.btnPhim.Location = new System.Drawing.Point(175, 8);
+            this.btnPhim.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnPhim.Location = new System.Drawing.Point(155, 8);
             this.btnPhim.Name = "btnPhim";
-            this.btnPhim.Size = new System.Drawing.Size(150, 36);
+            this.btnPhim.Size = new System.Drawing.Size(130, 32);
             this.btnPhim.TabIndex = 1;
-            this.btnPhim.Text = "🎬  Phim & Poster";
-            this.btnPhim.UseVisualStyleBackColor = false;
+            this.btnPhim.Text = "Phim & Poster";
+            this.btnPhim.UseVisualStyleBackColor = true;
             this.btnPhim.Click += new System.EventHandler(this.BtnPhim_Click);
             // 
             // btnNV
             // 
-            this.btnNV.BackColor = System.Drawing.Color.Transparent;
-            this.btnNV.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnNV.FlatAppearance.BorderSize = 0;
-            this.btnNV.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnNV.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnNV.ForeColor = System.Drawing.Color.FromArgb(60, 95, 75);
+            this.btnNV.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.btnNV.Location = new System.Drawing.Point(15, 8);
             this.btnNV.Name = "btnNV";
-            this.btnNV.Size = new System.Drawing.Size(150, 36);
+            this.btnNV.Size = new System.Drawing.Size(120, 32);
             this.btnNV.TabIndex = 0;
-            this.btnNV.Text = "👥  Nhân Viên";
-            this.btnNV.UseVisualStyleBackColor = false;
+            this.btnNV.Text = "Nhân Viên";
+            this.btnNV.UseVisualStyleBackColor = true;
             this.btnNV.Click += new System.EventHandler(this.BtnNV_Click);
             // 
             // pnlBody
             // 
-            this.pnlBody.BackColor = System.Drawing.Color.FromArgb(240, 245, 241);
+            this.pnlBody.BackColor = System.Drawing.SystemColors.Control;
             this.pnlBody.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlBody.Location = new System.Drawing.Point(0, 52);
             this.pnlBody.Name = "pnlBody";
@@ -115,7 +100,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(240, 245, 241);
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.pnlBody);
             this.Controls.Add(this.pnlSubNav);
             this.Font = new System.Drawing.Font("Segoe UI", 10F);

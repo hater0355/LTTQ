@@ -45,7 +45,7 @@ namespace HeThongRapChieuPhim.UserControls
             pnlAccountForm.SuspendLayout();
             SuspendLayout();
 
-            mainLayout.BackColor = Color.White;
+            mainLayout.BackColor = SystemColors.Control;
             mainLayout.ColumnCount = 2;
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 67F));
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
@@ -58,7 +58,7 @@ namespace HeThongRapChieuPhim.UserControls
 
             lblHeading.Dock = DockStyle.Fill;
             lblHeading.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
-            lblHeading.ForeColor = Color.FromArgb(20, 83, 45);
+            lblHeading.ForeColor = Color.FromArgb(0, 51, 102);
             lblHeading.Margin = new Padding(4);
             lblHeading.Text = "QUẢN LÝ TÀI KHOẢN QUẢN TRỊ & THU NGÂN";
             lblHeading.TextAlign = ContentAlignment.MiddleLeft;
@@ -74,7 +74,7 @@ namespace HeThongRapChieuPhim.UserControls
             mainLayout.Controls.Add(lblHint, 0, 1);
             mainLayout.SetColumnSpan(lblHint, 2);
 
-            pnlAccountList.BackColor = Color.White;
+            pnlAccountList.BackColor = SystemColors.Control;
             pnlAccountList.Dock = DockStyle.Fill;
             pnlAccountList.Margin = new Padding(4, 8, 12, 4);
             dgvAccounts.AllowUserToAddRows = false;
@@ -84,29 +84,29 @@ namespace HeThongRapChieuPhim.UserControls
             dgvAccounts.MultiSelect = false;
             dgvAccounts.ReadOnly = true;
             dgvAccounts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            lblEmptyState.BackColor = Color.White;
+            lblEmptyState.BackColor = SystemColors.Control;
             lblEmptyState.Dock = DockStyle.Fill;
             lblEmptyState.Font = new Font("Segoe UI", 12F);
-            lblEmptyState.ForeColor = ThemeHelper.TextMuted;
-            lblEmptyState.Text = "♙\r\nChưa có tài khoản\r\nTạo tài khoản mới bằng biểu mẫu bên phải.";
+            lblEmptyState.ForeColor = Color.DimGray;
+            lblEmptyState.Text = "Chưa có tài khoản\r\nTạo tài khoản mới bằng biểu mẫu bên phải.";
             lblEmptyState.TextAlign = ContentAlignment.MiddleCenter;
             pnlAccountList.Controls.Add(dgvAccounts);
             pnlAccountList.Controls.Add(lblEmptyState);
             mainLayout.Controls.Add(pnlAccountList, 0, 2);
 
-            pnlAccountForm.BackColor = Color.FromArgb(248, 250, 248);
+            pnlAccountForm.BackColor = SystemColors.Control;
             pnlAccountForm.BorderStyle = BorderStyle.FixedSingle;
             pnlAccountForm.Dock = DockStyle.Fill;
             pnlAccountForm.Margin = new Padding(4, 8, 4, 4);
             pnlAccountForm.Padding = new Padding(16);
             lblFormTitle.AutoSize = true;
             lblFormTitle.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            lblFormTitle.ForeColor = ThemeHelper.PrimaryDark;
+            lblFormTitle.ForeColor = Color.FromArgb(0, 51, 102);
             lblFormTitle.Location = new Point(14, 14);
             lblFormTitle.Text = "TÀI KHOẢN MỚI";
             lblRole.AutoSize = true;
             lblRole.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            lblRole.ForeColor = ThemeHelper.TextPrimary;
+            lblRole.ForeColor = Color.Black;
             lblRole.Location = new Point(14, 52);
             lblRole.Text = "Chức vụ";
             cboRole.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -116,7 +116,7 @@ namespace HeThongRapChieuPhim.UserControls
             cboRole.Size = new Size(280, 25);
             lblUsername.AutoSize = true;
             lblUsername.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            lblUsername.ForeColor = ThemeHelper.TextPrimary;
+            lblUsername.ForeColor = Color.Black;
             lblUsername.Location = new Point(14, 120);
             lblUsername.Text = "Tên đăng nhập";
             txtUsername.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -127,7 +127,7 @@ namespace HeThongRapChieuPhim.UserControls
             txtUsername.Size = new Size(280, 25);
             lblPassword.AutoSize = true;
             lblPassword.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            lblPassword.ForeColor = ThemeHelper.TextPrimary;
+            lblPassword.ForeColor = Color.Black;
             lblPassword.Location = new Point(14, 192);
             lblPassword.Text = "Mật khẩu ban đầu";
             txtPassword.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -139,45 +139,30 @@ namespace HeThongRapChieuPhim.UserControls
             txtPassword.UseSystemPasswordChar = true;
 
             btnCreate.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            btnCreate.BackColor = ThemeHelper.PrimaryDark;
-            btnCreate.Cursor = Cursors.Hand;
-            btnCreate.FlatAppearance.BorderSize = 0;
-            btnCreate.FlatAppearance.MouseOverBackColor = Color.FromArgb(16, 113, 63);
-            btnCreate.FlatStyle = FlatStyle.Flat;
-            btnCreate.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnCreate.ForeColor = Color.White;
+            btnCreate.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             btnCreate.Location = new Point(14, 264);
-            btnCreate.Size = new Size(280, 44);
-            btnCreate.Text = "＋  TẠO TÀI KHOẢN";
-            btnCreate.UseVisualStyleBackColor = false;
+            btnCreate.Size = new Size(280, 38);
+            btnCreate.Text = "Tạo Tài Khoản";
+            btnCreate.UseVisualStyleBackColor = true;
+
             btnChange.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            btnChange.BackColor = ThemeHelper.LightGreenBadge;
-            btnChange.Cursor = Cursors.Hand;
-            btnChange.FlatAppearance.BorderColor = ThemeHelper.BorderColor;
-            btnChange.FlatAppearance.MouseOverBackColor = Color.FromArgb(201, 231, 209);
-            btnChange.FlatStyle = FlatStyle.Flat;
-            btnChange.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnChange.ForeColor = ThemeHelper.PrimaryDark;
-            btnChange.Location = new Point(14, 318);
-            btnChange.Size = new Size(280, 40);
-            btnChange.Text = "ĐỔI MẬT KHẨU ĐÃ CHỌN";
-            btnChange.UseVisualStyleBackColor = false;
+            btnChange.Font = new Font("Segoe UI", 9F);
+            btnChange.Location = new Point(14, 312);
+            btnChange.Size = new Size(280, 34);
+            btnChange.Text = "Đổi Mật Khẩu Đã Chọn";
+            btnChange.UseVisualStyleBackColor = true;
+
             btnReload.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            btnReload.BackColor = Color.White;
-            btnReload.Cursor = Cursors.Hand;
-            btnReload.FlatAppearance.BorderColor = ThemeHelper.BorderColor;
-            btnReload.FlatAppearance.MouseOverBackColor = ThemeHelper.SurfaceLighter;
-            btnReload.FlatStyle = FlatStyle.Flat;
             btnReload.Font = new Font("Segoe UI", 9F);
-            btnReload.ForeColor = ThemeHelper.TextMuted;
-            btnReload.Location = new Point(14, 370);
-            btnReload.Size = new Size(280, 36);
-            btnReload.Text = "↻  LÀM MỚI DANH SÁCH";
-            btnReload.UseVisualStyleBackColor = false;
+            btnReload.Location = new Point(14, 356);
+            btnReload.Size = new Size(280, 34);
+            btnReload.Text = "Làm Mới Danh Sách";
+            btnReload.UseVisualStyleBackColor = true;
+
             lblStatus.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblStatus.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            lblStatus.ForeColor = ThemeHelper.PrimaryDark;
-            lblStatus.Location = new Point(14, 414);
+            lblStatus.ForeColor = Color.FromArgb(0, 51, 102);
+            lblStatus.Location = new Point(14, 400);
             lblStatus.Size = new Size(280, 56);
             pnlAccountForm.Controls.Add(lblFormTitle);
             pnlAccountForm.Controls.Add(lblRole);
@@ -194,7 +179,7 @@ namespace HeThongRapChieuPhim.UserControls
 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.White;
+            BackColor = SystemColors.Control;
             Controls.Add(mainLayout);
             Name = "ucTaiKhoanThuNgan";
             Padding = new Padding(18);

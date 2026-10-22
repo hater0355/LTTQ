@@ -64,7 +64,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // pnlGrid
             // 
-            this.pnlGrid.BackColor = System.Drawing.Color.White;
+            this.pnlGrid.BackColor = System.Drawing.SystemColors.Control;
             this.pnlGrid.Controls.Add(this.dgvHoaDon);
             this.pnlGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlGrid.Location = new System.Drawing.Point(20, 210);
@@ -166,25 +166,20 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // btnPrintAgain
             // 
-            this.btnPrintAgain.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(158)))), ((int)(((byte)(11)))));
-            this.btnPrintAgain.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnPrintAgain.FlatAppearance.BorderSize = 0;
-            this.btnPrintAgain.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnPrintAgain.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnPrintAgain.ForeColor = System.Drawing.Color.Black;
+            this.btnPrintAgain.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.btnPrintAgain.Location = new System.Drawing.Point(0, 8);
             this.btnPrintAgain.Name = "btnPrintAgain";
-            this.btnPrintAgain.Size = new System.Drawing.Size(190, 38);
+            this.btnPrintAgain.Size = new System.Drawing.Size(180, 36);
             this.btnPrintAgain.TabIndex = 0;
-            this.btnPrintAgain.Text = "🖨️ Xem / In Lại Hóa Đơn";
-            this.btnPrintAgain.UseVisualStyleBackColor = false;
+            this.btnPrintAgain.Text = "Xem / In Lại Hóa Đơn";
+            this.btnPrintAgain.UseVisualStyleBackColor = true;
             this.btnPrintAgain.Click += new System.EventHandler(this.BtnPrintAgain_Click);
             // 
             // lblTotalRevenue
             // 
             this.lblTotalRevenue.AutoSize = true;
             this.lblTotalRevenue.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.lblTotalRevenue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
+            this.lblTotalRevenue.ForeColor = System.Drawing.Color.DarkBlue;
             this.lblTotalRevenue.Location = new System.Drawing.Point(350, 14);
             this.lblTotalRevenue.Name = "lblTotalRevenue";
             this.lblTotalRevenue.Size = new System.Drawing.Size(236, 20);
@@ -193,7 +188,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // pnlFilter
             // 
-            this.pnlFilter.BackColor = System.Drawing.Color.White;
+            this.pnlFilter.BackColor = System.Drawing.SystemColors.Control;
             this.pnlFilter.Controls.Add(this.lblSearch);
             this.pnlFilter.Controls.Add(this.txtSearch);
             this.pnlFilter.Controls.Add(this.chkLocNgay);
@@ -205,7 +200,7 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlFilter.Controls.Add(this.btnRefresh);
             this.pnlFilter.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlFilter.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
-            this.pnlFilter.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(83)))), ((int)(((byte)(45)))));
+            this.pnlFilter.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(51)))), ((int)(((byte)(102)))));
             this.pnlFilter.Location = new System.Drawing.Point(20, 65);
             this.pnlFilter.Name = "pnlFilter";
             this.pnlFilter.Padding = new System.Windows.Forms.Padding(15, 10, 15, 10);
@@ -218,7 +213,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             this.lblSearch.AutoSize = true;
             this.lblSearch.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.lblSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(50)))), ((int)(((byte)(35)))));
+            this.lblSearch.ForeColor = System.Drawing.Color.Black;
             this.lblSearch.Location = new System.Drawing.Point(20, 32);
             this.lblSearch.Name = "lblSearch";
             this.lblSearch.Size = new System.Drawing.Size(95, 17);
@@ -237,7 +232,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             this.chkLocNgay.AutoSize = true;
             this.chkLocNgay.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.chkLocNgay.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(50)))), ((int)(((byte)(35)))));
+            this.chkLocNgay.ForeColor = System.Drawing.Color.Black;
             this.chkLocNgay.Location = new System.Drawing.Point(310, 31);
             this.chkLocNgay.Name = "chkLocNgay";
             this.chkLocNgay.Size = new System.Drawing.Size(111, 21);
@@ -249,7 +244,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             this.lblTu.AutoSize = true;
             this.lblTu.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.lblTu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(50)))), ((int)(((byte)(35)))));
+            this.lblTu.ForeColor = System.Drawing.Color.Black;
             this.lblTu.Location = new System.Drawing.Point(430, 32);
             this.lblTu.Name = "lblTu";
             this.lblTu.Size = new System.Drawing.Size(26, 17);
@@ -269,7 +264,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             this.lblDen.AutoSize = true;
             this.lblDen.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.lblDen.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(50)))), ((int)(((byte)(35)))));
+            this.lblDen.ForeColor = System.Drawing.Color.Black;
             this.lblDen.Location = new System.Drawing.Point(585, 32);
             this.lblDen.Name = "lblDen";
             this.lblDen.Size = new System.Drawing.Size(34, 17);
@@ -287,52 +282,42 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // btnFilter
             // 
-            this.btnFilter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
-            this.btnFilter.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnFilter.FlatAppearance.BorderSize = 0;
-            this.btnFilter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnFilter.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnFilter.ForeColor = System.Drawing.Color.White;
+            this.btnFilter.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.btnFilter.Location = new System.Drawing.Point(760, 25);
             this.btnFilter.Name = "btnFilter";
-            this.btnFilter.Size = new System.Drawing.Size(120, 34);
+            this.btnFilter.Size = new System.Drawing.Size(100, 32);
             this.btnFilter.TabIndex = 7;
-            this.btnFilter.Text = "🔍 Lọc Dữ Liệu";
-            this.btnFilter.UseVisualStyleBackColor = false;
+            this.btnFilter.Text = "Lọc Dữ Liệu";
+            this.btnFilter.UseVisualStyleBackColor = true;
             this.btnFilter.Click += new System.EventHandler(this.BtnFilter_Click);
             // 
             // btnRefresh
             // 
-            this.btnRefresh.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(238)))), ((int)(((byte)(233)))));
-            this.btnRefresh.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnRefresh.FlatAppearance.BorderSize = 0;
-            this.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRefresh.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnRefresh.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(50)))), ((int)(((byte)(35)))));
-            this.btnRefresh.Location = new System.Drawing.Point(890, 25);
+            this.btnRefresh.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnRefresh.Location = new System.Drawing.Point(870, 25);
             this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(100, 34);
+            this.btnRefresh.Size = new System.Drawing.Size(90, 32);
             this.btnRefresh.TabIndex = 8;
-            this.btnRefresh.Text = "🔄 Làm Mới";
-            this.btnRefresh.UseVisualStyleBackColor = false;
+            this.btnRefresh.Text = "Làm Mới";
+            this.btnRefresh.UseVisualStyleBackColor = true;
             this.btnRefresh.Click += new System.EventHandler(this.BtnRefresh_Click);
             // 
             // lblTitle
             // 
             this.lblTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(83)))), ((int)(((byte)(45)))));
+            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(51)))), ((int)(((byte)(102)))));
             this.lblTitle.Location = new System.Drawing.Point(20, 20);
             this.lblTitle.Name = "lblTitle";
             this.lblTitle.Size = new System.Drawing.Size(1040, 45);
             this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "📄 QUẢN LÝ & LỊCH SỬ HÓA ĐƠN BÁN VÉ";
+            this.lblTitle.Text = "QUẢN LÝ & LỊCH SỬ HÓA ĐƠN BÁN VÉ";
             // 
             // ucHoaDon
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(240, 245, 241);
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.pnlContainer);
             this.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.Name = "ucHoaDon";

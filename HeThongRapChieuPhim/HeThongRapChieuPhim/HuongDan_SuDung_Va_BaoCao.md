@@ -18,7 +18,8 @@
 
 | Vai trò | Tên đăng nhập | Mật khẩu | Ghi chú |
 | :--- | :--- | :--- | :--- |
-| **👑 Admin** | `admin` | `admin` | Mật khẩu mẫu; được băm sau lần đăng nhập thành công đầu tiên |
+| **👑 Admin tổng** | `admin` | `admin` | Toàn quyền tất cả chức năng; tự động băm bảo mật sau lần đăng nhập đầu tiên |
+| **👑 Admin tổng** | `admintong` | `admin123` | Tài khoản Admin tổng dự phòng |
 
 *(Màn hình Đăng nhập có nút bấm tiện lợi **"👑 Tự điền: admin / admin"** để tự động điền tài khoản).*
 - Sau khi đăng nhập Admin, mở **Tài Khoản Thu Ngân** để tạo tài khoản độc lập hoặc đặt lại mật khẩu. Mật khẩu phải có ít nhất 6 ký tự.

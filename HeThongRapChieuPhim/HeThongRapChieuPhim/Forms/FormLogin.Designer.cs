@@ -34,7 +34,7 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // pnlCard
             // 
-            pnlCard.BackColor = Color.White;
+            pnlCard.BackColor = SystemColors.Control;
             pnlCard.BorderStyle = BorderStyle.FixedSingle;
             pnlCard.Controls.Add(picLogo);
             pnlCard.Controls.Add(lblBrand);
@@ -67,30 +67,30 @@ namespace HeThongRapChieuPhim.Forms
             // lblBrand
             // 
             lblBrand.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
-            lblBrand.ForeColor = Color.FromArgb(20, 83, 45);
+            lblBrand.ForeColor = Color.FromArgb(0, 51, 102);
             lblBrand.Location = new Point(0, 125);
             lblBrand.Name = "lblBrand";
             lblBrand.Size = new Size(460, 35);
             lblBrand.TabIndex = 1;
-            lblBrand.Text = "NHH CINEMA";
+            lblBrand.Text = "HỆ THỐNG RẠP CHIẾU PHIM";
             lblBrand.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblSub
             // 
             lblSub.Font = new Font("Segoe UI", 9.5F);
-            lblSub.ForeColor = Color.FromArgb(85, 115, 95);
+            lblSub.ForeColor = Color.DimGray;
             lblSub.Location = new Point(0, 160);
             lblSub.Name = "lblSub";
             lblSub.Size = new Size(460, 25);
             lblSub.TabIndex = 2;
-            lblSub.Text = "HỆ THỐNG QUẢN LÝ RẠP CHIẾU PHIM";
+            lblSub.Text = "ĐĂNG NHẬP KHU VỰC LÀM VIỆC";
             lblSub.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblUser
             // 
             lblUser.AutoSize = true;
             lblUser.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            lblUser.ForeColor = Color.FromArgb(20, 50, 35);
+            lblUser.ForeColor = Color.Black;
             lblUser.Location = new Point(45, 195);
             lblUser.Name = "lblUser";
             lblUser.Size = new Size(127, 21);
@@ -99,10 +99,10 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // txtUsername
             // 
-            txtUsername.Font = new Font("Segoe UI", 12F);
+            txtUsername.Font = new Font("Segoe UI", 11F);
             txtUsername.Location = new Point(45, 220);
             txtUsername.Name = "txtUsername";
-            txtUsername.Size = new Size(370, 34);
+            txtUsername.Size = new Size(370, 27);
             txtUsername.TabIndex = 4;
             txtUsername.TextChanged += txtUsername_TextChanged;
             // 
@@ -110,7 +110,7 @@ namespace HeThongRapChieuPhim.Forms
             // 
             lblPass.AutoSize = true;
             lblPass.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            lblPass.ForeColor = Color.FromArgb(20, 50, 35);
+            lblPass.ForeColor = Color.Black;
             lblPass.Location = new Point(45, 265);
             lblPass.Name = "lblPass";
             lblPass.Size = new Size(86, 21);
@@ -119,11 +119,11 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // txtPassword
             // 
-            txtPassword.Font = new Font("Segoe UI", 12F);
+            txtPassword.Font = new Font("Segoe UI", 11F);
             txtPassword.Location = new Point(45, 290);
             txtPassword.Name = "txtPassword";
             txtPassword.PasswordChar = '•';
-            txtPassword.Size = new Size(370, 34);
+            txtPassword.Size = new Size(370, 27);
             txtPassword.TabIndex = 6;
             // 
             // lblStatus
@@ -137,41 +137,31 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // btnLogin
             // 
-            btnLogin.BackColor = Color.FromArgb(16, 163, 74);
-            btnLogin.Cursor = Cursors.Hand;
-            btnLogin.FlatAppearance.BorderSize = 0;
-            btnLogin.FlatStyle = FlatStyle.Flat;
-            btnLogin.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            btnLogin.ForeColor = Color.White;
+            btnLogin.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             btnLogin.Location = new Point(45, 360);
             btnLogin.Name = "btnLogin";
-            btnLogin.Size = new Size(370, 44);
+            btnLogin.Size = new Size(370, 40);
             btnLogin.TabIndex = 8;
             btnLogin.Text = "ĐĂNG NHẬP";
-            btnLogin.UseVisualStyleBackColor = false;
+            btnLogin.UseVisualStyleBackColor = true;
             btnLogin.Click += BtnLogin_Click;
             // 
             // btnExit
             // 
-            btnExit.BackColor = Color.FromArgb(215, 228, 220);
-            btnExit.Cursor = Cursors.Hand;
-            btnExit.FlatAppearance.BorderSize = 0;
-            btnExit.FlatStyle = FlatStyle.Flat;
-            btnExit.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnExit.ForeColor = Color.FromArgb(40, 70, 55);
-            btnExit.Location = new Point(45, 415);
+            btnExit.Font = new Font("Segoe UI", 10F);
+            btnExit.Location = new Point(45, 410);
             btnExit.Name = "btnExit";
-            btnExit.Size = new Size(370, 36);
+            btnExit.Size = new Size(370, 34);
             btnExit.TabIndex = 9;
             btnExit.Text = "Thoát";
-            btnExit.UseVisualStyleBackColor = false;
+            btnExit.UseVisualStyleBackColor = true;
             btnExit.Click += BtnExit_Click;
             // 
             // lblDemo
             // 
             lblDemo.AutoSize = true;
             lblDemo.Font = new Font("Segoe UI", 8.5F, FontStyle.Italic);
-            lblDemo.ForeColor = Color.FromArgb(85, 115, 95);
+            lblDemo.ForeColor = Color.DimGray;
             lblDemo.Location = new Point(45, 465);
             lblDemo.Name = "lblDemo";
             lblDemo.Size = new Size(190, 20);
@@ -180,18 +170,13 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // btnFillAdmin
             // 
-            btnFillAdmin.BackColor = Color.FromArgb(220, 252, 231);
-            btnFillAdmin.Cursor = Cursors.Hand;
-            btnFillAdmin.FlatAppearance.BorderSize = 0;
-            btnFillAdmin.FlatStyle = FlatStyle.Flat;
-            btnFillAdmin.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            btnFillAdmin.ForeColor = Color.FromArgb(21, 128, 61);
+            btnFillAdmin.Font = new Font("Segoe UI", 9.5F);
             btnFillAdmin.Location = new Point(45, 490);
             btnFillAdmin.Name = "btnFillAdmin";
             btnFillAdmin.Size = new Size(370, 34);
             btnFillAdmin.TabIndex = 11;
-            btnFillAdmin.Text = "👑 Tự điền: admin / admin";
-            btnFillAdmin.UseVisualStyleBackColor = false;
+            btnFillAdmin.Text = "Tự điền: admin / admin";
+            btnFillAdmin.UseVisualStyleBackColor = true;
             btnFillAdmin.Click += BtnFillAdmin_Click;
             // 
             // FormLogin
@@ -199,7 +184,7 @@ namespace HeThongRapChieuPhim.Forms
             AcceptButton = btnLogin;
             AutoScaleDimensions = new SizeF(9F, 23F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(240, 245, 241);
+            BackColor = SystemColors.Control;
             ClientSize = new Size(520, 640);
             Controls.Add(pnlCard);
             Font = new Font("Segoe UI", 10F);
@@ -208,7 +193,7 @@ namespace HeThongRapChieuPhim.Forms
             MinimizeBox = false;
             Name = "FormLogin";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "ĐĂNG NHẬP HỆ THỐNG - NHH CINEMA";
+            Text = "ĐĂNG NHẬP HỆ THỐNG";
             pnlCard.ResumeLayout(false);
             pnlCard.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)picLogo).EndInit();

@@ -446,7 +446,7 @@ namespace HeThongRapChieuPhim.UserControls
                 {
                     _requiredComboSeats = Convert.ToInt32(drv["SoLuongGhe"]);
                     _comboDiscountPct = Convert.ToDecimal(drv["PhanTramGiam"]);
-                    lblComboNote.Text = $"⭐ Yêu cầu chọn đúng {_requiredComboSeats} ghế. Giảm {_comboDiscountPct:0.#}% giá vé!";
+                    lblComboNote.Text = $"Yêu cầu chọn đúng {_requiredComboSeats} ghế. Giảm {_comboDiscountPct:0.#}% giá vé!";
                 }
                 CalculateTotals();
             }
@@ -605,25 +605,25 @@ namespace HeThongRapChieuPhim.UserControls
                 {
                     decimal veConLai = Math.Max(0, rawTicketPrice - comboDiscount);
                     voucherDiscount = veConLai * (_appliedVoucherValue / 100m);
-                    lblSumVoucher.Text = $"🎟️ Voucher: -{voucherDiscount:N0} đ ({_appliedVoucherValue:0.#}%)";
+                    lblSumVoucher.Text = $"Voucher: -{voucherDiscount:N0} đ ({_appliedVoucherValue:0.#}%)";
                 }
                 else if (_appliedVoucherType.Contains("vé", StringComparison.OrdinalIgnoreCase))
                 {
                     int soVeGiam = Math.Min((int)_appliedVoucherValue, sortedSeats.Count);
                     voucherDiscount = soVeGiam * _currentGiaVe;
-                    lblSumVoucher.Text = $"🎟️ Voucher: -{voucherDiscount:N0} đ ({soVeGiam} vé)";
+                    lblSumVoucher.Text = $"Voucher: -{voucherDiscount:N0} đ ({soVeGiam} vé)";
                 }
                 else // Giảm số tiền
                 {
                     decimal maxGiam = Math.Max(0, rawTicketPrice - comboDiscount) + foodTotal;
                     voucherDiscount = Math.Min(_appliedVoucherValue, maxGiam);
-                    lblSumVoucher.Text = $"🎟️ Voucher: -{voucherDiscount:N0} đ";
+                    lblSumVoucher.Text = $"Voucher: -{voucherDiscount:N0} đ";
                 }
                 lblSumVoucher.ForeColor = ThemeHelper.AccentGreen;
             }
             else
             {
-                lblSumVoucher.Text = "🎟️ Voucher: Chưa dùng";
+                lblSumVoucher.Text = "Voucher: Chưa dùng";
                 lblSumVoucher.ForeColor = ThemeHelper.TextMuted;
             }
 

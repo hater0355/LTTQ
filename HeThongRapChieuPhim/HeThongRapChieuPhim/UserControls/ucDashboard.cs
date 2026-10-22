@@ -171,5 +171,10 @@ namespace HeThongRapChieuPhim.UserControls
                 MessageBox.Show($"Lỗi nạp Dashboard: {ex.Message}", "Lỗi CSDL", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void lblKpiTicketsTitle_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

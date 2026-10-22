@@ -48,47 +48,37 @@ namespace HeThongRapChieuPhim.UserControls
             this.btnSuatChieu.ForeColor = System.Drawing.Color.FromArgb(60, 95, 75);
             this.btnSuatChieu.Location = new System.Drawing.Point(15, 8);
             this.btnSuatChieu.Name = "btnSuatChieu";
-            this.btnSuatChieu.Size = new System.Drawing.Size(200, 36);
+            this.btnSuatChieu.Size = new System.Drawing.Size(160, 32);
             this.btnSuatChieu.TabIndex = 0;
-            this.btnSuatChieu.Text = "⏰  Cài Đặt Suất Chiếu";
-            this.btnSuatChieu.UseVisualStyleBackColor = false;
+            this.btnSuatChieu.Text = "Cài Đặt Suất Chiếu";
+            this.btnSuatChieu.UseVisualStyleBackColor = true;
             this.btnSuatChieu.Click += new System.EventHandler(this.BtnSuatChieu_Click);
             // 
             // btnCombo
             // 
-            this.btnCombo.BackColor = System.Drawing.Color.Transparent;
-            this.btnCombo.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnCombo.FlatAppearance.BorderSize = 0;
-            this.btnCombo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCombo.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnCombo.ForeColor = System.Drawing.Color.FromArgb(60, 95, 75);
-            this.btnCombo.Location = new System.Drawing.Point(225, 8);
+            this.btnCombo.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnCombo.Location = new System.Drawing.Point(180, 8);
             this.btnCombo.Name = "btnCombo";
-            this.btnCombo.Size = new System.Drawing.Size(230, 36);
+            this.btnCombo.Size = new System.Drawing.Size(170, 32);
             this.btnCombo.TabIndex = 1;
-            this.btnCombo.Text = "🎁  Cài Đặt Ưu Đãi Combo";
-            this.btnCombo.UseVisualStyleBackColor = false;
+            this.btnCombo.Text = "Cài Đặt Ưu Đãi Combo";
+            this.btnCombo.UseVisualStyleBackColor = true;
             this.btnCombo.Click += new System.EventHandler(this.BtnCombo_Click);
             // 
             // btnVoucher
             // 
-            this.btnVoucher.BackColor = System.Drawing.Color.Transparent;
-            this.btnVoucher.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnVoucher.FlatAppearance.BorderSize = 0;
-            this.btnVoucher.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnVoucher.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnVoucher.ForeColor = System.Drawing.Color.FromArgb(60, 95, 75);
-            this.btnVoucher.Location = new System.Drawing.Point(465, 8);
+            this.btnVoucher.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnVoucher.Location = new System.Drawing.Point(365, 8);
             this.btnVoucher.Name = "btnVoucher";
-            this.btnVoucher.Size = new System.Drawing.Size(200, 36);
+            this.btnVoucher.Size = new System.Drawing.Size(150, 32);
             this.btnVoucher.TabIndex = 2;
-            this.btnVoucher.Text = "🎟️  Cài Đặt Voucher";
-            this.btnVoucher.UseVisualStyleBackColor = false;
+            this.btnVoucher.Text = "Cài Đặt Voucher";
+            this.btnVoucher.UseVisualStyleBackColor = true;
             this.btnVoucher.Click += new System.EventHandler(this.BtnVoucher_Click);
             // 
             // pnlBody
             // 
-            this.pnlBody.BackColor = System.Drawing.Color.FromArgb(240, 245, 241);
+            this.pnlBody.BackColor = System.Drawing.SystemColors.Control;
             this.pnlBody.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlBody.Location = new System.Drawing.Point(0, 52);
             this.pnlBody.Name = "pnlBody";
@@ -99,7 +89,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(240, 245, 241);
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.pnlBody);
             this.Controls.Add(this.pnlSubNav);
             this.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);

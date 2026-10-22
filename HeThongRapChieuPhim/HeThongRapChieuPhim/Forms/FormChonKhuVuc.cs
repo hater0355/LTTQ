@@ -55,5 +55,10 @@ namespace HeThongRapChieuPhim.Forms
                 Activate();
             }
         }
+
+        private void picHero_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

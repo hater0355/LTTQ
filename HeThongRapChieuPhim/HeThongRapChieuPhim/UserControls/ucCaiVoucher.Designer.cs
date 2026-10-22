@@ -69,7 +69,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // pnlRight
             // 
-            this.pnlRight.BackColor = System.Drawing.Color.White;
+            this.pnlRight.BackColor = System.Drawing.SystemColors.Control;
             this.pnlRight.Controls.Add(this.dgvVoucher);
             this.pnlRight.Controls.Add(this.pnlSearch);
             this.pnlRight.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -103,18 +103,16 @@ namespace HeThongRapChieuPhim.UserControls
             // btnTimKiem
             // 
             this.btnTimKiem.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnTimKiem.BackColor = System.Drawing.Color.FromArgb(59, 130, 246);
             this.btnTimKiem.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnTimKiem.FlatAppearance.BorderSize = 0;
-            this.btnTimKiem.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnTimKiem.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnTimKiem.ForeColor = System.Drawing.Color.White;
+            this.btnTimKiem.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnTimKiem.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular);
+            this.btnTimKiem.ForeColor = System.Drawing.Color.Black;
             this.btnTimKiem.Location = new System.Drawing.Point(486, 8);
             this.btnTimKiem.Name = "btnTimKiem";
             this.btnTimKiem.Size = new System.Drawing.Size(95, 32);
             this.btnTimKiem.TabIndex = 2;
-            this.btnTimKiem.Text = "🔍 Tìm kiếm";
-            this.btnTimKiem.UseVisualStyleBackColor = false;
+            this.btnTimKiem.Text = "Tìm kiếm";
+            this.btnTimKiem.UseVisualStyleBackColor = true;
             this.btnTimKiem.Click += new System.EventHandler(this.BtnTimKiem_Click);
             // 
             // txtSearch
@@ -146,7 +144,7 @@ namespace HeThongRapChieuPhim.UserControls
             // pnlLeft
             // 
             this.pnlLeft.AutoScroll = true;
-            this.pnlLeft.BackColor = System.Drawing.Color.White;
+            this.pnlLeft.BackColor = System.Drawing.SystemColors.Control;
             this.pnlLeft.Controls.Add(this.pnlButtons);
             this.pnlLeft.Controls.Add(this.cboTrangThai);
             this.pnlLeft.Controls.Add(this.lblTrangThai);
@@ -188,66 +186,58 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // btnLamMoi
             // 
-            this.btnLamMoi.BackColor = System.Drawing.Color.FromArgb(230, 238, 233);
             this.btnLamMoi.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLamMoi.FlatAppearance.BorderSize = 0;
-            this.btnLamMoi.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLamMoi.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnLamMoi.ForeColor = System.Drawing.Color.FromArgb(20, 50, 35);
-            this.btnLamMoi.Location = new System.Drawing.Point(170, 52);
+            this.btnLamMoi.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnLamMoi.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular);
+            this.btnLamMoi.ForeColor = System.Drawing.Color.Black;
+            this.btnLamMoi.Location = new System.Drawing.Point(170, 50);
             this.btnLamMoi.Name = "btnLamMoi";
-            this.btnLamMoi.Size = new System.Drawing.Size(155, 36);
+            this.btnLamMoi.Size = new System.Drawing.Size(155, 34);
             this.btnLamMoi.TabIndex = 3;
-            this.btnLamMoi.Text = "🔄 Làm mới";
-            this.btnLamMoi.UseVisualStyleBackColor = false;
+            this.btnLamMoi.Text = "Làm mới";
+            this.btnLamMoi.UseVisualStyleBackColor = true;
             this.btnLamMoi.Click += new System.EventHandler(this.BtnLamMoi_Click);
             // 
             // btnXoa
             // 
-            this.btnXoa.BackColor = System.Drawing.Color.FromArgb(239, 68, 68);
             this.btnXoa.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnXoa.FlatAppearance.BorderSize = 0;
-            this.btnXoa.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnXoa.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnXoa.ForeColor = System.Drawing.Color.White;
-            this.btnXoa.Location = new System.Drawing.Point(5, 52);
+            this.btnXoa.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnXoa.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular);
+            this.btnXoa.ForeColor = System.Drawing.Color.Black;
+            this.btnXoa.Location = new System.Drawing.Point(5, 50);
             this.btnXoa.Name = "btnXoa";
-            this.btnXoa.Size = new System.Drawing.Size(155, 36);
+            this.btnXoa.Size = new System.Drawing.Size(155, 34);
             this.btnXoa.TabIndex = 2;
-            this.btnXoa.Text = "🗑️ Xóa";
-            this.btnXoa.UseVisualStyleBackColor = false;
+            this.btnXoa.Text = "Xóa";
+            this.btnXoa.UseVisualStyleBackColor = true;
             this.btnXoa.Click += new System.EventHandler(this.BtnXoa_Click);
             // 
             // btnSua
             // 
-            this.btnSua.BackColor = System.Drawing.Color.FromArgb(245, 158, 11);
             this.btnSua.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSua.FlatAppearance.BorderSize = 0;
-            this.btnSua.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSua.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnSua.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnSua.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular);
             this.btnSua.ForeColor = System.Drawing.Color.Black;
             this.btnSua.Location = new System.Drawing.Point(170, 8);
             this.btnSua.Name = "btnSua";
-            this.btnSua.Size = new System.Drawing.Size(155, 36);
+            this.btnSua.Size = new System.Drawing.Size(155, 34);
             this.btnSua.TabIndex = 1;
-            this.btnSua.Text = "✏️ Cập nhật";
-            this.btnSua.UseVisualStyleBackColor = false;
+            this.btnSua.Text = "Sửa";
+            this.btnSua.UseVisualStyleBackColor = true;
             this.btnSua.Click += new System.EventHandler(this.BtnSua_Click);
             // 
             // btnThem
             // 
-            this.btnThem.BackColor = System.Drawing.Color.FromArgb(16, 185, 129);
             this.btnThem.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnThem.FlatAppearance.BorderSize = 0;
-            this.btnThem.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnThem.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnThem.ForeColor = System.Drawing.Color.White;
+            this.btnThem.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnThem.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular);
+            this.btnThem.ForeColor = System.Drawing.Color.Black;
             this.btnThem.Location = new System.Drawing.Point(5, 8);
             this.btnThem.Name = "btnThem";
-            this.btnThem.Size = new System.Drawing.Size(155, 36);
+            this.btnThem.Size = new System.Drawing.Size(155, 34);
             this.btnThem.TabIndex = 0;
-            this.btnThem.Text = "➕ Thêm mới";
-            this.btnThem.UseVisualStyleBackColor = false;
+            this.btnThem.Text = "Thêm";
+            this.btnThem.UseVisualStyleBackColor = true;
             this.btnThem.Click += new System.EventHandler(this.BtnThem_Click);
             // 
             // cboTrangThai
@@ -437,10 +427,16 @@ namespace HeThongRapChieuPhim.UserControls
             this.btnAutoMa.ForeColor = System.Drawing.Color.FromArgb(20, 50, 35);
             this.btnAutoMa.Location = new System.Drawing.Point(265, 115);
             this.btnAutoMa.Name = "btnAutoMa";
+            this.btnAutoMa.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAutoMa.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnAutoMa.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Regular);
+            this.btnAutoMa.ForeColor = System.Drawing.Color.Black;
+            this.btnAutoMa.Location = new System.Drawing.Point(265, 93);
+            this.btnAutoMa.Name = "btnAutoMa";
             this.btnAutoMa.Size = new System.Drawing.Size(80, 25);
             this.btnAutoMa.TabIndex = 3;
-            this.btnAutoMa.Text = "⚡ Tự tạo";
-            this.btnAutoMa.UseVisualStyleBackColor = false;
+            this.btnAutoMa.Text = "Tự tạo";
+            this.btnAutoMa.UseVisualStyleBackColor = true;
             this.btnAutoMa.Click += new System.EventHandler(this.BtnAutoMa_Click);
             // 
             // txtMaVoucher
@@ -471,18 +467,18 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             this.lblFormTitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblFormTitle.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.lblFormTitle.ForeColor = System.Drawing.Color.FromArgb(20, 83, 45);
+            this.lblFormTitle.ForeColor = System.Drawing.Color.FromArgb(0, 51, 102);
             this.lblFormTitle.Location = new System.Drawing.Point(15, 15);
             this.lblFormTitle.Name = "lblFormTitle";
             this.lblFormTitle.Size = new System.Drawing.Size(330, 78);
             this.lblFormTitle.TabIndex = 0;
-            this.lblFormTitle.Text = "🎟️ THÔNG TIN VOUCHER KHUYẾN MÃI";
+            this.lblFormTitle.Text = "THÔNG TIN VOUCHER KHUYẾN MÃI";
             // 
             // ucCaiVoucher
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(240, 245, 241);
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.pnlMain);
             this.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.Name = "ucCaiVoucher";

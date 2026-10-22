@@ -78,7 +78,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // pnlGrid
             // 
-            pnlGrid.BackColor = Color.White;
+            pnlGrid.BackColor = SystemColors.Control;
             pnlGrid.Controls.Add(dgvSuatChieu);
             pnlGrid.Dock = DockStyle.Fill;
             pnlGrid.Location = new Point(20, 345);
@@ -117,74 +117,66 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // btnThem
             // 
-            btnThem.BackColor = Color.FromArgb(16, 185, 129);
             btnThem.Cursor = Cursors.Hand;
-            btnThem.FlatAppearance.BorderSize = 0;
-            btnThem.FlatStyle = FlatStyle.Flat;
-            btnThem.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnThem.ForeColor = Color.White;
+            btnThem.FlatStyle = FlatStyle.Standard;
+            btnThem.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            btnThem.ForeColor = Color.Black;
             btnThem.Location = new Point(0, 8);
             btnThem.Name = "btnThem";
-            btnThem.Size = new Size(160, 38);
+            btnThem.Size = new Size(100, 34);
             btnThem.TabIndex = 0;
-            btnThem.Text = "➕ Thêm Suất Chiếu";
-            btnThem.UseVisualStyleBackColor = false;
+            btnThem.Text = "Thêm";
+            btnThem.UseVisualStyleBackColor = true;
             btnThem.Click += BtnThem_Click;
             // 
             // btnSua
             // 
-            btnSua.BackColor = Color.FromArgb(59, 130, 246);
             btnSua.Cursor = Cursors.Hand;
-            btnSua.FlatAppearance.BorderSize = 0;
-            btnSua.FlatStyle = FlatStyle.Flat;
-            btnSua.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnSua.ForeColor = Color.White;
-            btnSua.Location = new Point(170, 8);
+            btnSua.FlatStyle = FlatStyle.Standard;
+            btnSua.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            btnSua.ForeColor = Color.Black;
+            btnSua.Location = new Point(110, 8);
             btnSua.Name = "btnSua";
-            btnSua.Size = new Size(100, 38);
+            btnSua.Size = new Size(100, 34);
             btnSua.TabIndex = 1;
-            btnSua.Text = "✏️ Sửa";
-            btnSua.UseVisualStyleBackColor = false;
+            btnSua.Text = "Sửa";
+            btnSua.UseVisualStyleBackColor = true;
             btnSua.Click += BtnSua_Click;
             // 
             // btnXoa
             // 
-            btnXoa.BackColor = Color.FromArgb(220, 38, 38);
             btnXoa.Cursor = Cursors.Hand;
-            btnXoa.FlatAppearance.BorderSize = 0;
-            btnXoa.FlatStyle = FlatStyle.Flat;
-            btnXoa.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnXoa.ForeColor = Color.White;
-            btnXoa.Location = new Point(280, 8);
+            btnXoa.FlatStyle = FlatStyle.Standard;
+            btnXoa.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            btnXoa.ForeColor = Color.Black;
+            btnXoa.Location = new Point(220, 8);
             btnXoa.Name = "btnXoa";
-            btnXoa.Size = new Size(100, 38);
+            btnXoa.Size = new Size(100, 34);
             btnXoa.TabIndex = 2;
-            btnXoa.Text = "🗑️ Xóa";
-            btnXoa.UseVisualStyleBackColor = false;
+            btnXoa.Text = "Xóa";
+            btnXoa.UseVisualStyleBackColor = true;
             btnXoa.Click += BtnXoa_Click;
             // 
             // btnLamMoi
             // 
-            btnLamMoi.BackColor = Color.FromArgb(230, 238, 233);
             btnLamMoi.Cursor = Cursors.Hand;
-            btnLamMoi.FlatAppearance.BorderSize = 0;
-            btnLamMoi.FlatStyle = FlatStyle.Flat;
-            btnLamMoi.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnLamMoi.ForeColor = Color.FromArgb(20, 50, 35);
-            btnLamMoi.Location = new Point(390, 8);
+            btnLamMoi.FlatStyle = FlatStyle.Standard;
+            btnLamMoi.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            btnLamMoi.ForeColor = Color.Black;
+            btnLamMoi.Location = new Point(330, 8);
             btnLamMoi.Name = "btnLamMoi";
-            btnLamMoi.Size = new Size(110, 38);
+            btnLamMoi.Size = new Size(100, 34);
             btnLamMoi.TabIndex = 3;
-            btnLamMoi.Text = "🔄 Làm Mới";
-            btnLamMoi.UseVisualStyleBackColor = false;
+            btnLamMoi.Text = "Làm mới";
+            btnLamMoi.UseVisualStyleBackColor = true;
             btnLamMoi.Click += BtnLamMoi_Click;
             // 
             // lblFPhim
             // 
             lblFPhim.AutoSize = true;
             lblFPhim.Font = new Font("Segoe UI", 9F);
-            lblFPhim.ForeColor = Color.FromArgb(20, 50, 35);
-            lblFPhim.Location = new Point(530, 16);
+            lblFPhim.ForeColor = Color.Black;
+            lblFPhim.Location = new Point(450, 16);
             lblFPhim.Name = "lblFPhim";
             lblFPhim.Size = new Size(73, 20);
             lblFPhim.TabIndex = 4;
@@ -195,7 +187,7 @@ namespace HeThongRapChieuPhim.UserControls
             cboFilterPhim.DropDownStyle = ComboBoxStyle.DropDownList;
             cboFilterPhim.Font = new Font("Segoe UI", 9.5F);
             cboFilterPhim.FormattingEnabled = true;
-            cboFilterPhim.Location = new Point(595, 12);
+            cboFilterPhim.Location = new Point(520, 12);
             cboFilterPhim.Name = "cboFilterPhim";
             cboFilterPhim.Size = new Size(160, 29);
             cboFilterPhim.TabIndex = 5;
@@ -204,7 +196,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             dtpFilterNgay.Font = new Font("Segoe UI", 9.5F);
             dtpFilterNgay.Format = DateTimePickerFormat.Short;
-            dtpFilterNgay.Location = new Point(764, 12);
+            dtpFilterNgay.Location = new Point(690, 12);
             dtpFilterNgay.Name = "dtpFilterNgay";
             dtpFilterNgay.ShowCheckBox = true;
             dtpFilterNgay.Size = new Size(115, 29);
@@ -212,23 +204,21 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // btnFilter
             // 
-            btnFilter.BackColor = Color.FromArgb(245, 158, 11);
             btnFilter.Cursor = Cursors.Hand;
-            btnFilter.FlatAppearance.BorderSize = 0;
-            btnFilter.FlatStyle = FlatStyle.Flat;
-            btnFilter.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnFilter.FlatStyle = FlatStyle.Standard;
+            btnFilter.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
             btnFilter.ForeColor = Color.Black;
-            btnFilter.Location = new Point(890, 10);
+            btnFilter.Location = new Point(815, 10);
             btnFilter.Name = "btnFilter";
-            btnFilter.Size = new Size(70, 32);
+            btnFilter.Size = new Size(80, 29);
             btnFilter.TabIndex = 7;
             btnFilter.Text = "Lọc";
-            btnFilter.UseVisualStyleBackColor = false;
+            btnFilter.UseVisualStyleBackColor = true;
             btnFilter.Click += BtnFilter_Click;
             // 
             // pnlForm
             // 
-            pnlForm.BackColor = Color.White;
+            pnlForm.BackColor = SystemColors.Control;
             pnlForm.Controls.Add(lblMa);
             pnlForm.Controls.Add(txtMaSuatChieu);
             pnlForm.Controls.Add(btnAutoMa);
@@ -526,7 +516,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // pnlStatusBox
             // 
-            pnlStatusBox.BackColor = Color.FromArgb(240, 245, 241);
+            pnlStatusBox.BackColor = SystemColors.Control;
             pnlStatusBox.Controls.Add(lblStatus);
             pnlStatusBox.Location = new Point(20, 155);
             pnlStatusBox.Name = "pnlStatusBox";
@@ -538,7 +528,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             lblStatus.Dock = DockStyle.Fill;
             lblStatus.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            lblStatus.ForeColor = Color.FromArgb(16, 185, 129);
+            lblStatus.ForeColor = Color.FromArgb(0, 102, 204);
             lblStatus.Location = new Point(12, 6);
             lblStatus.Name = "lblStatus";
             lblStatus.Size = new Size(1086, 36);
@@ -550,18 +540,18 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             lblTitle.Dock = DockStyle.Top;
             lblTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
-            lblTitle.ForeColor = Color.FromArgb(20, 83, 45);
+            lblTitle.ForeColor = Color.FromArgb(0, 51, 102);
             lblTitle.Location = new Point(20, 20);
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(1160, 45);
             lblTitle.TabIndex = 0;
-            lblTitle.Text = "⏰ CÀI ĐẶT SUẤT CHIẾU (GẮN PHIM - PHÒNG - KHUNG GIỜ CHIẾU)";
+            lblTitle.Text = "CÀI ĐẶT SUẤT CHIẾU";
             // 
             // ucCaiSuatChieu
             // 
             AutoScaleDimensions = new SizeF(9F, 23F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(240, 245, 241);
+            BackColor = SystemColors.Control;
             Controls.Add(pnlContainer);
             Font = new Font("Segoe UI", 10F);
             Name = "ucCaiSuatChieu";

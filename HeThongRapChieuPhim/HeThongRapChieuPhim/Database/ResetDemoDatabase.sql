@@ -164,11 +164,14 @@ IF NOT EXISTS (SELECT 1 FROM NhanVien WHERE MaNV = 'QL01')
     ('QL01', N'Quản trị viên NHH', '1995-01-01', '0987654321', '001200000001', N'Quản lý');
 
 -- Tài khoản quản lý duy nhất để người dùng tự trải nghiệm hệ thống
--- Tên đăng nhập: admin
--- Mật khẩu: admin
+-- Tên đăng nhập: admin / Mật khẩu: admin
 IF NOT EXISTS (SELECT 1 FROM TaiKhoan WHERE TenDangNhap = 'admin')
     INSERT INTO TaiKhoan (TenDangNhap, MatKhau, MaNV, VaiTro, TrangThai, YeuCauDoiMatKhau) VALUES
-    ('admin', 'admin', 'QL01', N'Admin', 1, 1);
+    ('admin', 'admin', 'QL01', N'AdminTong', 1, 0);
+
+IF NOT EXISTS (SELECT 1 FROM TaiKhoan WHERE TenDangNhap = 'admintong')
+    INSERT INTO TaiKhoan (TenDangNhap, MatKhau, MaNV, VaiTro, TrangThai, YeuCauDoiMatKhau) VALUES
+    ('admintong', 'admin123', 'QL01', N'AdminTong', 1, 0);
 
 IF OBJECT_ID(N'dbo.SeqHoaDon', N'SO') IS NULL
     EXEC(N'CREATE SEQUENCE dbo.SeqHoaDon AS BIGINT START WITH 1 INCREMENT BY 1');

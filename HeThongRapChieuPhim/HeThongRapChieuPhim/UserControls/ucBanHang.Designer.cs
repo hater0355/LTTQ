@@ -1,4 +1,4 @@
-namespace HeThongRapChieuPhim.UserControls
+﻿namespace HeThongRapChieuPhim.UserControls
 {
     partial class ucBanHang
     {
@@ -117,9 +117,9 @@ namespace HeThongRapChieuPhim.UserControls
             lblTitle.ForeColor = Color.FromArgb(20, 83, 45);
             lblTitle.Location = new Point(15, 8);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(558, 31);
+            lblTitle.Size = new Size(349, 31);
             lblTitle.TabIndex = 0;
-            lblTitle.Text = "🎟️ BÁN VÉ XEM PHIM & BẮP NƯỚC - NHH CINEMA";
+            lblTitle.Text = "BÁN VÉ XEM PHIM & BẮP NƯỚC";
             // 
             // lblCashierInfo
             // 
@@ -556,8 +556,8 @@ namespace HeThongRapChieuPhim.UserControls
             btnReset.Name = "btnReset";
             btnReset.Size = new Size(263, 36);
             btnReset.TabIndex = 4;
-            btnReset.Text = "🔄 Làm mới / Hủy chọn";
-            btnReset.UseVisualStyleBackColor = false;
+            btnReset.Text = "Làm mới / Hủy chọn";
+            btnReset.UseVisualStyleBackColor = true;
             btnReset.Click += BtnReset_Click;
             // 
             // btnConfirm
@@ -575,7 +575,7 @@ namespace HeThongRapChieuPhim.UserControls
             btnConfirm.Size = new Size(263, 48);
             btnConfirm.TabIndex = 3;
             btnConfirm.Text = "XÁC NHẬN BÁN VÉ";
-            btnConfirm.UseVisualStyleBackColor = false;
+            btnConfirm.UseVisualStyleBackColor = true;
             btnConfirm.Click += BtnConfirm_Click;
             // 
             // grpPayment
@@ -651,7 +651,7 @@ namespace HeThongRapChieuPhim.UserControls
             grpVoucher.Size = new Size(263, 85);
             grpVoucher.TabIndex = 2;
             grpVoucher.TabStop = false;
-            grpVoucher.Text = " 🎟️ Mã Voucher Giảm Giá ";
+            grpVoucher.Text = " Mã Voucher Giảm Giá ";
             // 
             // lblVoucherStatus
             // 
@@ -772,7 +772,7 @@ namespace HeThongRapChieuPhim.UserControls
             lblSumVoucher.Name = "lblSumVoucher";
             lblSumVoucher.Size = new Size(243, 22);
             lblSumVoucher.TabIndex = 8;
-            lblSumVoucher.Text = "🎟️ Voucher: Chưa áp dụng";
+            lblSumVoucher.Text = "Voucher: Chưa áp dụng";
             // 
             // lblSumDiscount
             // 
@@ -844,7 +844,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             AutoScaleDimensions = new SizeF(9F, 23F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(240, 245, 241);
+            BackColor = SystemColors.Control;
             Controls.Add(pnlBody);
             Controls.Add(pnlTop);
             Font = new Font("Segoe UI", 10F);

@@ -13,8 +13,14 @@ public sealed partial class FormDoiMatKhau : Form
         InitializeComponent();
         lblHint.Text = $"Tài khoản {CurrentUser.TenDangNhap} cần đổi mật khẩu mẫu trước khi tiếp tục.";
         btnSave.Click += Save_Click;
-        btnCancel.Click += (_, _) => CurrentUser.Clear();
+        btnCancel.Click += (_, _) =>
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
+        };
     }
+
+    public string NewPassword { get; private set; } = string.Empty;
 
     private void Save_Click(object? sender, EventArgs e)
     {
@@ -30,6 +36,7 @@ public sealed partial class FormDoiMatKhau : Form
                 lblStatus.Text = error;
                 return;
             }
+            NewPassword = txtNewPassword.Text;
             DialogResult = DialogResult.OK;
             Close();
         }

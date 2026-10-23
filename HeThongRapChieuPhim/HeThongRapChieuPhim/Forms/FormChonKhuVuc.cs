@@ -1,4 +1,5 @@
 using HeThongRapChieuPhim.Data;
+using HeThongRapChieuPhim.Classes;
 
 namespace HeThongRapChieuPhim.Forms
 {
@@ -50,6 +51,7 @@ namespace HeThongRapChieuPhim.Forms
             }
             finally
             {
+                PaymentsApiClient.ClearSession();
                 CurrentUser.Clear();
                 Show();
                 Activate();

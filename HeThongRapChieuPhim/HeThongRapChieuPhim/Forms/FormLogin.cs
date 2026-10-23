@@ -40,7 +40,8 @@ namespace HeThongRapChieuPhim.Forms
                 if (File.Exists(logoPath))
                 {
                     using var stream = new FileStream(logoPath, FileMode.Open, FileAccess.Read);
-                    picLogo.Image = Image.FromStream(stream);
+                    using var source = Image.FromStream(stream);
+                    picLogo.Image = new Bitmap(source);
                 }
             }
             catch { }
@@ -50,6 +51,7 @@ namespace HeThongRapChieuPhim.Forms
         {
             string user = txtUsername.Text.Trim();
             string pass = txtPassword.Text;
+            PaymentsApiClient.ClearSession();
 
             if (string.IsNullOrEmpty(user) || string.IsNullOrWhiteSpace(pass))
             {
@@ -94,6 +96,7 @@ namespace HeThongRapChieuPhim.Forms
                     return;
                 }
 
+                string paymentSessionPassword = pass;
                 if (CurrentUser.MustChangePassword)
                 {
                     using var changePassword = new FormDoiMatKhau();
@@ -104,6 +107,15 @@ namespace HeThongRapChieuPhim.Forms
                         lblStatus.Text = "Bạn cần đổi mật khẩu để tiếp tục.";
                         return;
                     }
+                    paymentSessionPassword = changePassword.NewPassword;
+                }
+
+                // The payment API issues a short-lived, cashier-bound session. Login still
+                // works for cash sales when the optional local API is offline.
+                if (CurrentUser.IsCashier)
+                {
+                    try { PaymentsApiClient.CreateSession(user, paymentSessionPassword); }
+                    catch { PaymentsApiClient.ClearSession(); }
                 }
 
                 DialogResult = DialogResult.OK;

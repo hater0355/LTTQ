@@ -16,12 +16,86 @@ namespace HeThongRapChieuPhim.UserControls
         private bool _isLoading = false;
         private bool _isSelectingFromSlot = false;
         private int _currentThoiLuong = 120;
+        private readonly ComboBox _cboFilterPhong = new();
+        private readonly CheckBox _chkFilterGio = new();
+        private readonly DateTimePicker _dtpFilterGioTu = new();
+        private readonly DateTimePicker _dtpFilterGioDen = new();
 
         public ucCaiSuatChieu()
         {
             InitializeComponent();
             ThemeHelper.StyleDataGridView(dgvSuatChieu);
+            ConfigureScheduleFilters();
             if (!DesignTimeHelper.IsDesignTime(this)) RefreshData();
+        }
+
+        private void ConfigureScheduleFilters()
+        {
+            pnlActions.Height = 96;
+            lblFPhim.Location = new Point(450, 16);
+            cboFilterPhim.Location = new Point(520, 12);
+            cboFilterPhim.Size = new Size(160, 29);
+            dtpFilterNgay.Location = new Point(520, 55);
+            dtpFilterNgay.Size = new Size(115, 29);
+            btnFilter.Location = new Point(1020, 54);
+            btnFilter.Size = new Size(80, 30);
+
+            var lblPhongFilter = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F),
+                ForeColor = Color.Black,
+                Location = new Point(690, 16),
+                Text = "Lọc phòng:"
+            };
+            _cboFilterPhong.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboFilterPhong.Font = new Font("Segoe UI", 9.5F);
+            _cboFilterPhong.Location = new Point(765, 12);
+            _cboFilterPhong.Size = new Size(180, 29);
+
+            var lblNgayFilter = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F),
+                ForeColor = Color.Black,
+                Location = new Point(450, 59),
+                Text = "Ngày:"
+            };
+            _chkFilterGio.AutoSize = true;
+            _chkFilterGio.Font = new Font("Segoe UI", 9F);
+            _chkFilterGio.Location = new Point(650, 59);
+            _chkFilterGio.Text = "Lọc giờ:";
+            _chkFilterGio.CheckedChanged += (_, _) =>
+            {
+                _dtpFilterGioTu.Enabled = _chkFilterGio.Checked;
+                _dtpFilterGioDen.Enabled = _chkFilterGio.Checked;
+            };
+
+            ConfigureTimePicker(_dtpFilterGioTu, new Point(730, 55), "10:00");
+            ConfigureTimePicker(_dtpFilterGioDen, new Point(860, 55), "23:59");
+            var lblGioDen = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F),
+                ForeColor = Color.Black,
+                Location = new Point(824, 59),
+                Text = "đến"
+            };
+
+            pnlActions.Controls.AddRange([lblPhongFilter, _cboFilterPhong, lblNgayFilter, _chkFilterGio, _dtpFilterGioTu, lblGioDen, _dtpFilterGioDen]);
+            _dtpFilterGioTu.Enabled = false;
+            _dtpFilterGioDen.Enabled = false;
+        }
+
+        private static void ConfigureTimePicker(DateTimePicker picker, Point location, string initialValue)
+        {
+            picker.Format = DateTimePickerFormat.Custom;
+            picker.CustomFormat = "HH:mm";
+            picker.ShowUpDown = true;
+            picker.Font = new Font("Segoe UI", 9.5F);
+            picker.Location = location;
+            picker.Size = new Size(82, 29);
+            picker.Value = DateTime.Today.Add(TimeSpan.Parse(initialValue));
         }
 
         public void RefreshData()
@@ -87,6 +161,15 @@ namespace HeThongRapChieuPhim.UserControls
                 cboPhongChieu.DataSource = dtPhong;
                 cboPhongChieu.DisplayMember = "TenPhong";
                 cboPhongChieu.ValueMember = "MaPhong";
+
+                var dtFilterPhong = dtPhong.Copy();
+                var allRoomRow = dtFilterPhong.NewRow();
+                allRoomRow["MaPhong"] = "";
+                allRoomRow["TenPhong"] = "-- Tất cả phòng --";
+                dtFilterPhong.Rows.InsertAt(allRoomRow, 0);
+                _cboFilterPhong.DataSource = dtFilterPhong;
+                _cboFilterPhong.DisplayMember = "TenPhong";
+                _cboFilterPhong.ValueMember = "MaPhong";
 
                 _isLoading = false;
 
@@ -214,7 +297,7 @@ namespace HeThongRapChieuPhim.UserControls
 
             // Sinh các mốc slot bắt đầu từ 10:00
             TimeSpan cur = openTime;
-            while (cur.Add(TimeSpan.FromMinutes(movieMinutes)) <= closeTime)
+            while (cur.Add(TimeSpan.FromMinutes(totalOccupy)) <= closeTime)
             {
                 var slot = CreateSlotItem(cur, movieMinutes, cleanMinutes, existingShows);
                 slotList.Add(slot);
@@ -235,7 +318,7 @@ namespace HeThongRapChieuPhim.UserControls
             // Kiểm tra thêm các mốc bắt đầu ngay sau khi mỗi suất đã có dọn phòng xong (nếu chưa có trong list)
             foreach (var ex in existingShows)
             {
-                if (ex.CleanEndTime >= openTime && ex.CleanEndTime.Add(TimeSpan.FromMinutes(movieMinutes)) <= closeTime)
+                if (ex.CleanEndTime >= openTime && ex.CleanEndTime.Add(TimeSpan.FromMinutes(totalOccupy)) <= closeTime)
                 {
                     bool alreadyExists = slotList.Exists(s => Math.Abs((s.StartTime - ex.CleanEndTime).TotalMinutes) < 15);
                     if (!alreadyExists)
@@ -297,9 +380,9 @@ namespace HeThongRapChieuPhim.UserControls
                     ORDER BY sc.GioChieu ASC";
 
                 var dt = Function.Query(query, new[] {
-                    new DbArg("@Phong", maPhong),
-                    new DbArg("@Ngay", ngayChieu),
-                    new DbArg("@Exclude", excludeMaSC)
+                    DbArg.VarChar20("@Phong", maPhong),
+                    DbArg.Date("@Ngay", ngayChieu),
+                    DbArg.VarChar20("@Exclude", excludeMaSC)
                 });
 
                 foreach (DataRow row in dt.Rows)
@@ -333,6 +416,18 @@ namespace HeThongRapChieuPhim.UserControls
         {
             var end = start.Add(TimeSpan.FromMinutes(movieMinutes));
             var clean = end.Add(TimeSpan.FromMinutes(cleanMinutes));
+
+            if (clean > TimeSpan.FromHours(24))
+            {
+                return new TimeSlotItem
+                {
+                    StartTime = start,
+                    EndTime = end,
+                    CleanEndTime = clean,
+                    IsAvailable = false,
+                    Note = "Không đủ thời gian dọn phòng trước giờ đóng cửa"
+                };
+            }
 
             var conflict = FindFirstConflict(start, clean, existingShows);
             if (conflict != null)
@@ -428,10 +523,10 @@ namespace HeThongRapChieuPhim.UserControls
                 return;
             }
 
-            // 2. Kiểm tra giờ kết thúc không vượt quá 00:00 đêm (24:00)
-            if (end > TimeSpan.FromHours(24))
+            // Phim phải kết thúc và phòng phải được dọn xong trước giờ đóng cửa.
+            if (clean > TimeSpan.FromHours(24))
             {
-                lblStatus.Text = $"⛔ Phim kết thúc lúc {FormatTimeSpan(end)}, vượt quá giờ đóng cửa rạp (00:00)! Vui lòng chọn giờ sớm hơn.";
+                lblStatus.Text = $"⛔ Dọn phòng xong lúc {FormatTimeSpan(clean)}, vượt quá giờ đóng cửa rạp (00:00)! Vui lòng chọn giờ sớm hơn.";
                 lblStatus.ForeColor = ThemeHelper.AccentRed;
                 btnThem.Enabled = false;
                 return;
@@ -478,8 +573,17 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string filterPhim = cboFilterPhim.SelectedValue?.ToString() ?? "";
+                string filterPhong = _cboFilterPhong.SelectedValue?.ToString() ?? "";
                 bool filterByDate = dtpFilterNgay.Checked;
                 DateTime fDate = dtpFilterNgay.Value.Date;
+                bool filterByTime = _chkFilterGio.Checked;
+                TimeSpan startTime = _dtpFilterGioTu.Value.TimeOfDay;
+                TimeSpan endTime = _dtpFilterGioDen.Value.TimeOfDay;
+                if (filterByTime && startTime > endTime)
+                {
+                    MessageBox.Show("Giờ bắt đầu phải nhỏ hơn hoặc bằng giờ kết thúc.", "Khoảng giờ không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
                 string query = @"
                     SELECT 
@@ -498,14 +602,20 @@ namespace HeThongRapChieuPhim.UserControls
                     JOIN Phim p ON sc.MaPhim = p.MaPhim
                     JOIN PhongChieu pc ON sc.MaPhong = pc.MaPhong
                     WHERE (@MaPhim = '' OR sc.MaPhim = @MaPhim)
+                      AND (@MaPhong = '' OR sc.MaPhong = @MaPhong)
                       AND (@FilterDate = 0 OR sc.NgayChieu = @Ngay)
+                      AND (@FilterTime = 0 OR (sc.GioChieu >= @StartTime AND sc.GioChieu <= @EndTime))
                     ORDER BY sc.NgayChieu DESC, sc.GioChieu ASC";
 
                 var p = new[]
                 {
-                    new DbArg("@MaPhim", filterPhim),
-                    new DbArg("@FilterDate", filterByDate ? 1 : 0),
-                    new DbArg("@Ngay", fDate)
+                    DbArg.VarChar20("@MaPhim", filterPhim),
+                    DbArg.VarChar20("@MaPhong", filterPhong),
+                    DbArg.Bit("@FilterDate", filterByDate),
+                    DbArg.Date("@Ngay", fDate),
+                    DbArg.Bit("@FilterTime", filterByTime),
+                    DbArg.Time("@StartTime", startTime),
+                    DbArg.Time("@EndTime", endTime)
                 };
 
                 var dt = Function.Query(query, p);
@@ -529,30 +639,19 @@ namespace HeThongRapChieuPhim.UserControls
 
                 dgvSuatChieu.DataSource = dt;
 
-                if (dgvSuatChieu.Columns.Contains("MaPhim")) dgvSuatChieu.Columns["MaPhim"].Visible = false;
-                if (dgvSuatChieu.Columns.Contains("MaPhong")) dgvSuatChieu.Columns["MaPhong"].Visible = false;
-                if (dgvSuatChieu.Columns.Contains("NgayChieuRaw")) dgvSuatChieu.Columns["NgayChieuRaw"].Visible = false;
-                if (dgvSuatChieu.Columns.Contains("GioChieuRaw")) dgvSuatChieu.Columns["GioChieuRaw"].Visible = false;
+                if (dgvSuatChieu.Columns["MaPhim"] is { } movieColumn) movieColumn.Visible = false;
+                if (dgvSuatChieu.Columns["MaPhong"] is { } roomColumn) roomColumn.Visible = false;
+                if (dgvSuatChieu.Columns["NgayChieuRaw"] is { } dateColumn) dateColumn.Visible = false;
+                if (dgvSuatChieu.Columns["GioChieuRaw"] is { } timeColumn) timeColumn.Visible = false;
 
-                if (dgvSuatChieu.Columns.Contains("Mã Suất Chiếu"))
-                    dgvSuatChieu.Columns["Mã Suất Chiếu"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                if (dgvSuatChieu.Columns.Contains("Phòng Chiếu"))
-                    dgvSuatChieu.Columns["Phòng Chiếu"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                if (dgvSuatChieu.Columns.Contains("Thời Lượng"))
-                    dgvSuatChieu.Columns["Thời Lượng"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                if (dgvSuatChieu.Columns.Contains("Ngày Chiếu"))
-                    dgvSuatChieu.Columns["Ngày Chiếu"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                if (dgvSuatChieu.Columns.Contains("Giờ Bắt Đầu"))
-                    dgvSuatChieu.Columns["Giờ Bắt Đầu"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                if (dgvSuatChieu.Columns.Contains("Giờ Kết Thúc"))
-                    dgvSuatChieu.Columns["Giờ Kết Thúc"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                if (dgvSuatChieu.Columns.Contains("Dọn Xong Lúc"))
-                    dgvSuatChieu.Columns["Dọn Xong Lúc"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                foreach (string centeredColumnName in new[] { "Mã Suất Chiếu", "Phòng Chiếu", "Thời Lượng", "Ngày Chiếu", "Giờ Bắt Đầu", "Giờ Kết Thúc", "Dọn Xong Lúc" })
+                    if (dgvSuatChieu.Columns[centeredColumnName] is { } centeredColumn)
+                        centeredColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
-                if (dgvSuatChieu.Columns.Contains("Giá Vé (VNĐ)"))
+                if (dgvSuatChieu.Columns["Giá Vé (VNĐ)"] is { } ticketPriceColumn)
                 {
-                    dgvSuatChieu.Columns["Giá Vé (VNĐ)"].DefaultCellStyle.Format = "N0";
-                    dgvSuatChieu.Columns["Giá Vé (VNĐ)"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    ticketPriceColumn.DefaultCellStyle.Format = "N0";
+                    ticketPriceColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 }
             }
             catch (Exception ex)
@@ -618,13 +717,13 @@ namespace HeThongRapChieuPhim.UserControls
             }
 
             TimeSpan end = gio.Add(TimeSpan.FromMinutes(_currentThoiLuong));
-            if (end > TimeSpan.FromHours(24))
+            TimeSpan clean = end.Add(TimeSpan.FromMinutes(60));
+            if (clean > TimeSpan.FromHours(24))
             {
-                MessageBox.Show($"Phim kết thúc lúc {FormatTimeSpan(end)}, vượt quá 00:00 đêm (giờ đóng cửa rạp)!\nVui lòng chọn giờ bắt đầu sớm hơn.", "Vượt quá giờ rạp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"Dọn phòng xong lúc {FormatTimeSpan(clean)}, vượt quá 00:00 đêm (giờ đóng cửa rạp)!\nVui lòng chọn giờ bắt đầu sớm hơn.", "Vượt quá giờ rạp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            TimeSpan clean = end.Add(TimeSpan.FromMinutes(60));
             var existing = GetExistingShowsForRoom(maPhong, ngay, "");
             if (_scheduleLookupFailed) return;
             var conflict = FindFirstConflict(gio, clean, existing);
@@ -645,7 +744,7 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string checkQuery = "SELECT COUNT(*) FROM SuatChieu WHERE MaSuatChieu = @Ma";
-                int count = Convert.ToInt32(Function.Scalar(checkQuery, new[] { new DbArg("@Ma", maSC) }));
+                int count = Convert.ToInt32(Function.Scalar(checkQuery, new[] { DbArg.VarChar20("@Ma", maSC) }));
                 if (count > 0)
                 {
                     MessageBox.Show($"Mã suất chiếu '{maSC}' đã tồn tại! Vui lòng chọn hoặc tự tạo mã khác.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -684,13 +783,13 @@ namespace HeThongRapChieuPhim.UserControls
             }
 
             TimeSpan end = gio.Add(TimeSpan.FromMinutes(_currentThoiLuong));
-            if (end > TimeSpan.FromHours(24))
+            TimeSpan clean = end.Add(TimeSpan.FromMinutes(60));
+            if (clean > TimeSpan.FromHours(24))
             {
-                MessageBox.Show($"Phim kết thúc lúc {FormatTimeSpan(end)}, vượt quá 00:00 đêm (giờ đóng cửa rạp)!", "Vượt quá giờ rạp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"Dọn phòng xong lúc {FormatTimeSpan(clean)}, vượt quá 00:00 đêm (giờ đóng cửa rạp)!", "Vượt quá giờ rạp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            TimeSpan clean = end.Add(TimeSpan.FromMinutes(60));
             var existing = GetExistingShowsForRoom(maPhong, ngay, maSC);
             if (_scheduleLookupFailed) return;
             var conflict = FindFirstConflict(gio, clean, existing);
@@ -736,7 +835,7 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string deleteQuery = "DELETE FROM SuatChieu WHERE MaSuatChieu = @Ma";
-                Function.Execute(deleteQuery, new[] { new DbArg("@Ma", maSC) });
+                Function.Execute(deleteQuery, new[] { DbArg.VarChar20("@Ma", maSC) });
                 MessageBox.Show("Đã xóa suất chiếu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearForm();
                 LoadSuatChieu();

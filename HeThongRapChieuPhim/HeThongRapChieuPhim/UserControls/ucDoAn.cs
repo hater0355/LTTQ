@@ -50,13 +50,13 @@ namespace HeThongRapChieuPhim.UserControls
                     WHERE (@kw = '' OR MaDoAn LIKE '%' + @kw + '%' OR TenDoAn LIKE '%' + @kw + '%' OR Loai LIKE '%' + @kw + '%')
                     ORDER BY MaDoAn ASC";
 
-                var dt = Function.Query(query, new[] { new DbArg("@kw", searchKeyword) });
+                var dt = Function.Query(query, new[] { DbArg.NVarChar4000("@kw", searchKeyword) });
                 dgvDoAn.DataSource = dt;
 
-                if (dgvDoAn.Columns["Đơn Giá (VNĐ)"] != null)
+                if (dgvDoAn.Columns["Đơn Giá (VNĐ)"] is { } priceColumn)
                 {
-                    dgvDoAn.Columns["Đơn Giá (VNĐ)"].DefaultCellStyle.Format = "N0";
-                    dgvDoAn.Columns["Đơn Giá (VNĐ)"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    priceColumn.DefaultCellStyle.Format = "N0";
+                    priceColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 }
             }
             catch (Exception ex)
@@ -109,20 +109,29 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string check = "SELECT COUNT(*) FROM DoAn WHERE MaDoAn = @Ma";
-                int count = Convert.ToInt32(Function.Scalar(check, new[] { new DbArg("@Ma", ma) }));
+                int count = Convert.ToInt32(Function.Scalar(check, new[] { DbArg.VarChar20("@Ma", ma) }));
                 if (count > 0)
                 {
                     MessageBox.Show($"Mã đồ ăn '{ma}' đã tồn tại!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                string insert = "INSERT INTO DoAn (MaDoAn, TenDoAn, Loai, Gia) VALUES (@Ma, @Ten, @Loai, @Gia)";
+                string insert = @"
+                    SET XACT_ABORT ON;
+                    BEGIN TRANSACTION;
+                    INSERT INTO dbo.DoAn (MaDoAn, TenDoAn, Loai, Gia) VALUES (@Ma, @Ten, @Loai, @Gia);
+                    INSERT INTO dbo.DoAnKichCo (MaDoAn, MaKichCo, TenKichCo, DonGia)
+                    VALUES
+                        (@Ma, 'S', N'Cỡ nhỏ', CONVERT(DECIMAL(18,0),ROUND(@Gia * 0.8 / 1000.0,0) * 1000)),
+                        (@Ma, 'M', N'Cỡ vừa', @Gia),
+                        (@Ma, 'L', N'Cỡ lớn', CONVERT(DECIMAL(18,0),ROUND(@Gia * 1.2 / 1000.0,0) * 1000));
+                    COMMIT TRANSACTION;";
                 var p = new[]
                 {
-                    new DbArg("@Ma", ma),
-                    new DbArg("@Ten", ten),
-                    new DbArg("@Loai", loai),
-                    new DbArg("@Gia", gia)
+                    DbArg.VarChar20("@Ma", ma),
+                    DbArg.NVarChar100("@Ten", ten),
+                    DbArg.NVarChar50("@Loai", loai),
+                    DbArg.Decimal18_0("@Gia", gia)
                 };
                 Function.Execute(insert, p);
 
@@ -150,13 +159,28 @@ namespace HeThongRapChieuPhim.UserControls
 
             try
             {
-                string update = "UPDATE DoAn SET TenDoAn = @Ten, Loai = @Loai, Gia = @Gia WHERE MaDoAn = @Ma";
+                string update = @"
+                    SET XACT_ABORT ON;
+                    BEGIN TRANSACTION;
+                    UPDATE dbo.DoAn SET TenDoAn = @Ten, Loai = @Loai, Gia = @Gia WHERE MaDoAn = @Ma;
+                    UPDATE dbo.DoAnKichCo SET DonGia=CONVERT(DECIMAL(18,0),ROUND(@Gia * 0.8 / 1000.0,0) * 1000) WHERE MaDoAn=@Ma AND MaKichCo='S';
+                    UPDATE dbo.DoAnKichCo SET TenKichCo=N'Cỡ vừa', DonGia=@Gia WHERE MaDoAn=@Ma AND MaKichCo='M';
+                    UPDATE dbo.DoAnKichCo SET DonGia=CONVERT(DECIMAL(18,0),ROUND(@Gia * 1.2 / 1000.0,0) * 1000) WHERE MaDoAn=@Ma AND MaKichCo='L';
+                    IF NOT EXISTS (SELECT 1 FROM dbo.DoAnKichCo WHERE MaDoAn=@Ma AND MaKichCo='S')
+                        INSERT dbo.DoAnKichCo (MaDoAn,MaKichCo,TenKichCo,DonGia)
+                        VALUES (@Ma,'S',N'Cỡ nhỏ',CONVERT(DECIMAL(18,0),ROUND(@Gia * 0.8 / 1000.0,0) * 1000));
+                    IF NOT EXISTS (SELECT 1 FROM dbo.DoAnKichCo WHERE MaDoAn=@Ma AND MaKichCo='M')
+                        INSERT dbo.DoAnKichCo (MaDoAn,MaKichCo,TenKichCo,DonGia) VALUES (@Ma,'M',N'Cỡ vừa',@Gia);
+                    IF NOT EXISTS (SELECT 1 FROM dbo.DoAnKichCo WHERE MaDoAn=@Ma AND MaKichCo='L')
+                        INSERT dbo.DoAnKichCo (MaDoAn,MaKichCo,TenKichCo,DonGia)
+                        VALUES (@Ma,'L',N'Cỡ lớn',CONVERT(DECIMAL(18,0),ROUND(@Gia * 1.2 / 1000.0,0) * 1000));
+                    COMMIT TRANSACTION;";
                 var p = new[]
                 {
-                    new DbArg("@Ma", ma),
-                    new DbArg("@Ten", ten),
-                    new DbArg("@Loai", loai),
-                    new DbArg("@Gia", gia)
+                    DbArg.VarChar20("@Ma", ma),
+                    DbArg.NVarChar100("@Ten", ten),
+                    DbArg.NVarChar50("@Loai", loai),
+                    DbArg.Decimal18_0("@Gia", gia)
                 };
                 Function.Execute(update, p);
 
@@ -182,7 +206,7 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 try
                 {
-                    Function.Execute("DELETE FROM DoAn WHERE MaDoAn = @Ma", new[] { new DbArg("@Ma", ma) });
+                    Function.Execute("DELETE FROM DoAn WHERE MaDoAn = @Ma", new[] { DbArg.VarChar20("@Ma", ma) });
                     MessageBox.Show("Đã xóa món thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ClearForm();
                 }

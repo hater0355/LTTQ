@@ -109,7 +109,7 @@ namespace HeThongRapChieuPhim.UserControls
             lblTableTitle.Name = "lblTableTitle";
             lblTableTitle.Size = new Size(1030, 32);
             lblTableTitle.TabIndex = 0;
-            lblTableTitle.Text = "BẢNG XẾP HẠNG DOANH THU CÁC PHIM";
+            lblTableTitle.Text = "BẢNG XẾP HẠNG PHIM ĂN KHÁCH THEO SỐ VÉ";
             // 
             // pnlCharts
             // 
@@ -146,7 +146,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // colMonth
             // 
-            colMonth.HeaderText = "Doanh thu các tháng gần nhất";
+            colMonth.HeaderText = "Giá trị vé các tháng gần nhất";
             colMonth.MinimumWidth = 6;
             colMonth.Name = "colMonth";
             colMonth.ReadOnly = true;
@@ -176,7 +176,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // colMovieName
             // 
-            colMovieName.HeaderText = "Tỷ trọng doanh thu theo phim";
+            colMovieName.HeaderText = "Giá trị vé theo phim (trước giảm giá)";
             colMovieName.MinimumWidth = 6;
             colMovieName.Name = "colMovieName";
             colMovieName.ReadOnly = true;

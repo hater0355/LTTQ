@@ -120,21 +120,21 @@ namespace HeThongRapChieuPhim.UserControls
                     WHERE (@kw = '' OR MaVoucher LIKE '%' + @kw + '%' OR TenVoucher LIKE '%' + @kw + '%' OR LoaiGiam LIKE '%' + @kw + '%')
                     ORDER BY HanSuDung DESC, MaVoucher ASC";
 
-                var dt = Function.Query(query, new[] { new DbArg("@kw", searchKeyword) });
+                var dt = Function.Query(query, new[] { DbArg.NVarChar4000("@kw", searchKeyword) });
                 dgvVoucher.DataSource = dt;
 
-                if (dgvVoucher.Columns["Mức Giảm"] != null)
+                if (dgvVoucher.Columns["Mức Giảm"] is { } discountColumn)
                 {
-                    dgvVoucher.Columns["Mức Giảm"].DefaultCellStyle.Format = "N0";
-                    dgvVoucher.Columns["Mức Giảm"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    discountColumn.DefaultCellStyle.Format = "N0";
+                    discountColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 }
-                if (dgvVoucher.Columns["Hạn Sử Dụng"] != null)
+                if (dgvVoucher.Columns["Hạn Sử Dụng"] is { } expiryColumn)
                 {
-                    dgvVoucher.Columns["Hạn Sử Dụng"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    expiryColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 }
-                if (dgvVoucher.Columns["Trạng Thái"] != null)
+                if (dgvVoucher.Columns["Trạng Thái"] is { } statusColumn)
                 {
-                    dgvVoucher.Columns["Trạng Thái"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    statusColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 }
             }
             catch (Exception ex)
@@ -192,7 +192,7 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string check = "SELECT COUNT(*) FROM Voucher WHERE MaVoucher = @Ma";
-                int count = Convert.ToInt32(Function.Scalar(check, new[] { new DbArg("@Ma", ma) }));
+                int count = Convert.ToInt32(Function.Scalar(check, new[] { DbArg.VarChar20("@Ma", ma) }));
                 if (count > 0)
                 {
                     MessageBox.Show($"Mã voucher '{ma}' đã tồn tại! Vui lòng chọn mã khác.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -205,13 +205,13 @@ namespace HeThongRapChieuPhim.UserControls
 
                 var p = new[]
                 {
-                    new DbArg("@Ma", ma),
-                    new DbArg("@Ten", ten),
-                    new DbArg("@Loai", loai),
-                    new DbArg("@GiaTri", giaTri),
-                    new DbArg("@Han", han),
-                    new DbArg("@MoTa", moTa),
-                    new DbArg("@TrangThai", trangThai)
+                    DbArg.VarChar20("@Ma", ma),
+                    DbArg.NVarChar100("@Ten", ten),
+                    DbArg.NVarChar50("@Loai", loai),
+                    DbArg.Decimal18_2("@GiaTri", giaTri),
+                    DbArg.Date("@Han", han),
+                    DbArg.NVarChar255("@MoTa", moTa),
+                    DbArg.Bit("@TrangThai", trangThai)
                 };
                 Function.Execute(insert, p);
 
@@ -249,13 +249,13 @@ namespace HeThongRapChieuPhim.UserControls
 
                 var p = new[]
                 {
-                    new DbArg("@Ma", ma),
-                    new DbArg("@Ten", ten),
-                    new DbArg("@Loai", loai),
-                    new DbArg("@GiaTri", giaTri),
-                    new DbArg("@Han", han),
-                    new DbArg("@MoTa", moTa),
-                    new DbArg("@TrangThai", trangThai)
+                    DbArg.VarChar20("@Ma", ma),
+                    DbArg.NVarChar100("@Ten", ten),
+                    DbArg.NVarChar50("@Loai", loai),
+                    DbArg.Decimal18_2("@GiaTri", giaTri),
+                    DbArg.Date("@Han", han),
+                    DbArg.NVarChar255("@MoTa", moTa),
+                    DbArg.Bit("@TrangThai", trangThai)
                 };
                 Function.Execute(update, p);
 
@@ -281,7 +281,7 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 try
                 {
-                    Function.Execute("DELETE FROM Voucher WHERE MaVoucher = @Ma", new[] { new DbArg("@Ma", ma) });
+                    Function.Execute("DELETE FROM Voucher WHERE MaVoucher = @Ma", new[] { DbArg.VarChar20("@Ma", ma) });
                     MessageBox.Show("Đã xóa voucher thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ClearForm();
                 }

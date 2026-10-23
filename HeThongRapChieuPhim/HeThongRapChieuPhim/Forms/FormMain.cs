@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using HeThongRapChieuPhim.Classes;
 using HeThongRapChieuPhim.Data;
 using HeThongRapChieuPhim.UIHelpers;
 using HeThongRapChieuPhim.UserControls;
@@ -223,6 +224,7 @@ namespace HeThongRapChieuPhim.Forms
         {
             if (MessageBox.Show("Bạn có chắc chắn muốn đăng xuất?", "Xác nhận đăng xuất", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
+                PaymentsApiClient.ClearSession();
                 CurrentUser.Clear();
                 Close();
             }

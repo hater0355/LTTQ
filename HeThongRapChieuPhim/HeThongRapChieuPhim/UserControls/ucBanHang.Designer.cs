@@ -17,17 +17,12 @@
 
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             pnlTop = new Panel();
             lblTitle = new Label();
             lblCashierInfo = new Label();
             pnlBody = new TableLayoutPanel();
             pnlLeft = new Panel();
-            dgvFoodList = new DataGridView();
-            colFoodCode = new DataGridViewTextBoxColumn();
-            colFoodName = new DataGridViewTextBoxColumn();
-            colFoodPrice = new DataGridViewTextBoxColumn();
-            colFoodQty = new DataGridViewTextBoxColumn();
+            flpFoodItems = new FlowLayoutPanel();
             lblSec4 = new Label();
             lblComboNote = new Label();
             cboCombo = new ComboBox();
@@ -81,7 +76,6 @@
             pnlTop.SuspendLayout();
             pnlBody.SuspendLayout();
             pnlLeft.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvFoodList).BeginInit();
             pnlMovieMeta.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picPoster).BeginInit();
             pnlCenter.SuspendLayout();
@@ -156,7 +150,7 @@
             // 
             pnlLeft.AutoScroll = true;
             pnlLeft.BackColor = Color.White;
-            pnlLeft.Controls.Add(dgvFoodList);
+            pnlLeft.Controls.Add(flpFoodItems);
             pnlLeft.Controls.Add(lblSec4);
             pnlLeft.Controls.Add(lblComboNote);
             pnlLeft.Controls.Add(cboCombo);
@@ -175,56 +169,17 @@
             pnlLeft.Size = new Size(346, 672);
             pnlLeft.TabIndex = 0;
             // 
-            // dgvFoodList
+            // flpFoodItems
             // 
-            dgvFoodList.AllowUserToAddRows = false;
-            dgvFoodList.AllowUserToDeleteRows = false;
-            dgvFoodList.ColumnHeadersHeight = 29;
-            dgvFoodList.Columns.AddRange(new DataGridViewColumn[] { colFoodCode, colFoodName, colFoodPrice, colFoodQty });
-            dgvFoodList.Dock = DockStyle.Top;
-            dgvFoodList.Location = new Point(12, 437);
-            dgvFoodList.Name = "dgvFoodList";
-            dgvFoodList.RowHeadersVisible = false;
-            dgvFoodList.RowHeadersWidth = 51;
-            dgvFoodList.SelectionMode = DataGridViewSelectionMode.CellSelect;
-            dgvFoodList.Size = new Size(322, 160);
-            dgvFoodList.TabIndex = 10;
-            dgvFoodList.CellValidating += PnlFoodList_CellValidating;
-            dgvFoodList.CellValueChanged += PnlFoodList_CellValueChanged;
-            dgvFoodList.CurrentCellDirtyStateChanged += PnlFoodList_CurrentCellDirtyStateChanged;
-            // 
-            // colFoodCode
-            // 
-            colFoodCode.HeaderText = "Mã";
-            colFoodCode.MinimumWidth = 6;
-            colFoodCode.Name = "colFoodCode";
-            colFoodCode.Visible = false;
-            colFoodCode.Width = 125;
-            // 
-            // colFoodName
-            // 
-            colFoodName.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            colFoodName.HeaderText = "Món";
-            colFoodName.MinimumWidth = 6;
-            colFoodName.Name = "colFoodName";
-            colFoodName.ReadOnly = true;
-            // 
-            // colFoodPrice
-            // 
-            dataGridViewCellStyle1.Format = "N0 'đ'";
-            colFoodPrice.DefaultCellStyle = dataGridViewCellStyle1;
-            colFoodPrice.HeaderText = "Giá";
-            colFoodPrice.MinimumWidth = 6;
-            colFoodPrice.Name = "colFoodPrice";
-            colFoodPrice.ReadOnly = true;
-            colFoodPrice.Width = 75;
-            // 
-            // colFoodQty
-            // 
-            colFoodQty.HeaderText = "SL";
-            colFoodQty.MinimumWidth = 6;
-            colFoodQty.Name = "colFoodQty";
-            colFoodQty.Width = 42;
+            flpFoodItems.AutoScroll = true;
+            flpFoodItems.Dock = DockStyle.Top;
+            flpFoodItems.FlowDirection = FlowDirection.TopDown;
+            flpFoodItems.Location = new Point(12, 437);
+            flpFoodItems.Name = "flpFoodItems";
+            flpFoodItems.Padding = new Padding(0, 0, 8, 0);
+            flpFoodItems.Size = new Size(301, 260);
+            flpFoodItems.TabIndex = 10;
+            flpFoodItems.WrapContents = false;
             // 
             // lblSec4
             // 
@@ -233,7 +188,7 @@
             lblSec4.ForeColor = Color.FromArgb(20, 83, 45);
             lblSec4.Location = new Point(12, 412);
             lblSec4.Name = "lblSec4";
-            lblSec4.Size = new Size(322, 25);
+            lblSec4.Size = new Size(301, 25);
             lblSec4.TabIndex = 9;
             lblSec4.Text = "4. CHỌN BẮP NƯỚC (F&B)";
             // 
@@ -244,7 +199,7 @@
             lblComboNote.ForeColor = Color.FromArgb(90, 115, 100);
             lblComboNote.Location = new Point(12, 377);
             lblComboNote.Name = "lblComboNote";
-            lblComboNote.Size = new Size(322, 35);
+            lblComboNote.Size = new Size(301, 35);
             lblComboNote.TabIndex = 8;
             lblComboNote.Text = "Không áp dụng combo ưu đãi";
             // 
@@ -256,7 +211,7 @@
             cboCombo.FormattingEnabled = true;
             cboCombo.Location = new Point(12, 346);
             cboCombo.Name = "cboCombo";
-            cboCombo.Size = new Size(322, 31);
+            cboCombo.Size = new Size(301, 31);
             cboCombo.TabIndex = 7;
             cboCombo.SelectedIndexChanged += CboCombo_SelectedIndexChanged;
             // 
@@ -267,7 +222,7 @@
             lblSec3.ForeColor = Color.FromArgb(20, 83, 45);
             lblSec3.Location = new Point(12, 321);
             lblSec3.Name = "lblSec3";
-            lblSec3.Size = new Size(322, 25);
+            lblSec3.Size = new Size(301, 25);
             lblSec3.TabIndex = 6;
             lblSec3.Text = "3. ƯU ĐÃI & COMBO VÉ";
             // 
@@ -278,7 +233,7 @@
             lblRoomInfo.ForeColor = Color.FromArgb(90, 115, 100);
             lblRoomInfo.Location = new Point(12, 299);
             lblRoomInfo.Name = "lblRoomInfo";
-            lblRoomInfo.Size = new Size(322, 22);
+            lblRoomInfo.Size = new Size(301, 22);
             lblRoomInfo.TabIndex = 5;
             // 
             // cboSuatChieu
@@ -289,7 +244,7 @@
             cboSuatChieu.FormattingEnabled = true;
             cboSuatChieu.Location = new Point(12, 268);
             cboSuatChieu.Name = "cboSuatChieu";
-            cboSuatChieu.Size = new Size(322, 31);
+            cboSuatChieu.Size = new Size(301, 31);
             cboSuatChieu.TabIndex = 4;
             cboSuatChieu.SelectedIndexChanged += CboSuatChieu_SelectedIndexChanged;
             // 
@@ -300,7 +255,7 @@
             lblSec2.ForeColor = Color.FromArgb(20, 83, 45);
             lblSec2.Location = new Point(12, 243);
             lblSec2.Name = "lblSec2";
-            lblSec2.Size = new Size(322, 25);
+            lblSec2.Size = new Size(301, 25);
             lblSec2.TabIndex = 3;
             lblSec2.Text = "2. CHỌN SUẤT CHIẾU";
             // 
@@ -312,7 +267,7 @@
             pnlMovieMeta.Location = new Point(12, 68);
             pnlMovieMeta.Name = "pnlMovieMeta";
             pnlMovieMeta.Padding = new Padding(0, 6, 0, 6);
-            pnlMovieMeta.Size = new Size(322, 175);
+            pnlMovieMeta.Size = new Size(301, 175);
             pnlMovieMeta.TabIndex = 2;
             // 
             // lblMovieInfo
@@ -323,7 +278,7 @@
             lblMovieInfo.Location = new Point(110, 6);
             lblMovieInfo.Name = "lblMovieInfo";
             lblMovieInfo.Padding = new Padding(8, 0, 0, 0);
-            lblMovieInfo.Size = new Size(212, 163);
+            lblMovieInfo.Size = new Size(191, 163);
             lblMovieInfo.TabIndex = 1;
             // 
             // picPoster
@@ -346,7 +301,7 @@
             cboPhim.FormattingEnabled = true;
             cboPhim.Location = new Point(12, 37);
             cboPhim.Name = "cboPhim";
-            cboPhim.Size = new Size(322, 31);
+            cboPhim.Size = new Size(301, 31);
             cboPhim.TabIndex = 1;
             cboPhim.SelectedIndexChanged += CboPhim_SelectedIndexChanged;
             // 
@@ -357,7 +312,7 @@
             lblSec1.ForeColor = Color.FromArgb(20, 83, 45);
             lblSec1.Location = new Point(12, 12);
             lblSec1.Name = "lblSec1";
-            lblSec1.Size = new Size(322, 25);
+            lblSec1.Size = new Size(301, 25);
             lblSec1.TabIndex = 0;
             lblSec1.Text = "1. CHỌN PHIM";
             // 
@@ -551,7 +506,7 @@
             btnReset.FlatStyle = FlatStyle.Flat;
             btnReset.Font = new Font("Segoe UI", 9.5F);
             btnReset.ForeColor = Color.FromArgb(20, 50, 35);
-            btnReset.Location = new Point(12, 515);
+            btnReset.Location = new Point(12, 537);
             btnReset.Margin = new Padding(0, 8, 0, 0);
             btnReset.Name = "btnReset";
             btnReset.Size = new Size(263, 36);
@@ -569,7 +524,7 @@
             btnConfirm.FlatStyle = FlatStyle.Flat;
             btnConfirm.Font = new Font("Segoe UI", 11.5F, FontStyle.Bold);
             btnConfirm.ForeColor = Color.White;
-            btnConfirm.Location = new Point(12, 467);
+            btnConfirm.Location = new Point(12, 489);
             btnConfirm.Margin = new Padding(0, 15, 0, 0);
             btnConfirm.Name = "btnConfirm";
             btnConfirm.Size = new Size(263, 48);
@@ -585,7 +540,7 @@
             grpPayment.Controls.Add(radCash);
             grpPayment.Dock = DockStyle.Top;
             grpPayment.ForeColor = Color.FromArgb(20, 83, 45);
-            grpPayment.Location = new Point(12, 357);
+            grpPayment.Location = new Point(12, 379);
             grpPayment.Margin = new Padding(0, 10, 0, 0);
             grpPayment.Name = "grpPayment";
             grpPayment.Padding = new Padding(10);
@@ -644,7 +599,7 @@
             grpVoucher.Controls.Add(txtVoucherCode);
             grpVoucher.Dock = DockStyle.Top;
             grpVoucher.ForeColor = Color.FromArgb(20, 83, 45);
-            grpVoucher.Location = new Point(12, 272);
+            grpVoucher.Location = new Point(12, 294);
             grpVoucher.Margin = new Padding(0, 8, 0, 0);
             grpVoucher.Name = "grpVoucher";
             grpVoucher.Padding = new Padding(10, 6, 10, 6);
@@ -727,7 +682,7 @@
             pnlBillDetails.Location = new Point(12, 42);
             pnlBillDetails.Name = "pnlBillDetails";
             pnlBillDetails.Padding = new Padding(10);
-            pnlBillDetails.Size = new Size(263, 230);
+            pnlBillDetails.Size = new Size(263, 252);
             pnlBillDetails.TabIndex = 1;
             // 
             // lblSumTotal
@@ -735,7 +690,7 @@
             lblSumTotal.Dock = DockStyle.Top;
             lblSumTotal.Font = new Font("Segoe UI", 13.5F, FontStyle.Bold);
             lblSumTotal.ForeColor = Color.FromArgb(217, 119, 6);
-            lblSumTotal.Location = new Point(10, 170);
+            lblSumTotal.Location = new Point(10, 192);
             lblSumTotal.Name = "lblSumTotal";
             lblSumTotal.Size = new Size(243, 55);
             lblSumTotal.TabIndex = 7;
@@ -746,7 +701,7 @@
             // 
             divLine.BackColor = Color.FromArgb(218, 232, 222);
             divLine.Dock = DockStyle.Top;
-            divLine.Location = new Point(10, 168);
+            divLine.Location = new Point(10, 190);
             divLine.Margin = new Padding(0, 4, 0, 4);
             divLine.Name = "divLine";
             divLine.Size = new Size(243, 2);
@@ -759,7 +714,7 @@
             lblSumFood.ForeColor = Color.FromArgb(20, 50, 35);
             lblSumFood.Location = new Point(10, 146);
             lblSumFood.Name = "lblSumFood";
-            lblSumFood.Size = new Size(243, 22);
+            lblSumFood.Size = new Size(243, 44);
             lblSumFood.TabIndex = 5;
             lblSumFood.Text = "Tiền đồ ăn: 0 đ";
             // 
@@ -854,7 +809,6 @@
             pnlTop.PerformLayout();
             pnlBody.ResumeLayout(false);
             pnlLeft.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dgvFoodList).EndInit();
             pnlMovieMeta.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)picPoster).EndInit();
             pnlCenter.ResumeLayout(false);
@@ -896,11 +850,7 @@
         private System.Windows.Forms.ComboBox cboCombo;
         private System.Windows.Forms.Label lblComboNote;
         private System.Windows.Forms.Label lblSec4;
-        private System.Windows.Forms.DataGridView dgvFoodList;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colFoodCode;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colFoodName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colFoodPrice;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colFoodQty;
+        private System.Windows.Forms.FlowLayoutPanel flpFoodItems;
         private System.Windows.Forms.Panel pnlCenter;
         private System.Windows.Forms.Panel pnlSeatHeader;
         private System.Windows.Forms.Label lblSeatMapTitle;

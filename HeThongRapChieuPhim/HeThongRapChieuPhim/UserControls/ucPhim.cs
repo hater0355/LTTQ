@@ -74,13 +74,13 @@ namespace HeThongRapChieuPhim.UserControls
                     WHERE (@kw = '' OR MaPhim LIKE '%' + @kw + '%' OR TenPhim LIKE '%' + @kw + '%' OR TheLoai LIKE '%' + @kw + '%')
                     ORDER BY MaPhim ASC";
 
-                var dt = Function.Query(query, new[] { new DbArg("@kw", searchKeyword) });
+                var dt = Function.Query(query, new[] { DbArg.NVarChar4000("@kw", searchKeyword) });
                 dgvPhim.DataSource = dt;
 
-                if (dgvPhim.Columns["Giá Vé Gốc (VNĐ)"] != null)
+                if (dgvPhim.Columns["Giá Vé Gốc (VNĐ)"] is { } priceColumn)
                 {
-                    dgvPhim.Columns["Giá Vé Gốc (VNĐ)"].DefaultCellStyle.Format = "N0";
-                    dgvPhim.Columns["Giá Vé Gốc (VNĐ)"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    priceColumn.DefaultCellStyle.Format = "N0";
+                    priceColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 }
             }
             catch (Exception ex)
@@ -202,7 +202,7 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string check = "SELECT COUNT(*) FROM Phim WHERE MaPhim = @Ma";
-                int count = Convert.ToInt32(Function.Scalar(check, new[] { new DbArg("@Ma", ma) }));
+                int count = Convert.ToInt32(Function.Scalar(check, new[] { DbArg.VarChar20("@Ma", ma) }));
                 if (count > 0)
                 {
                     MessageBox.Show($"Mã phim '{ma}' đã tồn tại!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -215,15 +215,15 @@ namespace HeThongRapChieuPhim.UserControls
 
                 var p = new[]
                 {
-                    new DbArg("@Ma", ma),
-                    new DbArg("@Ten", ten),
-                    new DbArg("@TheLoai", theLoai),
-                    new DbArg("@NgonNgu", ngonNgu),
-                    new DbArg("@DoTuoi", doTuoi),
-                    new DbArg("@ThoiLuong", thoiLuong),
-                    new DbArg("@GiaVe", giaVe),
-                    new DbArg("@Poster", poster),
-                    new DbArg("@MoTa", moTa)
+                    DbArg.VarChar20("@Ma", ma),
+                    DbArg.NVarChar150("@Ten", ten),
+                    DbArg.NVarChar100("@TheLoai", theLoai),
+                    DbArg.NVarChar50("@NgonNgu", ngonNgu),
+                    DbArg.NVarChar20("@DoTuoi", doTuoi),
+                    DbArg.Int("@ThoiLuong", thoiLuong),
+                    DbArg.Decimal18_0("@GiaVe", giaVe),
+                    DbArg.NVarChar500("@Poster", poster),
+                    DbArg.NVarCharMax("@MoTa", moTa)
                 };
                 Function.Execute(insert, p);
 
@@ -264,15 +264,15 @@ namespace HeThongRapChieuPhim.UserControls
 
                 var p = new[]
                 {
-                    new DbArg("@Ma", ma),
-                    new DbArg("@Ten", ten),
-                    new DbArg("@TheLoai", theLoai),
-                    new DbArg("@NgonNgu", ngonNgu),
-                    new DbArg("@DoTuoi", doTuoi),
-                    new DbArg("@ThoiLuong", thoiLuong),
-                    new DbArg("@GiaVe", giaVe),
-                    new DbArg("@Poster", poster),
-                    new DbArg("@MoTa", moTa)
+                    DbArg.VarChar20("@Ma", ma),
+                    DbArg.NVarChar150("@Ten", ten),
+                    DbArg.NVarChar100("@TheLoai", theLoai),
+                    DbArg.NVarChar50("@NgonNgu", ngonNgu),
+                    DbArg.NVarChar20("@DoTuoi", doTuoi),
+                    DbArg.Int("@ThoiLuong", thoiLuong),
+                    DbArg.Decimal18_0("@GiaVe", giaVe),
+                    DbArg.NVarChar500("@Poster", poster),
+                    DbArg.NVarCharMax("@MoTa", moTa)
                 };
                 Function.Execute(update, p);
 
@@ -298,7 +298,7 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 try
                 {
-                    Function.Execute("DELETE FROM Phim WHERE MaPhim = @Ma", new[] { new DbArg("@Ma", ma) });
+                    Function.Execute("DELETE FROM Phim WHERE MaPhim = @Ma", new[] { DbArg.VarChar20("@Ma", ma) });
                     MessageBox.Show("Đã xóa phim thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ClearForm();
                 }

@@ -21,6 +21,7 @@
 | **👑 Admin tổng** | `admin` | `admin` | Toàn quyền tất cả chức năng; tự động băm bảo mật sau lần đăng nhập đầu tiên |
 | **👑 Admin tổng** | `admintong` | `admin123` | Tài khoản Admin tổng dự phòng |
 
+Hai tài khoản mẫu yêu cầu đổi mật khẩu ngay lần đăng nhập đầu tiên; mật khẩu mới cần ít nhất 8 ký tự. Mật khẩu cũ dạng chữ thường được nâng cấp sang PBKDF2 khi đăng nhập thành công.
 *(Màn hình Đăng nhập có nút bấm tiện lợi **"👑 Tự điền: admin / admin"** để tự động điền tài khoản).*
 - Sau khi đăng nhập Admin, mở **Tài Khoản Thu Ngân** để tạo tài khoản độc lập hoặc đặt lại mật khẩu. Mật khẩu phải có ít nhất 6 ký tự.
 - Hồ sơ nhân viên được quản lý riêng trong **Danh Mục > Nhân Viên** và không tự tạo tài khoản đăng nhập.
@@ -29,11 +30,16 @@
 
 ## 3. CƠ SỞ DỮ LIỆU SQL SERVER
 - Script SQL hoàn chỉnh được đặt tại: `Database/NHHCinema.sql`.
-- Đã được khởi tạo và chạy thành công trên máy tính của bạn với database `NHHCinemaDB`.
-- Nếu cần chạy lại trên máy khác:
-  1. Mở **SQL Server Management Studio (SSMS)**.
-  2. Mở file `Database\NHHCinema.sql`.
-  3. Chạy script khởi tạo một lần trên database mới/trống. Với database đang có dữ liệu, chạy `Database/Migrations/20261014_RolesAndPasswordStorage.sql`; không chạy lại script khởi tạo vì script đó tạo lại các bảng.
+- **Cài mới:** Sao lưu nếu cần, sau đó chạy `Database/NHHCinema.sql` trên SQL Server. Script tạo các bảng còn thiếu và tài khoản demo; hai tài khoản mẫu đều buộc đổi mật khẩu ở lần đăng nhập đầu.
+- **Nâng cấp database đã có dữ liệu:** Tạo bản sao lưu có thể khôi phục trước. Mở SSMS và chạy lần lượt từng script sau trong `Database/Migrations`:
+  1. `20261014_RolesAndPasswordStorage.sql`
+  2. `20261014_SalesAndPayOsSafety.sql`
+  3. `20261015_SpecializedAdminRoles.sql`
+  4. `20261015_AdminTong.sql`
+  5. `20261022_DataIntegrityAndTypedParameters.sql`
+  6. `20261022_FoodSizesAndImages.sql`
+- `20261022_DataIntegrityAndTypedParameters.sql` kiểm tra dữ liệu cũ trước khi thêm `CHECK`/khóa ghép; nếu không tương thích, script báo mã bản ghi rồi rollback để bạn xử lý thủ công sau khi sao lưu. `20261022_FoodSizesAndImages.sql` giữ nguyên giá và số lượng lịch sử, thêm giá theo cỡ cho thực đơn và ghi cỡ vào các giao dịch mới. Có thể chạy lại migration sau khi đã thành công.
+- Không dùng `Database/ResetDemoDatabase.sql` với dữ liệu cần giữ: script này xóa toàn bộ database demo trước khi tạo lại.
 - Chuỗi kết nối nằm tại class `Classes/DataProcesser.cs`:
   ```csharp
   Server=.;Database=NHHCinemaDB;Integrated Security=True;TrustServerCertificate=True;

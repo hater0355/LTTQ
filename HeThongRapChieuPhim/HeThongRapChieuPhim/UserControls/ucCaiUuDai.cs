@@ -97,7 +97,7 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string check = "SELECT COUNT(*) FROM UuDaiCombo WHERE MaCombo = @Ma";
-                int count = Convert.ToInt32(Function.Scalar(check, new[] { new DbArg("@Ma", ma) }));
+                int count = Convert.ToInt32(Function.Scalar(check, new[] { DbArg.VarChar20("@Ma", ma) }));
                 if (count > 0)
                 {
                     MessageBox.Show($"Mã combo '{ma}' đã tồn tại!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -110,11 +110,11 @@ namespace HeThongRapChieuPhim.UserControls
 
                 var p = new[]
                 {
-                    new DbArg("@Ma", ma),
-                    new DbArg("@Ten", ten),
-                    new DbArg("@Seats", seats),
-                    new DbArg("@Pct", pct),
-                    new DbArg("@MoTa", moTa)
+                    DbArg.VarChar20("@Ma", ma),
+                    DbArg.NVarChar100("@Ten", ten),
+                    DbArg.Int("@Seats", seats),
+                    DbArg.Decimal5_2("@Pct", pct),
+                    DbArg.NVarChar255("@MoTa", moTa)
                 };
                 Function.Execute(insert, p);
 
@@ -150,11 +150,11 @@ namespace HeThongRapChieuPhim.UserControls
 
                 var p = new[]
                 {
-                    new DbArg("@Ma", ma),
-                    new DbArg("@Ten", ten),
-                    new DbArg("@Seats", seats),
-                    new DbArg("@Pct", pct),
-                    new DbArg("@MoTa", moTa)
+                    DbArg.VarChar20("@Ma", ma),
+                    DbArg.NVarChar100("@Ten", ten),
+                    DbArg.Int("@Seats", seats),
+                    DbArg.Decimal5_2("@Pct", pct),
+                    DbArg.NVarChar255("@MoTa", moTa)
                 };
                 Function.Execute(update, p);
 
@@ -180,7 +180,7 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 try
                 {
-                    Function.Execute("DELETE FROM UuDaiCombo WHERE MaCombo = @Ma", new[] { new DbArg("@Ma", ma) });
+                    Function.Execute("DELETE FROM UuDaiCombo WHERE MaCombo = @Ma", new[] { DbArg.VarChar20("@Ma", ma) });
                     MessageBox.Show("Đã xóa gói ưu đãi thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ClearForm();
                 }

@@ -21,7 +21,7 @@ public static class ShowtimeService
                     throw new InvalidOperationException("Không thể tạo hoặc sửa suất chiếu trong quá khứ.");
             }
             using var durationCmd = new SqlCommand("SELECT ThoiLuong FROM dbo.Phim WITH (UPDLOCK,HOLDLOCK) WHERE MaPhim=@movie", connection, transaction);
-            durationCmd.Parameters.AddWithValue("@movie", movieId);
+            durationCmd.Parameters.Add(DbArg.VarChar20("@movie", movieId).CreateSqlParameter());
             object? durationValue = durationCmd.ExecuteScalar();
             if (durationValue is null or DBNull) throw new InvalidOperationException("Không tìm thấy phim đã chọn.");
             int duration = Convert.ToInt32(durationValue);
@@ -31,7 +31,7 @@ public static class ShowtimeService
             if (update)
             {
                 using var salesCmd = new SqlCommand("SELECT COUNT(*) FROM dbo.HoaDon WITH (UPDLOCK,HOLDLOCK) WHERE MaSuatChieu=@id AND TrangThaiThanhToan IN ('Paid','Pending')", connection, transaction);
-                salesCmd.Parameters.AddWithValue("@id", showId);
+                salesCmd.Parameters.Add(DbArg.VarChar20("@id", showId).CreateSqlParameter());
                 if (Convert.ToInt32(salesCmd.ExecuteScalar()) > 0)
                     throw new InvalidOperationException("Không thể sửa suất chiếu đã có giao dịch hoặc ghế đang được giữ.");
             }
@@ -47,13 +47,13 @@ public static class ShowtimeService
                       DATEADD(MINUTE, DATEDIFF(MINUTE, 0, sc.GioChieu), CAST(sc.NgayChieu AS datetime))
                 ORDER BY sc.GioChieu";
             using var conflictCmd = new SqlCommand(conflictSql, connection, transaction);
-            conflictCmd.Parameters.AddWithValue("@room", roomId);
-            conflictCmd.Parameters.AddWithValue("@day", day.Date);
-            conflictCmd.Parameters.AddWithValue("@update", update ? 1 : 0);
-            conflictCmd.Parameters.AddWithValue("@id", showId);
-            conflictCmd.Parameters.AddWithValue("@start", startAt);
-            conflictCmd.Parameters.AddWithValue("@startTime", start);
-            conflictCmd.Parameters.AddWithValue("@duration", duration);
+            conflictCmd.Parameters.Add(DbArg.VarChar20("@room", roomId).CreateSqlParameter());
+            conflictCmd.Parameters.Add(DbArg.Date("@day", day.Date).CreateSqlParameter());
+            conflictCmd.Parameters.Add(DbArg.Bit("@update", update).CreateSqlParameter());
+            conflictCmd.Parameters.Add(DbArg.VarChar20("@id", showId).CreateSqlParameter());
+            conflictCmd.Parameters.Add(DbArg.DateTime("@start", startAt).CreateSqlParameter());
+            conflictCmd.Parameters.Add(DbArg.Time("@startTime", start).CreateSqlParameter());
+            conflictCmd.Parameters.Add(DbArg.Int("@duration", duration).CreateSqlParameter());
             using (var reader = conflictCmd.ExecuteReader())
             {
                 if (reader.Read()) throw new InvalidOperationException($"Xung đột lịch với suất {reader.GetString(0)} ({reader.GetString(1)}). Cần chừa 60 phút dọn phòng.");
@@ -63,12 +63,12 @@ public static class ShowtimeService
                 ? "UPDATE dbo.SuatChieu SET MaPhim=@movie,MaPhong=@room,NgayChieu=@day,GioChieu=@time,GiaSuatChieu=@price WHERE MaSuatChieu=@id"
                 : "INSERT INTO dbo.SuatChieu(MaSuatChieu,MaPhim,MaPhong,NgayChieu,GioChieu,GiaSuatChieu) VALUES(@id,@movie,@room,@day,@time,@price)";
             using var saveCmd = new SqlCommand(sql, connection, transaction);
-            saveCmd.Parameters.AddWithValue("@id", showId);
-            saveCmd.Parameters.AddWithValue("@movie", movieId);
-            saveCmd.Parameters.AddWithValue("@room", roomId);
-            saveCmd.Parameters.AddWithValue("@day", day.Date);
-            saveCmd.Parameters.AddWithValue("@time", start);
-            saveCmd.Parameters.AddWithValue("@price", price);
+            saveCmd.Parameters.Add(DbArg.VarChar20("@id", showId).CreateSqlParameter());
+            saveCmd.Parameters.Add(DbArg.VarChar20("@movie", movieId).CreateSqlParameter());
+            saveCmd.Parameters.Add(DbArg.VarChar20("@room", roomId).CreateSqlParameter());
+            saveCmd.Parameters.Add(DbArg.Date("@day", day.Date).CreateSqlParameter());
+            saveCmd.Parameters.Add(DbArg.Time("@time", start).CreateSqlParameter());
+            saveCmd.Parameters.Add(DbArg.Decimal18_0("@price", price).CreateSqlParameter());
             if (saveCmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Không tìm thấy suất chiếu cần cập nhật.");
             return true;
         }, IsolationLevel.Serializable);

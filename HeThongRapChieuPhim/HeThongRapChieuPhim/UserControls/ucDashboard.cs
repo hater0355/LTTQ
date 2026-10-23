@@ -19,8 +19,12 @@ namespace HeThongRapChieuPhim.UserControls
             ThemeHelper.StyleDataGridView(dgvTopMovies);
             ThemeHelper.StyleDataGridView(dgvMonthlyRevenue);
             ThemeHelper.StyleDataGridView(dgvMovieRevenue);
-            dgvMonthlyRevenue.Columns["colMonthRevenue"].DefaultCellStyle.Format = "N0";
-            dgvMovieRevenue.Columns["colMovieRevenue"].DefaultCellStyle.Format = "N0";
+            dgvMonthlyRevenue.CellPainting += RevenueGrid_CellPainting;
+            dgvMovieRevenue.CellPainting += RevenueGrid_CellPainting;
+            if (dgvMonthlyRevenue.Columns["colMonthRevenue"] is { } monthColumn)
+                monthColumn.DefaultCellStyle.Format = "N0";
+            if (dgvMovieRevenue.Columns["colMovieRevenue"] is { } movieRevenueColumn)
+                movieRevenueColumn.DefaultCellStyle.Format = "N0";
 
             this.Load += (s, e) =>
             {
@@ -36,6 +40,53 @@ namespace HeThongRapChieuPhim.UserControls
         private void BtnRefresh_Click(object? sender, EventArgs e)
         {
             LoadDashboardData();
+        }
+
+        private void RevenueGrid_CellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
+        {
+            if (sender is not DataGridView grid || e.RowIndex < 0 || e.ColumnIndex < 0 ||
+                e.ColumnIndex != grid.Columns["colMonthRevenue"]?.Index &&
+                e.ColumnIndex != grid.Columns["colMovieRevenue"]?.Index)
+                return;
+            if (e.Graphics is null || e.CellStyle is null) return;
+
+            e.PaintBackground(e.CellBounds, true);
+            if (e.CellBounds.Width < 90 || !decimal.TryParse(Convert.ToString(e.Value), out decimal value))
+            {
+                e.PaintContent(e.ClipBounds);
+                e.Handled = true;
+                return;
+            }
+
+            decimal maxValue = 0;
+            foreach (DataGridViewRow row in grid.Rows)
+            {
+                if (decimal.TryParse(Convert.ToString(row.Cells[e.ColumnIndex].Value), out decimal rowValue))
+                    maxValue = Math.Max(maxValue, rowValue);
+            }
+
+            int padding = 8;
+            int trackWidth = Math.Max(20, (int)((e.CellBounds.Width - padding * 3) * 0.55));
+            int barWidth = maxValue <= 0 ? 0 : (int)(trackWidth * Math.Clamp(value / maxValue, 0m, 1m));
+            int barHeight = 12;
+            int barY = e.CellBounds.Top + (e.CellBounds.Height - barHeight) / 2;
+            var track = new Rectangle(e.CellBounds.Left + padding, barY, trackWidth, barHeight);
+            var bar = new Rectangle(track.Left, track.Top, barWidth, barHeight);
+            using (var trackBrush = new SolidBrush(Color.FromArgb(235, 239, 243)))
+            using (var barBrush = new SolidBrush(ReferenceEquals(grid, dgvMonthlyRevenue)
+                ? Color.FromArgb(38, 116, 179)
+                : Color.FromArgb(194, 133, 31)))
+            {
+                e.Graphics.FillRectangle(trackBrush, track);
+                if (bar.Width > 0) e.Graphics.FillRectangle(barBrush, bar);
+            }
+
+            string label = value.ToString("N0");
+            var textBounds = new Rectangle(track.Right + padding, e.CellBounds.Top, Math.Max(0, e.CellBounds.Right - track.Right - padding * 2), e.CellBounds.Height);
+            TextRenderer.DrawText(e.Graphics, label, e.CellStyle.Font, textBounds, e.CellStyle.ForeColor,
+                TextFormatFlags.VerticalCenter | TextFormatFlags.Right | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+            e.Paint(e.ClipBounds, DataGridViewPaintParts.Border);
+            e.Handled = true;
         }
 
         public void LoadDashboardData()
@@ -71,7 +122,7 @@ namespace HeThongRapChieuPhim.UserControls
                         FORMAT(NgayLap, 'MM/yyyy') AS Thang,
                         YEAR(NgayLap) AS Nam,
                         MONTH(NgayLap) AS ThangSo,
-                        ISNULL(SUM(TongTien), 0) AS DoanhThu
+                        ISNULL(SUM(TienVe), 0) AS DoanhThu
                     FROM HoaDon
                     WHERE TrangThaiThanhToan='Paid' AND NgayLap >= DATEADD(MONTH, -6, GETDATE())
                     GROUP BY FORMAT(NgayLap, 'MM/yyyy'), YEAR(NgayLap), MONTH(NgayLap)
@@ -96,11 +147,11 @@ namespace HeThongRapChieuPhim.UserControls
                     dgvMonthlyRevenue.Rows.Add(label, val);
                 }
 
-                // 3. Movie Revenue Share Chart (Doughnut)
+                // 3. Gross ticket value by movie, excluding food and before discounts.
                 string qMovie = @"
                     SELECT TOP 5
                         p.TenPhim,
-                        ISNULL(SUM(hd.TongTien), 0) AS DoanhThu
+                        ISNULL(SUM(hd.TienVe), 0) AS DoanhThu
                     FROM Phim p
                     LEFT JOIN SuatChieu sc ON p.MaPhim = sc.MaPhim
                     LEFT JOIN HoaDon hd ON sc.MaSuatChieu = hd.MaSuatChieu AND hd.TrangThaiThanhToan='Paid'
@@ -125,45 +176,45 @@ namespace HeThongRapChieuPhim.UserControls
                 // 4. Top Movies Grid
                 string qTop = @"
                     SELECT TOP 10
-                        ROW_NUMBER() OVER(ORDER BY ISNULL(SUM(hd.TongTien), 0) DESC) AS [Hạng],
+                        ROW_NUMBER() OVER(ORDER BY ISNULL(SUM(hd.SoLuongVe), 0) DESC, ISNULL(SUM(hd.TienVe), 0) DESC) AS [Hạng],
                         p.MaPhim AS [Mã Phim],
                         p.TenPhim AS [Tên Phim],
                         p.TheLoai AS [Thể Loại],
                         COUNT(DISTINCT hd.MaHD) AS [Số Hóa Đơn],
                         ISNULL(SUM(hd.SoLuongVe), 0) AS [Số Vé Bán],
-                        ISNULL(SUM(hd.TongTien), 0) AS [Tổng Doanh Thu (VNĐ)]
+                        ISNULL(SUM(hd.TienVe), 0) AS [Doanh Thu Vé (Trước Giảm Giá) (VNĐ)]
                     FROM Phim p
                     LEFT JOIN SuatChieu sc ON p.MaPhim = sc.MaPhim
                     LEFT JOIN HoaDon hd ON sc.MaSuatChieu = hd.MaSuatChieu AND hd.TrangThaiThanhToan='Paid'
                     GROUP BY p.MaPhim, p.TenPhim, p.TheLoai
-                    ORDER BY [Tổng Doanh Thu (VNĐ)] DESC";
+                    ORDER BY [Số Vé Bán] DESC, [Doanh Thu Vé (Trước Giảm Giá) (VNĐ)] DESC";
 
                 var dtTop = Function.Query(qTop);
                 dgvTopMovies.DataSource = dtTop;
 
-                if (dgvTopMovies.Columns["Tổng Doanh Thu (VNĐ)"] != null)
+                if (dgvTopMovies.Columns["Doanh Thu Vé (Trước Giảm Giá) (VNĐ)"] is { } ticketRevenueColumn)
                 {
-                    dgvTopMovies.Columns["Tổng Doanh Thu (VNĐ)"].DefaultCellStyle.Format = "N0";
-                    dgvTopMovies.Columns["Tổng Doanh Thu (VNĐ)"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                    dgvTopMovies.Columns["Tổng Doanh Thu (VNĐ)"].DefaultCellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+                    ticketRevenueColumn.DefaultCellStyle.Format = "N0";
+                    ticketRevenueColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    ticketRevenueColumn.DefaultCellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
                 }
-                if (dgvTopMovies.Columns["Số Vé Bán"] != null)
+                if (dgvTopMovies.Columns["Số Vé Bán"] is { } ticketsSoldColumn)
                 {
-                    dgvTopMovies.Columns["Số Vé Bán"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    ticketsSoldColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 }
-                if (dgvTopMovies.Columns["Số Hóa Đơn"] != null)
+                if (dgvTopMovies.Columns["Số Hóa Đơn"] is { } invoiceCountColumn)
                 {
-                    dgvTopMovies.Columns["Số Hóa Đơn"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    invoiceCountColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 }
-                if (dgvTopMovies.Columns["Hạng"] != null)
+                if (dgvTopMovies.Columns["Hạng"] is { } rankColumn)
                 {
                     try
                     {
-                        dgvTopMovies.Columns["Hạng"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                        dgvTopMovies.Columns["Hạng"].Width = 65;
+                        rankColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                        rankColumn.Width = 65;
                     }
                     catch { }
-                    dgvTopMovies.Columns["Hạng"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    rankColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 }
             }
             catch (Exception ex)

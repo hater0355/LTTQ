@@ -15,6 +15,9 @@ namespace HeThongRapChieuPhim.UserControls
 {
     public partial class ucBanHang : UserControl
     {
+        private sealed record SelectedFoodItem(
+            string MaDoAn, string MaKichCo, string TenDoAn, string TenKichCo, decimal DonGia, int SoLuong);
+
         // State tracking
         private string _currentMaPhim = "";
         private string _currentMaSuatChieu = "";
@@ -24,7 +27,8 @@ namespace HeThongRapChieuPhim.UserControls
         private int _roomCols = 10;
         private readonly HashSet<string> _bookedSeats = new();
         private readonly HashSet<string> _selectedSeats = new();
-        private readonly Dictionary<string, (string TenDoAn, decimal DonGia, int SoLuong)> _selectedFood = new();
+        private readonly Dictionary<string, SelectedFoodItem> _selectedFood = new(StringComparer.OrdinalIgnoreCase);
+        private readonly List<FoodItemCard> _foodCards = new();
         private int _requiredComboSeats = 0;
         private decimal _comboDiscountPct = 0;
         private string _appliedVoucherCode = "";
@@ -90,7 +94,7 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string sql = "SELECT MaVoucher, TenVoucher, LoaiGiam, GiaTriGiam, HanSuDung, TrangThai FROM Voucher WHERE UPPER(MaVoucher) = @Ma";
-                var dt = Function.Query(sql, new[] { new DbArg("@Ma", code) });
+                var dt = Function.Query(sql, new[] { DbArg.VarChar20("@Ma", code) });
 
                 if (dt.Rows.Count == 0)
                 {
@@ -248,16 +252,59 @@ namespace HeThongRapChieuPhim.UserControls
         {
             try
             {
-                dgvFoodList.Rows.Clear();
-                var dt = Function.Query("SELECT MaDoAn, TenDoAn, Gia FROM DoAn ORDER BY MaDoAn ASC");
-                foreach (DataRow row in dt.Rows)
+                foreach (var card in _foodCards) card.Dispose();
+                _foodCards.Clear();
+                flpFoodItems.Controls.Clear();
+
+                var dt = Function.Query(@"
+                    SELECT da.MaDoAn, da.TenDoAn, ISNULL(da.MoTa,N'') AS MoTa,
+                           ISNULL(da.HinhAnhPath,N'') AS HinhAnhPath,
+                           kc.MaKichCo, kc.TenKichCo, kc.DonGia
+                    FROM dbo.DoAn da
+                    INNER JOIN dbo.DoAnKichCo kc ON kc.MaDoAn=da.MaDoAn
+                    ORDER BY da.MaDoAn,
+                        CASE kc.MaKichCo WHEN 'S' THEN 1 WHEN 'M' THEN 2 WHEN 'L' THEN 3 ELSE 4 END,
+                        kc.TenKichCo");
+
+                var groupedFoods = dt.AsEnumerable()
+                    .GroupBy(row => Convert.ToString(row["MaDoAn"]) ?? string.Empty, StringComparer.OrdinalIgnoreCase);
+
+                foreach (var group in groupedFoods)
                 {
-                    string ma = row["MaDoAn"].ToString() ?? "";
-                    string ten = row["TenDoAn"].ToString() ?? "";
-                    decimal gia = Convert.ToDecimal(row["Gia"]);
-                    int quantity = _selectedFood.TryGetValue(ma, out var selected) ? selected.SoLuong : 0;
-                    dgvFoodList.Rows.Add(ma, ten, gia, quantity);
+                    var first = group.First();
+                    string foodName = Convert.ToString(first["TenDoAn"]) ?? group.Key;
+                    const string mediumSuffix = " cỡ vừa";
+                    if (foodName.EndsWith(mediumSuffix, StringComparison.OrdinalIgnoreCase))
+                        foodName = foodName[..^mediumSuffix.Length].TrimEnd();
+                    var item = new FoodMenuItem(
+                        group.Key,
+                        foodName,
+                        Convert.ToString(first["MoTa"]) ?? string.Empty,
+                        Convert.ToString(first["HinhAnhPath"]) ?? string.Empty,
+                        group.Select(row => new FoodSizeOption(
+                            Convert.ToString(row["MaKichCo"]) ?? string.Empty,
+                            Convert.ToString(row["TenKichCo"]) ?? string.Empty,
+                            Convert.ToDecimal(row["DonGia"]))).ToArray());
+
+                    var card = new FoodItemCard(item);
+                    card.Width = Math.Max(270, flpFoodItems.ClientSize.Width - 28);
+                    card.QuantityChanged += FoodCard_QuantityChanged;
+                    card.SelectedSizeChanged += (_, _) => UpdateFoodCardQuantity(card);
+                    _foodCards.Add(card);
+                    flpFoodItems.Controls.Add(card);
+                    UpdateFoodCardQuantity(card);
                 }
+
+                if (_foodCards.Count == 0)
+                    flpFoodItems.Controls.Add(new Label
+                    {
+                        AutoSize = false,
+                        Size = new Size(280, 52),
+                        Text = "Chưa có món nào có cỡ bán. Hãy thêm cỡ/giá món trong CSDL.",
+                        Font = new Font("Segoe UI", 8.5f),
+                        ForeColor = ThemeHelper.TextMuted,
+                        TextAlign = ContentAlignment.MiddleCenter
+                    });
             }
             catch (Exception ex)
             {
@@ -265,40 +312,40 @@ namespace HeThongRapChieuPhim.UserControls
             }
         }
 
-        private void PnlFoodList_CurrentCellDirtyStateChanged(object? sender, EventArgs e)
-        {
-            if (dgvFoodList.IsCurrentCellDirty)
-                dgvFoodList.CommitEdit(DataGridViewDataErrorContexts.Commit);
-        }
+        private static string FoodSelectionKey(string maDoAn, string maKichCo) => $"{maDoAn}|{maKichCo}";
 
-        private void PnlFoodList_CellValidating(object? sender, DataGridViewCellValidatingEventArgs e)
+        private void FoodCard_QuantityChanged(object? sender, FoodQuantityChangedEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex != colFoodQty.Index) return;
-            if (!int.TryParse(Convert.ToString(e.FormattedValue), out int quantity) || quantity < 0 || quantity > 20)
+            string key = FoodSelectionKey(e.Item.MaDoAn, e.Size.MaKichCo);
+            _selectedFood.TryGetValue(key, out var existing);
+            int quantity = (existing?.SoLuong ?? 0) + e.Delta;
+
+            if (quantity <= 0)
             {
-                e.Cancel = true;
-                dgvFoodList.Rows[e.RowIndex].ErrorText = "Số lượng phải từ 0 đến 20.";
+                _selectedFood.Remove(key);
             }
-            else
+            else if (quantity <= 20)
             {
-                dgvFoodList.Rows[e.RowIndex].ErrorText = string.Empty;
+                _selectedFood[key] = new SelectedFoodItem(
+                    e.Item.MaDoAn, e.Size.MaKichCo, e.Item.TenDoAn, e.Size.TenKichCo, e.Size.DonGia, quantity);
             }
-        }
 
-        private void PnlFoodList_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0 || e.ColumnIndex != colFoodQty.Index) return;
-            var row = dgvFoodList.Rows[e.RowIndex];
-            string code = Convert.ToString(row.Cells[colFoodCode.Index].Value) ?? string.Empty;
-            string name = Convert.ToString(row.Cells[colFoodName.Index].Value) ?? string.Empty;
-            decimal price = Convert.ToDecimal(row.Cells[colFoodPrice.Index].Value);
-            int quantity = int.TryParse(Convert.ToString(row.Cells[colFoodQty.Index].Value), out var parsedQuantity)
-                ? Math.Clamp(parsedQuantity, 0, 20)
-                : 0;
-
-            if (quantity > 0) _selectedFood[code] = (name, price, quantity);
-            else _selectedFood.Remove(code);
+            if (sender is FoodItemCard card) UpdateFoodCardQuantity(card);
             CalculateTotals();
+        }
+
+        private void UpdateFoodCardQuantity(FoodItemCard card)
+        {
+            var selectedSize = card.SelectedSize;
+            int quantity = selectedSize is null ? 0 :
+                _selectedFood.TryGetValue(FoodSelectionKey(card.Item.MaDoAn, selectedSize.MaKichCo), out var selected)
+                    ? selected.SoLuong : 0;
+            card.SetSelectedQuantity(quantity);
+        }
+
+        private void RefreshFoodCardQuantities()
+        {
+            foreach (var card in _foodCards) UpdateFoodCardQuantity(card);
         }
 
         private void CboPhim_SelectedIndexChanged(object? sender, EventArgs e)
@@ -330,24 +377,13 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void LoadPoster(string relativeOrFullPath)
         {
-            try
+            if (picPoster.Image != null)
             {
-                if (picPoster.Image != null)
-                {
-                    picPoster.Image.Dispose();
-                    picPoster.Image = null;
-                }
-
-                if (!string.IsNullOrEmpty(relativeOrFullPath) && File.Exists(relativeOrFullPath))
-                {
-                    using var stream = new FileStream(relativeOrFullPath, FileMode.Open, FileAccess.Read);
-                    picPoster.Image = Image.FromStream(stream);
-                }
-            }
-            catch
-            {
+                picPoster.Image.Dispose();
                 picPoster.Image = null;
             }
+
+            picPoster.Image = ImageAssetHelper.Load(relativeOrFullPath);
         }
 
         private void LoadShowtimesForMovie(string maPhim)
@@ -357,6 +393,7 @@ namespace HeThongRapChieuPhim.UserControls
                 string query = @"
                     SELECT 
                         sc.MaSuatChieu,
+                        sc.NgayChieu,
                         (CONVERT(VARCHAR(5), sc.NgayChieu, 103) + ' ' + 
                          CONVERT(VARCHAR(5), sc.GioChieu, 108) + ' - ' + pc.TenPhong) AS ShowInfo,
                         sc.MaPhong,
@@ -370,7 +407,7 @@ namespace HeThongRapChieuPhim.UserControls
                     WHERE sc.MaPhim = @MaPhim
                     ORDER BY sc.NgayChieu ASC, sc.GioChieu ASC";
 
-                var dt = Function.Query(query, new[] { new DbArg("@MaPhim", maPhim) });
+                var dt = Function.Query(query, new[] { DbArg.VarChar20("@MaPhim", maPhim) });
                 cboSuatChieu.DataSource = dt;
                 cboSuatChieu.DisplayMember = "ShowInfo";
                 cboSuatChieu.ValueMember = "MaSuatChieu";
@@ -419,7 +456,7 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string query = "SELECT MaGhe FROM dbo.GheDatCho WHERE MaSuatChieu = @MaSC AND (HetHan IS NULL OR HetHan > SYSUTCDATETIME())";
-                var dt = Function.Query(query, new[] { new DbArg("@MaSC", maSuatChieu) });
+                var dt = Function.Query(query, new[] { DbArg.VarChar20("@MaSC", maSuatChieu) });
                 foreach (DataRow row in dt.Rows)
                 {
                     _bookedSeats.Add(row["MaGhe"].ToString() ?? "");
@@ -593,9 +630,13 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 decimal itemTotal = kv.Value.DonGia * kv.Value.SoLuong;
                 foodTotal += itemTotal;
-                foodItems.Add($"{kv.Value.TenDoAn} x{kv.Value.SoLuong}");
+                foodItems.Add($"{kv.Value.TenDoAn} - {kv.Value.TenKichCo} x{kv.Value.SoLuong}");
             }
-            lblSumFood.Text = $"Tiền đồ ăn: {foodTotal:N0} đ";
+            string foodDescription = string.Join(", ", foodItems);
+            lblSumFood.Text = foodTotal > 0
+                ? $"Đồ ăn: {foodTotal:N0} đ\n{foodDescription}"
+                : "Đồ ăn: 0 đ";
+            lblSumFood.Tag = foodDescription;
 
             // Discount Voucher
             decimal voucherDiscount = 0;
@@ -667,7 +708,7 @@ namespace HeThongRapChieuPhim.UserControls
                 string maCombo = cboCombo.SelectedValue?.ToString() ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(maCombo)) maCombo = null!;
                 var draft = new SaleDraft(_currentMaSuatChieu, sortedSeats,
-                    _selectedFood.Select(x => new FoodOrder(x.Key, x.Value.SoLuong)).ToArray(), maCombo,
+                    _selectedFood.Values.Select(x => new FoodOrder(x.MaDoAn, x.SoLuong, x.MaKichCo)).ToArray(), maCombo,
                     string.IsNullOrWhiteSpace(_appliedVoucherCode) ? null : _appliedVoucherCode, CurrentUser.TenDangNhap);
                 SaleResult sale;
 
@@ -689,6 +730,9 @@ namespace HeThongRapChieuPhim.UserControls
                 {
                     MaHD = sale.MaHD, NgayXuat = sale.NgayLap, TenPhim = sale.TenPhim, PhongChieu = sale.TenPhong,
                     SuatChieu = sale.SuatChieu, DanhSachGhe = sale.DanhSachGhe, SoLuongVe = sale.SoLuongVe,
+                    NgayChieu = (cboSuatChieu.SelectedItem as DataRowView) is { } selectedShow
+                        ? Convert.ToDateTime(selectedShow["NgayChieu"])
+                        : null,
                     TenCombo = sale.TenCombo, DanhSachDoAn = sale.DanhSachDoAn, TienVe = sale.TienVe,
                     TienGiamGia = sale.TienGiamGia, TienDoAn = sale.TienDoAn, TongTien = sale.TongTien,
                     PhuongThucTT = sale.PhuongThucTT
@@ -696,6 +740,8 @@ namespace HeThongRapChieuPhim.UserControls
                 frmIn.ShowDialog(this);
                 LoadBookedSeatsForShowtime(_currentMaSuatChieu);
                 _selectedSeats.Clear();
+                _selectedFood.Clear();
+                RefreshFoodCardQuantities();
                 HuyVoucher(silent: true);
                 RenderSeatMap();
                 CalculateTotals();
@@ -709,6 +755,8 @@ namespace HeThongRapChieuPhim.UserControls
         private void ResetSelection()
         {
             _selectedSeats.Clear();
+            _selectedFood.Clear();
+            RefreshFoodCardQuantities();
             HuyVoucher(silent: true);
             RenderSeatMap();
             CalculateTotals();

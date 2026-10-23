@@ -45,10 +45,10 @@ namespace HeThongRapChieuPhim.UserControls
                 string[] moneyCols = { "colTongThanhToan" };
                 foreach (var col in moneyCols)
                 {
-                    if (dgvHoaDon.Columns[col] != null)
+                    if (dgvHoaDon.Columns[col] is { } moneyColumn)
                     {
-                        dgvHoaDon.Columns[col].DefaultCellStyle.Format = "N0";
-                        dgvHoaDon.Columns[col].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                        moneyColumn.DefaultCellStyle.Format = "N0";
+                        moneyColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                     }
                 }
 
@@ -93,6 +93,7 @@ namespace HeThongRapChieuPhim.UserControls
                 {
                     MaHD = maHD,
                     NgayXuat = Convert.ToDateTime(r["NgayLap"]),
+                    NgayChieu = r["NgayChieu"] is DBNull ? null : Convert.ToDateTime(r["NgayChieu"]),
                     TenPhim = r["TenPhim"]?.ToString() ?? "",
                     PhongChieu = r["TenPhong"]?.ToString() ?? "",
                     SuatChieu = r["GioChieu"]?.ToString() ?? "",

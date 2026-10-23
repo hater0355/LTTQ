@@ -23,7 +23,27 @@ namespace HeThongRapChieuPhim.Classes
 
         public static bool Authenticate(string username, string password, out string error)
         {
+            if (!TryAuthenticate(username, password, out var row, out var role, out error)) return false;
+
+            CurrentUser.TenDangNhap = Convert.ToString(row["TenDangNhap"]) ?? username;
+            CurrentUser.MaNV = Convert.ToString(row["MaNV"]) ?? string.Empty;
+            CurrentUser.HoTen = Convert.ToString(row["HoTen"]) ?? username;
+            CurrentUser.VaiTro = role;
+            CurrentUser.MustChangePassword = Convert.ToBoolean(row["YeuCauDoiMatKhau"]);
+            return true;
+        }
+
+        /// <summary>Validates credentials without mutating the desktop's process-wide CurrentUser state.</summary>
+        public static bool ValidateCredentials(string username, string password, out string role, out string error)
+        {
+            return TryAuthenticate(username, password, out _, out role, out error);
+        }
+
+        private static bool TryAuthenticate(string username, string password, out DataRow row, out string role, out string error)
+        {
+            role = string.Empty;
             error = string.Empty;
+            row = null!;
             var rows = DataProcesser.Query(@"
                 SELECT tk.TenDangNhap, tk.MatKhau, tk.VaiTro, tk.TrangThai,
                        tk.YeuCauDoiMatKhau,
@@ -31,20 +51,20 @@ namespace HeThongRapChieuPhim.Classes
                        ISNULL(nv.HoTen, tk.TenDangNhap) AS HoTen
                 FROM TaiKhoan tk LEFT JOIN NhanVien nv ON tk.MaNV = nv.MaNV
                 WHERE tk.TenDangNhap = @user",
-                new DbArg("@user", username));
+                DbArg.VarChar50("@user", username));
 
-            if (rows.Rows.Count == 0) { error = "Tên đăng nhập không tồn tại!"; return false; }
-            var row = rows.Rows[0];
+            if (rows.Rows.Count == 0) { error = "Tên đăng nhập hoặc mật khẩu không chính xác."; return false; }
+            row = rows.Rows[0];
             if (!Convert.ToBoolean(row["TrangThai"])) { error = "Tài khoản của bạn đang bị khóa!"; return false; }
 
             string stored = Convert.ToString(row["MatKhau"]) ?? string.Empty;
             if (!VerifyPassword(password, stored, out bool legacyPassword))
             {
-                error = "Mật khẩu không chính xác!";
+                error = "Tên đăng nhập hoặc mật khẩu không chính xác.";
                 return false;
             }
 
-            string role = AccessRoles.Normalize(Convert.ToString(row["VaiTro"]) ?? string.Empty);
+            role = AccessRoles.Normalize(Convert.ToString(row["VaiTro"]) ?? string.Empty);
             if (role.Length == 0)
             {
                 error = "Tài khoản chưa được gán vai trò hợp lệ.";
@@ -54,14 +74,8 @@ namespace HeThongRapChieuPhim.Classes
             if (legacyPassword)
             {
                 DataProcesser.Execute("UPDATE TaiKhoan SET MatKhau = @password WHERE TenDangNhap = @user",
-                    new DbArg("@password", HashPassword(password)), new DbArg("@user", username));
+                    DbArg.NVarChar255("@password", HashPassword(password)), DbArg.VarChar50("@user", username));
             }
-
-            CurrentUser.TenDangNhap = Convert.ToString(row["TenDangNhap"]) ?? username;
-            CurrentUser.MaNV = Convert.ToString(row["MaNV"]) ?? string.Empty;
-            CurrentUser.HoTen = Convert.ToString(row["HoTen"]) ?? username;
-            CurrentUser.VaiTro = role;
-            CurrentUser.MustChangePassword = Convert.ToBoolean(row["YeuCauDoiMatKhau"]);
             return true;
         }
 
@@ -73,7 +87,7 @@ namespace HeThongRapChieuPhim.Classes
             int affected = DataProcesser.Execute(@"
                 UPDATE TaiKhoan SET MatKhau = @password, YeuCauDoiMatKhau = 0
                 WHERE TenDangNhap = @user AND TrangThai = 1",
-                new DbArg("@password", HashPassword(newPassword)), new DbArg("@user", CurrentUser.TenDangNhap));
+                DbArg.NVarChar255("@password", HashPassword(newPassword)), DbArg.VarChar50("@user", CurrentUser.TenDangNhap));
             if (affected != 1) { error = "Không thể cập nhật mật khẩu tài khoản."; return false; }
             CurrentUser.MustChangePassword = false;
             return true;
@@ -105,7 +119,7 @@ namespace HeThongRapChieuPhim.Classes
                 DataProcesser.Execute(@"
                     INSERT INTO TaiKhoan (TenDangNhap, MatKhau, VaiTro, MaNV, TrangThai, YeuCauDoiMatKhau)
                     VALUES (@user, @password, @role, NULL, 1, 1)",
-                    new DbArg("@user", username), new DbArg("@password", HashPassword(password)), new DbArg("@role", role));
+                    DbArg.VarChar50("@user", username), DbArg.NVarChar255("@password", HashPassword(password)), DbArg.NVarChar50("@role", role));
                 return true;
             }
             catch (DuplicateRecordException)
@@ -129,7 +143,7 @@ namespace HeThongRapChieuPhim.Classes
             int affected = DataProcesser.Execute(@"
                 UPDATE TaiKhoan SET MatKhau = @password, YeuCauDoiMatKhau = 1
                 WHERE TenDangNhap = @user AND VaiTro IN ('AdminTong','AdminPhim','AdminNhanSu','AdminDoAn','AdminDoanhThu','Cashier')",
-                new DbArg("@password", HashPassword(newPassword)), new DbArg("@user", username));
+                DbArg.NVarChar255("@password", HashPassword(newPassword)), DbArg.VarChar50("@user", username));
             if (affected == 0) error = "Không tìm thấy tài khoản cần đổi mật khẩu.";
             return affected > 0;
         }

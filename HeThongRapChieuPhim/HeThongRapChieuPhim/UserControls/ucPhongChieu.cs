@@ -159,7 +159,7 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string check = "SELECT COUNT(*) FROM PhongChieu WHERE MaPhong = @Ma";
-                int count = Convert.ToInt32(Function.Scalar(check, new[] { new DbArg("@Ma", ma) }));
+                int count = Convert.ToInt32(Function.Scalar(check, new[] { DbArg.VarChar20("@Ma", ma) }));
                 if (count > 0)
                 {
                     MessageBox.Show($"Mã phòng '{ma}' đã tồn tại!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -172,10 +172,10 @@ namespace HeThongRapChieuPhim.UserControls
 
                 var p = new[]
                 {
-                    new DbArg("@Ma", ma),
-                    new DbArg("@Ten", ten),
-                    new DbArg("@Rows", rows),
-                    new DbArg("@Cols", cols)
+                    DbArg.VarChar20("@Ma", ma),
+                    DbArg.NVarChar100("@Ten", ten),
+                    DbArg.Int("@Rows", rows),
+                    DbArg.Int("@Cols", cols)
                 };
                 Function.Execute(insert, p);
 
@@ -210,10 +210,10 @@ namespace HeThongRapChieuPhim.UserControls
 
                 var p = new[]
                 {
-                    new DbArg("@Ma", ma),
-                    new DbArg("@Ten", ten),
-                    new DbArg("@Rows", rows),
-                    new DbArg("@Cols", cols)
+                    DbArg.VarChar20("@Ma", ma),
+                    DbArg.NVarChar100("@Ten", ten),
+                    DbArg.Int("@Rows", rows),
+                    DbArg.Int("@Cols", cols)
                 };
                 Function.Execute(update, p);
 
@@ -239,7 +239,7 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 try
                 {
-                    Function.Execute("DELETE FROM PhongChieu WHERE MaPhong = @Ma", new[] { new DbArg("@Ma", ma) });
+                    Function.Execute("DELETE FROM PhongChieu WHERE MaPhong = @Ma", new[] { DbArg.VarChar20("@Ma", ma) });
                     MessageBox.Show("Đã xóa phòng chiếu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ClearForm();
                 }

@@ -52,7 +52,7 @@ namespace HeThongRapChieuPhim.UserControls
                     WHERE (@kw = '' OR nv.MaNV LIKE '%' + @kw + '%' OR nv.HoTen LIKE '%' + @kw + '%' OR nv.SDT LIKE '%' + @kw + '%')
                     ORDER BY nv.MaNV ASC";
 
-                var parameters = new[] { new DbArg("@kw", searchKeyword) };
+                var parameters = new[] { DbArg.NVarChar4000("@kw", searchKeyword) };
                 var dt = Function.Query(query, parameters);
                 dgvNhanVien.DataSource = dt;
             }
@@ -113,7 +113,7 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 string checkQuery = "SELECT COUNT(*) FROM NhanVien WHERE MaNV = @MaNV";
-                int count = Convert.ToInt32(Function.Scalar(checkQuery, new[] { new DbArg("@MaNV", maNV) }));
+                int count = Convert.ToInt32(Function.Scalar(checkQuery, new[] { DbArg.VarChar20("@MaNV", maNV) }));
                 if (count > 0)
                 {
                     MessageBox.Show($"Mã nhân viên '{maNV}' đã tồn tại!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -127,12 +127,12 @@ namespace HeThongRapChieuPhim.UserControls
 
                 var pNV = new[]
                 {
-                    new DbArg("@MaNV", maNV),
-                    new DbArg("@HoTen", hoTen),
-                    new DbArg("@NgaySinh", ngaySinh),
-                    new DbArg("@SDT", sdt),
-                    new DbArg("@CCCD", cccd),
-                    new DbArg("@ChucVu", chucVu)
+                    DbArg.VarChar20("@MaNV", maNV),
+                    DbArg.NVarChar100("@HoTen", hoTen),
+                    DbArg.Date("@NgaySinh", ngaySinh),
+                    DbArg.VarChar15("@SDT", sdt),
+                    DbArg.VarChar20("@CCCD", cccd),
+                    DbArg.NVarChar50("@ChucVu", chucVu)
                 };
                 Function.Execute(insertNV, pNV);
                 MessageBox.Show("Thêm hồ sơ nhân viên thành công. Tài khoản đăng nhập được tạo riêng trong mục Tài Khoản Thu Ngân.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -169,12 +169,12 @@ namespace HeThongRapChieuPhim.UserControls
 
                 var pNV = new[]
                 {
-                    new DbArg("@MaNV", maNV),
-                    new DbArg("@HoTen", hoTen),
-                    new DbArg("@NgaySinh", ngaySinh),
-                    new DbArg("@SDT", sdt),
-                    new DbArg("@CCCD", cccd),
-                    new DbArg("@ChucVu", chucVu)
+                    DbArg.VarChar20("@MaNV", maNV),
+                    DbArg.NVarChar100("@HoTen", hoTen),
+                    DbArg.Date("@NgaySinh", ngaySinh),
+                    DbArg.VarChar15("@SDT", sdt),
+                    DbArg.VarChar20("@CCCD", cccd),
+                    DbArg.NVarChar50("@ChucVu", chucVu)
                 };
                 Function.Execute(updateNV, pNV);
 
@@ -197,21 +197,21 @@ namespace HeThongRapChieuPhim.UserControls
             }
 
             bool isCurrentAccount = maNV.Equals(CurrentUser.MaNV, StringComparison.OrdinalIgnoreCase);
-            bool isAdminAccount;
+            bool hasLinkedAccount;
             try
             {
-                isAdminAccount = Convert.ToInt32(Function.Scalar(
-                    "SELECT COUNT(*) FROM dbo.TaiKhoan WHERE MaNV=@id AND VaiTro IN (N'Admin',N'Quản lý',N'Quan ly',N'Manager')",
-                    new[] { new DbArg("@id", maNV) })) > 0;
+                hasLinkedAccount = Convert.ToInt32(Function.Scalar(
+                    "SELECT COUNT(*) FROM dbo.TaiKhoan WHERE MaNV=@id",
+                    new[] { DbArg.VarChar20("@id", maNV) })) > 0;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Không thể kiểm tra quyền liên kết hồ sơ; không xóa nhân viên.\n" + ex.Message, "Lỗi kiểm tra quyền", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (isCurrentAccount || isAdminAccount)
+            if (isCurrentAccount || hasLinkedAccount)
             {
-                MessageBox.Show("Không thể xóa hồ sơ đang đăng nhập hoặc hồ sơ đang gắn với tài khoản Admin.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Không thể xóa hồ sơ đang đăng nhập hoặc còn được liên kết với tài khoản hệ thống.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -221,9 +221,9 @@ namespace HeThongRapChieuPhim.UserControls
                 {
                     int affected = Function.Execute(@"DELETE nv FROM dbo.NhanVien nv
                         WHERE nv.MaNV=@MaNV
-                          AND NOT EXISTS (SELECT 1 FROM dbo.TaiKhoan tk WHERE tk.MaNV=nv.MaNV AND tk.VaiTro IN (N'Admin',N'Quản lý',N'Quan ly',N'Manager'))",
-                        new[] { new DbArg("@MaNV", maNV) });
-                    if (affected != 1) throw new InvalidOperationException("Hồ sơ đã bị thay đổi hoặc đang được dùng bởi tài khoản Admin.");
+                          AND NOT EXISTS (SELECT 1 FROM dbo.TaiKhoan tk WHERE tk.MaNV=nv.MaNV)",
+                        new[] { DbArg.VarChar20("@MaNV", maNV) });
+                    if (affected != 1) throw new InvalidOperationException("Hồ sơ đã bị thay đổi hoặc đang được dùng bởi tài khoản hệ thống.");
 
                     MessageBox.Show("Đã xóa nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ClearForm();

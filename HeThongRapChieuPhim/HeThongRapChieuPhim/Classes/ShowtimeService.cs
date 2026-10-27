@@ -20,11 +20,20 @@ public static class ShowtimeService
                 if (startAt <= Convert.ToDateTime(clockCmd.ExecuteScalar()))
                     throw new InvalidOperationException("Không thể tạo hoặc sửa suất chiếu trong quá khứ.");
             }
-            using var durationCmd = new SqlCommand("SELECT ThoiLuong FROM dbo.Phim WITH (UPDLOCK,HOLDLOCK) WHERE MaPhim=@movie", connection, transaction);
+            using var durationCmd = new SqlCommand(@"
+                SELECT ThoiLuong, NgayBatDauChieu, NgayKetThucChieu
+                FROM dbo.Phim WITH (UPDLOCK,HOLDLOCK) WHERE MaPhim=@movie", connection, transaction);
             durationCmd.Parameters.Add(DbArg.VarChar20("@movie", movieId).CreateSqlParameter());
-            object? durationValue = durationCmd.ExecuteScalar();
-            if (durationValue is null or DBNull) throw new InvalidOperationException("Không tìm thấy phim đã chọn.");
-            int duration = Convert.ToInt32(durationValue);
+            using var movieReader = durationCmd.ExecuteReader();
+            if (!movieReader.Read()) throw new InvalidOperationException("Không tìm thấy phim đã chọn.");
+            int duration = movieReader.GetInt32(0);
+            DateTime? releaseStart = movieReader.IsDBNull(1) ? null : movieReader.GetDateTime(1).Date;
+            DateTime? releaseEnd = movieReader.IsDBNull(2) ? null : movieReader.GetDateTime(2).Date;
+            movieReader.Close();
+            if (releaseStart.HasValue && day.Date < releaseStart.Value)
+                throw new InvalidOperationException($"Chưa đến ngày phát hành của phim ({releaseStart:dd/MM/yyyy}).");
+            if (releaseEnd.HasValue && day.Date > releaseEnd.Value)
+                throw new InvalidOperationException($"Phim đã hết hạn phát hành từ ngày {releaseEnd:dd/MM/yyyy}. Hãy gia hạn phim trước khi xếp lịch.");
             DateTime endAt = startAt.AddMinutes(duration + 60);
             if (start < TimeSpan.FromHours(10) || endAt.Date != startAt.Date)
                 throw new InvalidOperationException("Suất chiếu phải bắt đầu từ 10:00 và kết thúc/dọn phòng trước 00:00.");

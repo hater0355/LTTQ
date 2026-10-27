@@ -2,6 +2,7 @@ using HeThongRapChieuPhim.Classes;
 using System;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 using HeThongRapChieuPhim.Data;
@@ -11,6 +12,9 @@ namespace HeThongRapChieuPhim.UserControls
 {
     public partial class ucDoAn : UserControl
     {
+        private string _savedImagePath = string.Empty;
+        private string? _pendingImageSource;
+
         public ucDoAn()
         {
             InitializeComponent();
@@ -45,13 +49,16 @@ namespace HeThongRapChieuPhim.UserControls
                         MaDoAn AS [Mã Đồ Ăn],
                         TenDoAn AS [Tên Món],
                         Loai AS [Phân Loại],
-                        Gia AS [Đơn Giá (VNĐ)]
+                        Gia AS [Đơn Giá (VNĐ)],
+                        ISNULL(HinhAnhPath, N'') AS [Đường dẫn ảnh]
                     FROM DoAn
                     WHERE (@kw = '' OR MaDoAn LIKE '%' + @kw + '%' OR TenDoAn LIKE '%' + @kw + '%' OR Loai LIKE '%' + @kw + '%')
                     ORDER BY MaDoAn ASC";
 
                 var dt = Function.Query(query, new[] { DbArg.NVarChar4000("@kw", searchKeyword) });
                 dgvDoAn.DataSource = dt;
+                if (dgvDoAn.Columns["Đường dẫn ảnh"] is { } imagePathColumn)
+                    imagePathColumn.Visible = false;
 
                 if (dgvDoAn.Columns["Đơn Giá (VNĐ)"] is { } priceColumn)
                 {
@@ -71,6 +78,10 @@ namespace HeThongRapChieuPhim.UserControls
             txtTenDoAn.Clear();
             cboLoai.SelectedIndex = 0;
             numGia.Value = 45000;
+            _savedImagePath = string.Empty;
+            _pendingImageSource = null;
+            lblImagePath.Text = "Chưa chọn ảnh";
+            SetFoodImagePreview(null);
             txtSearch.Clear();
             txtMaDoAn.Enabled = true;
             LoadDoAn();
@@ -84,6 +95,12 @@ namespace HeThongRapChieuPhim.UserControls
             txtMaDoAn.Text = row.Cells["Mã Đồ Ăn"].Value?.ToString() ?? "";
             txtTenDoAn.Text = row.Cells["Tên Món"].Value?.ToString() ?? "";
             cboLoai.SelectedItem = row.Cells["Phân Loại"].Value?.ToString() ?? "Bắp rang";
+            _savedImagePath = row.Cells["Đường dẫn ảnh"].Value?.ToString() ?? string.Empty;
+            _pendingImageSource = null;
+            lblImagePath.Text = string.IsNullOrWhiteSpace(_savedImagePath)
+                ? "Chưa có ảnh"
+                : Path.GetFileName(_savedImagePath);
+            SetFoodImagePreview(_savedImagePath);
 
             if (decimal.TryParse(row.Cells["Đơn Giá (VNĐ)"].Value?.ToString(), out decimal gia))
             {
@@ -92,6 +109,43 @@ namespace HeThongRapChieuPhim.UserControls
 
             txtMaDoAn.Enabled = false;
         }
+
+        private void BtnChonAnh_Click(object? sender, EventArgs e)
+        {
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Chọn ảnh đồ ăn / thức uống",
+                Filter = "Ảnh (*.jpg;*.jpeg;*.png;*.bmp;*.gif)|*.jpg;*.jpeg;*.png;*.bmp;*.gif",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+
+            try
+            {
+                using (Image.FromFile(dialog.FileName)) { }
+                _pendingImageSource = dialog.FileName;
+                lblImagePath.Text = Path.GetFileName(dialog.FileName);
+                SetFoodImagePreview(dialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không đọc được ảnh đã chọn: {ex.Message}", "Ảnh không hợp lệ",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void SetFoodImagePreview(string? path)
+        {
+            Image? nextImage = ImageAssetHelper.Load(path);
+            Image? previousImage = picHinhAnh.Image;
+            picHinhAnh.Image = nextImage;
+            previousImage?.Dispose();
+        }
+
+        private string GetImagePathForSave(string foodCode) =>
+            _pendingImageSource is null ? _savedImagePath : FoodImageStorage.Store(_pendingImageSource, foodCode);
 
         private void BtnThem_Click(object? sender, EventArgs e)
         {
@@ -116,10 +170,11 @@ namespace HeThongRapChieuPhim.UserControls
                     return;
                 }
 
+                string imagePath = GetImagePathForSave(ma);
                 string insert = @"
                     SET XACT_ABORT ON;
                     BEGIN TRANSACTION;
-                    INSERT INTO dbo.DoAn (MaDoAn, TenDoAn, Loai, Gia) VALUES (@Ma, @Ten, @Loai, @Gia);
+                    INSERT INTO dbo.DoAn (MaDoAn, TenDoAn, Loai, Gia, HinhAnhPath) VALUES (@Ma, @Ten, @Loai, @Gia, @Anh);
                     INSERT INTO dbo.DoAnKichCo (MaDoAn, MaKichCo, TenKichCo, DonGia)
                     VALUES
                         (@Ma, 'S', N'Cỡ nhỏ', CONVERT(DECIMAL(18,0),ROUND(@Gia * 0.8 / 1000.0,0) * 1000)),
@@ -131,7 +186,8 @@ namespace HeThongRapChieuPhim.UserControls
                     DbArg.VarChar20("@Ma", ma),
                     DbArg.NVarChar100("@Ten", ten),
                     DbArg.NVarChar50("@Loai", loai),
-                    DbArg.Decimal18_0("@Gia", gia)
+                    DbArg.Decimal18_0("@Gia", gia),
+                    DbArg.NVarChar500("@Anh", string.IsNullOrWhiteSpace(imagePath) ? DBNull.Value : imagePath)
                 };
                 Function.Execute(insert, p);
 
@@ -159,10 +215,11 @@ namespace HeThongRapChieuPhim.UserControls
 
             try
             {
+                string imagePath = GetImagePathForSave(ma);
                 string update = @"
                     SET XACT_ABORT ON;
                     BEGIN TRANSACTION;
-                    UPDATE dbo.DoAn SET TenDoAn = @Ten, Loai = @Loai, Gia = @Gia WHERE MaDoAn = @Ma;
+                    UPDATE dbo.DoAn SET TenDoAn = @Ten, Loai = @Loai, Gia = @Gia, HinhAnhPath = @Anh WHERE MaDoAn = @Ma;
                     UPDATE dbo.DoAnKichCo SET DonGia=CONVERT(DECIMAL(18,0),ROUND(@Gia * 0.8 / 1000.0,0) * 1000) WHERE MaDoAn=@Ma AND MaKichCo='S';
                     UPDATE dbo.DoAnKichCo SET TenKichCo=N'Cỡ vừa', DonGia=@Gia WHERE MaDoAn=@Ma AND MaKichCo='M';
                     UPDATE dbo.DoAnKichCo SET DonGia=CONVERT(DECIMAL(18,0),ROUND(@Gia * 1.2 / 1000.0,0) * 1000) WHERE MaDoAn=@Ma AND MaKichCo='L';
@@ -180,7 +237,8 @@ namespace HeThongRapChieuPhim.UserControls
                     DbArg.VarChar20("@Ma", ma),
                     DbArg.NVarChar100("@Ten", ten),
                     DbArg.NVarChar50("@Loai", loai),
-                    DbArg.Decimal18_0("@Gia", gia)
+                    DbArg.Decimal18_0("@Gia", gia),
+                    DbArg.NVarChar500("@Anh", string.IsNullOrWhiteSpace(imagePath) ? DBNull.Value : imagePath)
                 };
                 Function.Execute(update, p);
 

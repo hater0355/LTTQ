@@ -20,7 +20,7 @@ public static class SalesService
     {
         var show = DataProcesser.Query(@"
             SELECT sc.MaSuatChieu, sc.NgayChieu, sc.GioChieu, GETDATE() AS ServerNow, pc.TenPhong, pc.SoHangGhe, pc.SoGheMoiHang,
-                   p.TenPhim, p.ThoiLuong, ISNULL(sc.GiaSuatChieu, p.GiaPhim) AS GiaVe
+                   p.TenPhim, p.ThoiLuong, p.NgayBatDauChieu, p.NgayKetThucChieu, ISNULL(sc.GiaSuatChieu, p.GiaPhim) AS GiaVe
             FROM dbo.SuatChieu sc
             JOIN dbo.PhongChieu pc ON pc.MaPhong = sc.MaPhong
             JOIN dbo.Phim p ON p.MaPhim = sc.MaPhim
@@ -28,6 +28,11 @@ public static class SalesService
         if (show.Rows.Count != 1) throw new InvalidOperationException("Suất chiếu không tồn tại.");
         var s = show.Rows[0];
         var showAt = Convert.ToDateTime(s["NgayChieu"]).Date.Add((TimeSpan)s["GioChieu"]);
+        DateTime showDate = Convert.ToDateTime(s["NgayChieu"]).Date;
+        if (s["NgayBatDauChieu"] is not DBNull && showDate < Convert.ToDateTime(s["NgayBatDauChieu"]).Date)
+            throw new InvalidOperationException("Suất chiếu nằm trước ngày phát hành của phim.");
+        if (s["NgayKetThucChieu"] is not DBNull && showDate > Convert.ToDateTime(s["NgayKetThucChieu"]).Date)
+            throw new InvalidOperationException("Phim đã hết hạn phát hành; không thể bán vé cho suất chiếu này.");
         if (showAt <= Convert.ToDateTime(s["ServerNow"])) throw new InvalidOperationException("Không thể bán vé cho suất chiếu đã bắt đầu hoặc đã qua.");
 
         var seats = draft.Ghe.Select(x => x.Trim().ToUpperInvariant()).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x).ToArray();
@@ -112,6 +117,18 @@ public static class SalesService
         string paymentState = pendingPayOs ? "Pending" : "Paid";
         var statements = new List<TransactionCommand>
         {
+            new(@"IF NOT EXISTS (
+                    SELECT 1
+                    FROM dbo.SuatChieu sc
+                    JOIN dbo.Phim p ON p.MaPhim=sc.MaPhim
+                    WHERE sc.MaSuatChieu=@show
+                      AND (p.NgayBatDauChieu IS NULL OR sc.NgayChieu >= p.NgayBatDauChieu)
+                      AND (p.NgayKetThucChieu IS NULL OR sc.NgayChieu <= p.NgayKetThucChieu)
+                 )
+                 BEGIN
+                    THROW 51050, N'Phim đã ngoài thời hạn phát hành; không thể hoàn tất giao dịch.', 1;
+                 END;",
+                [DbArg.VarChar20("@show", draft.MaSuatChieu)]),
             new(@"INSERT INTO dbo.HoaDon
                 (MaHD, NgayLap, MaNV, MaSuatChieu, MaCombo, MaVoucher, DanhSachGhe, SoLuongVe, TienVe, TienGiamGia, TienDoAn, TongTien, PhuongThucTT, GhiChu, TenDangNhapNguoiBan, TrangThaiThanhToan, PayOSOrderCode)
                 VALUES (@bill, GETDATE(), @employee, @show, @combo, @voucher, @seats, @qty, @tickets, @discount, @food, @total, @method, @note, @seller, @state, @orderCode)",
@@ -173,6 +190,7 @@ public static class SalesService
 
     public static bool CompletePayOsPayment(long orderCode, int amount, string paymentLinkId)
     {
+        // Webhook chỉ được xác nhận khi mã đơn, số tiền và payment link khớp hóa đơn đang lưu.
         var rows = DataProcesser.Query("SELECT MaHD,TongTien,TrangThaiThanhToan,PayOSPaymentLinkId FROM dbo.HoaDon WHERE PayOSOrderCode=@code", DbArg.BigInt("@code", orderCode));
         if (rows.Rows.Count != 1) throw new KeyNotFoundException("Không tìm thấy hóa đơn PayOS.");
         var row = rows.Rows[0];
@@ -180,10 +198,12 @@ public static class SalesService
         string savedLinkId = Convert.ToString(row["PayOSPaymentLinkId"]) ?? string.Empty;
         if (savedLinkId.Length == 0 || !string.Equals(savedLinkId, paymentLinkId, StringComparison.Ordinal))
             throw new InvalidOperationException("Mã payment link webhook không khớp hóa đơn.");
+        // Webhook có thể được gửi lại; hóa đơn Paid rồi thì trả thành công mà không ghi nhận lần nữa.
         if (Convert.ToString(row["TrangThaiThanhToan"]) == "Paid") return true;
         if (Convert.ToString(row["TrangThaiThanhToan"]) != "Pending") return false;
         try
         {
+            // Cập nhật hóa đơn, chốt giữ ghế và sử dụng voucher trong cùng transaction để dữ liệu không lệch nhau.
             DataProcesser.ExecuteTransaction([
                 new TransactionCommand("UPDATE dbo.HoaDon SET TrangThaiThanhToan='Paid',GhiChu=CONCAT(ISNULL(GhiChu,''),' | PayOS đã thanh toán') WHERE PayOSOrderCode=@code AND TrangThaiThanhToan='Pending' AND TongTien=@amount AND PayOSPaymentLinkId=@link", [DbArg.BigInt("@code", orderCode), DbArg.Decimal18_0("@amount", amount), DbArg.VarChar64("@link", paymentLinkId)], 1),
                 new TransactionCommand("UPDATE dbo.GheDatCho SET HetHan=NULL WHERE MaHD=(SELECT MaHD FROM dbo.HoaDon WHERE PayOSOrderCode=@code)", [DbArg.BigInt("@code", orderCode)]),
@@ -207,6 +227,7 @@ public static class SalesService
             DbArg.BigInt("@code", orderCode), DbArg.VarChar50("@owner", (object?)ownerUsername ?? DBNull.Value));
         if (rows.Rows.Count == 0) return false;
         string maHD = Convert.ToString(rows.Rows[0]["MaHD"])!;
+        // Hủy/đánh dấu hết hạn và giải phóng ghế, voucher cùng nhau trong một transaction.
         DataProcesser.ExecuteTransaction([
             new TransactionCommand(@"UPDATE dbo.HoaDon SET TrangThaiThanhToan=@state,GhiChu=CONCAT(ISNULL(GhiChu,''),' | ',@reason)
                 WHERE MaHD=@bill AND TrangThaiThanhToan='Pending'

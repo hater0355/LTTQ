@@ -28,6 +28,7 @@ namespace HeThongRapChieuPhim.Classes
         public static DbArg NVarChar4000(string name, object? value) => NVarChar(name, value, 4000);
         public static DbArg NVarCharMax(string name, object? value) => NVarChar(name, value, -1);
         public static DbArg Int(string name, object? value) => new(name, value, SqlDbType.Int);
+        public static DbArg TinyInt(string name, object? value) => new(name, value, SqlDbType.TinyInt);
         public static DbArg BigInt(string name, object? value) => new(name, value, SqlDbType.BigInt);
         public static DbArg Bit(string name, object? value) => new(name, value, SqlDbType.Bit);
         public static DbArg Date(string name, object? value) => new(name, value, SqlDbType.Date);

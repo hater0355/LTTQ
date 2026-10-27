@@ -45,9 +45,11 @@ Back up the database, then run the additive migrations in order:
 4. `Database/Migrations/20261015_AdminTong.sql`
 5. `Database/Migrations/20261022_DataIntegrityAndTypedParameters.sql`
 6. `Database/Migrations/20261022_FoodSizesAndImages.sql`
+7. `Database/Migrations/20261023_MovieReleaseWindow.sql`
+8. `Database/Migrations/20261023_CashierWorkShifts.sql`
 
-Back up the database before rollout. The last migration preflights legacy values and cross-show seat references, reports incompatible record keys, and rolls back without modifying or deleting historical sales. It also reports invoice seat-count/list differences for manual review. `Database/NHHCinema.sql` is the schema initializer for a new database; it sets both sample logins to require a password change on first login. `Database/ResetDemoDatabase.sql` is destructive and is only for disposable demo data.
+Back up the database before rollout. `20261022_DataIntegrityAndTypedParameters.sql` preflights legacy values and cross-show seat references, reports incompatible record keys, and rolls back without modifying or deleting historical sales. It also reports invoice seat-count/list differences for manual review. `Database/NHHCinema.sql` is the schema initializer for a new database; it sets both sample logins to require a password change on first login. `Database/ResetDemoDatabase.sql` is destructive and is only for disposable demo data.
 
-The first migration adds roles and password storage, the second adds sales/payment safety tables and columns, the next two finalize admin roles, and the last two add trusted integrity constraints, composite seat-to-invoice/show relationships, food descriptions/images, and size-specific prices. Run all six in this order on an existing database. Sample accounts on an existing database are also marked to require a password change once by the integrity migration.
+The first migration adds roles and password storage, the second adds sales/payment safety tables and columns, the next two finalize admin roles, and the following migrations add integrity constraints, food sizes/images, movie release dates, and employee shifts. Run all eight in this order on an existing database. Sample accounts on an existing database are also marked to require a password change once by the integrity migration.
 
 The API can start and serve `/health` before credentials are available. Payment routes return HTTP 503 until PayOS credentials and return/cancel URLs are configured. No payment can be completed in a local deployment unless PayOS credentials are configured and PayOS can reach the HTTPS webhook. The payment endpoint deliberately fails closed when these settings are missing.

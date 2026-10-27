@@ -27,6 +27,41 @@ IF OBJECT_ID(N'dbo.NhanVien', N'U') IS NULL CREATE TABLE NhanVien (
 );
 GO
 
+-- 1.1. DANH MỤC CA LÀM VÀ LỊCH PHÂN CA
+IF OBJECT_ID(N'dbo.CaLamViec', N'U') IS NULL CREATE TABLE dbo.CaLamViec (
+    MaCa TINYINT NOT NULL CONSTRAINT PK_CaLamViec PRIMARY KEY,
+    TenCa NVARCHAR(40) NOT NULL,
+    GioBatDau TIME(0) NOT NULL,
+    GioKetThuc TIME(0) NOT NULL,
+    CONSTRAINT CK_CaLamViec_ThoiGian_Valid CHECK (GioKetThuc > GioBatDau)
+);
+GO
+
+IF OBJECT_ID(N'dbo.LichLamViec', N'U') IS NULL CREATE TABLE dbo.LichLamViec (
+    MaPhanCa BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_LichLamViec PRIMARY KEY,
+    MaNV VARCHAR(20) NOT NULL,
+    NgayLam DATE NOT NULL,
+    MaCa TINYINT NOT NULL,
+    TrangThai VARCHAR(20) NOT NULL CONSTRAINT DF_LichLamViec_TrangThai DEFAULT ('Scheduled'),
+    CONSTRAINT FK_LichLamViec_NhanVien FOREIGN KEY (MaNV) REFERENCES dbo.NhanVien(MaNV),
+    CONSTRAINT FK_LichLamViec_CaLamViec FOREIGN KEY (MaCa) REFERENCES dbo.CaLamViec(MaCa),
+    CONSTRAINT CK_LichLamViec_TrangThai_Valid CHECK (TrangThai IN ('Scheduled', 'Completed', 'Cancelled'))
+);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.LichLamViec') AND name = N'UX_LichLamViec_Ngay_MaNV_Active')
+    CREATE UNIQUE INDEX UX_LichLamViec_Ngay_MaNV_Active ON dbo.LichLamViec (NgayLam, MaNV)
+    WHERE TrangThai IN ('Scheduled', 'Completed');
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.CaLamViec WHERE MaCa = 1)
+    INSERT dbo.CaLamViec (MaCa, TenCa, GioBatDau, GioKetThuc) VALUES (1, N'Ca 1', '09:00', '13:00');
+IF NOT EXISTS (SELECT 1 FROM dbo.CaLamViec WHERE MaCa = 2)
+    INSERT dbo.CaLamViec (MaCa, TenCa, GioBatDau, GioKetThuc) VALUES (2, N'Ca 2', '13:00', '17:00');
+IF NOT EXISTS (SELECT 1 FROM dbo.CaLamViec WHERE MaCa = 3)
+    INSERT dbo.CaLamViec (MaCa, TenCa, GioBatDau, GioKetThuc) VALUES (3, N'Ca 3', '17:00', '21:00');
+GO
+
 -- 2. BẢNG TÀI KHOẢN
 IF OBJECT_ID(N'dbo.TaiKhoan', N'U') IS NULL CREATE TABLE TaiKhoan (
     TenDangNhap VARCHAR(50) PRIMARY KEY,
@@ -49,8 +84,14 @@ IF OBJECT_ID(N'dbo.Phim', N'U') IS NULL CREATE TABLE Phim (
     GiaPhim DECIMAL(18,0) NOT NULL,
     MoTa NVARCHAR(MAX) NULL,
     PosterPath NVARCHAR(500) NULL,
+    NgayBatDauChieu DATE NULL,
+    NgayKetThucChieu DATE NULL,
     CONSTRAINT CK_Phim_ThoiLuong_Positive CHECK (ThoiLuong > 0),
-    CONSTRAINT CK_Phim_GiaPhim_NonNegative CHECK (GiaPhim >= 0)
+    CONSTRAINT CK_Phim_GiaPhim_NonNegative CHECK (GiaPhim >= 0),
+    CONSTRAINT CK_Phim_ThoiHanChieu_Valid CHECK (
+        (NgayBatDauChieu IS NULL AND NgayKetThucChieu IS NULL) OR
+        (NgayBatDauChieu IS NOT NULL AND NgayKetThucChieu IS NOT NULL AND NgayKetThucChieu >= NgayBatDauChieu)
+    )
 );
 GO
 

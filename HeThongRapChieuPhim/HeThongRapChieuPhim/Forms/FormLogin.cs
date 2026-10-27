@@ -32,7 +32,7 @@ namespace HeThongRapChieuPhim.Forms
         {
             try
             {
-                string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Logo_Icon.png");
+                string logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Login_Beta_Cinemas.png");
                 if (!File.Exists(logoPath))
                 {
                     logoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Logo.png");

@@ -32,6 +32,7 @@ namespace HeThongRapChieuPhim.Forms
             menuCombo = new System.Windows.Forms.ToolStripMenuItem();
             menuVoucher = new System.Windows.Forms.ToolStripMenuItem();
             menuNhanVien = new System.Windows.Forms.ToolStripMenuItem();
+            menuLichLamViec = new System.Windows.Forms.ToolStripMenuItem();
             menuDoanhThu = new System.Windows.Forms.ToolStripMenuItem();
             statusStripMain = new System.Windows.Forms.StatusStrip();
             lblStatusUser = new System.Windows.Forms.ToolStripStatusLabel();
@@ -61,6 +62,7 @@ namespace HeThongRapChieuPhim.Forms
                 menuCombo,
                 menuVoucher,
                 menuNhanVien,
+                menuLichLamViec,
                 menuTaiKhoanThuNgan,
                 menuDoanhThu
             });
@@ -172,6 +174,13 @@ namespace HeThongRapChieuPhim.Forms
             menuNhanVien.Text = "Nhân Viên";
             menuNhanVien.Click += MenuNhanVien_Click;
             // 
+            // menuLichLamViec
+            //
+            menuLichLamViec.Name = "menuLichLamViec";
+            menuLichLamViec.Size = new System.Drawing.Size(100, 25);
+            menuLichLamViec.Text = "Lịch & Thay Ca";
+            menuLichLamViec.Click += MenuLichLamViec_Click;
+            //
             // menuTaiKhoanThuNgan
             // 
             menuTaiKhoanThuNgan.Name = "menuTaiKhoanThuNgan";
@@ -290,6 +299,7 @@ namespace HeThongRapChieuPhim.Forms
         private System.Windows.Forms.ToolStripMenuItem menuCombo;
         private System.Windows.Forms.ToolStripMenuItem menuVoucher;
         private System.Windows.Forms.ToolStripMenuItem menuNhanVien;
+        private System.Windows.Forms.ToolStripMenuItem menuLichLamViec;
         private System.Windows.Forms.ToolStripMenuItem menuDoanhThu;
         private System.Windows.Forms.StatusStrip statusStripMain;
         private System.Windows.Forms.ToolStripStatusLabel lblStatusUser;

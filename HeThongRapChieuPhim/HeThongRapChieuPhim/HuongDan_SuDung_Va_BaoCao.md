@@ -38,7 +38,11 @@ Hai tài khoản mẫu yêu cầu đổi mật khẩu ngay lần đăng nhập �
   4. `20261015_AdminTong.sql`
   5. `20261022_DataIntegrityAndTypedParameters.sql`
   6. `20261022_FoodSizesAndImages.sql`
+  7. `20261023_MovieReleaseWindow.sql`
+  8. `20261023_CashierWorkShifts.sql`
 - `20261022_DataIntegrityAndTypedParameters.sql` kiểm tra dữ liệu cũ trước khi thêm `CHECK`/khóa ghép; nếu không tương thích, script báo mã bản ghi rồi rollback để bạn xử lý thủ công sau khi sao lưu. `20261022_FoodSizesAndImages.sql` giữ nguyên giá và số lượng lịch sử, thêm giá theo cỡ cho thực đơn và ghi cỡ vào các giao dịch mới. Có thể chạy lại migration sau khi đã thành công.
+- `20261023_MovieReleaseWindow.sql` thêm ngày bắt đầu/kết thúc chiếu mà không sửa hoặc xóa suất chiếu, hóa đơn cũ. Phim cũ chưa có thời hạn được giữ nguyên hoạt động cho đến khi quản lý đặt khoảng chiếu; phim thêm mới phải chọn đủ ngày bắt đầu và ngày kết thúc.
+- `20261023_CashierWorkShifts.sql` thêm 3 ca cố định (09:00–13:00, 13:00–17:00, 17:00–21:00) và bảng lịch phân ca; không thay đổi hồ sơ nhân viên hay lịch sử bán vé. Admin Nhân sự/Admin tổng được phân, đổi và hủy ca; Thu ngân chỉ xem lịch của mình. Số ca “đã làm” chỉ tăng khi ca kết thúc và được đánh dấu hoàn thành; ca sắp tới và ca đã hủy không được tính.
 - Không dùng `Database/ResetDemoDatabase.sql` với dữ liệu cần giữ: script này xóa toàn bộ database demo trước khi tạo lại.
 - Chuỗi kết nối nằm tại class `Classes/DataProcesser.cs`:
   ```csharp
@@ -69,12 +73,12 @@ Hai tài khoản mẫu yêu cầu đổi mật khẩu ngay lần đăng nhập �
 
 ### 4.3. Quản lý Danh mục (4 trang con)
 - **Nhân viên:** Quản lý Mã NV, Họ Tên, Ngày sinh, Số ĐT, CCCD, Chức vụ. Tài khoản đăng nhập được quản lý độc lập.
-- **Phim & Poster:** Mã phim, Tên phim, Thể loại, Ngôn ngữ, Độ tuổi (P, K, T13, T16, T18), Thời lượng, Giá vé gốc, Chọn ảnh poster lưu vào thư mục `Assets/`.
+- **Phim & Poster:** Mã phim, Tên phim, Thể loại, Ngôn ngữ, Độ tuổi (P, K, T13, T16, T18), Thời lượng, Giá vé gốc, ảnh poster trong `Assets/`, ngày bắt đầu chiếu và ngày chiếu cuối cùng (tính cả ngày kết thúc). Có thể gia hạn bằng cách sửa ngày kết thúc. Khi hết hạn phim không còn trong danh sách xếp suất cho ngày đó và suất ngoài hạn không bán được; các bản ghi lịch chiếu vẫn được giữ để tra cứu.
 - **Đồ ăn (F&B):** Mã đồ ăn, Tên món, Phân loại, Đơn giá.
 - **Phòng chiếu:** Mã phòng, Tên phòng, Số hàng ghế (A-Z), Số ghế mỗi hàng (1-N), xem trước sơ đồ ghế.
 
 ### 4.4. Cài đặt Hệ thống (3 trang con)
-- **Cài suất chiếu:** Gắn phòng chiếu cố định vào phim, ngày chiếu và giờ chiếu. Khi khách chọn phim bên màn hình Bán hàng sẽ tự động hiện giờ chiếu & phòng tương ứng.
+- **Cài suất chiếu:** Gắn phòng chiếu cố định vào phim, ngày chiếu và giờ chiếu. Danh sách phim chọn thay đổi theo ngày; phim chưa phát hành hoặc đã hết hạn không xuất hiện. Lịch cũ vẫn hiện trong bảng tra cứu, có cột báo nếu suất nằm ngoài thời hạn phát hành. Khi khách chọn phim bên màn hình Bán hàng sẽ tự động hiện giờ chiếu & phòng tương ứng.
 - **Cài ưu đãi combo:** Mã combo, Tên combo, Số lượng ghế bắt buộc, % Giảm giá vé phim. Bắt buộc khách chọn đúng số lượng ghế và giảm giá chỉ tính trên giá vé phim (không giảm đồ ăn).
 - **Cài đặt voucher:** Quản lý mã khuyến mãi/voucher rạp chiếu phim với đầy đủ tiêu chí:
   - **Mã voucher:** Hỗ trợ nhập mã tùy ý hoặc nút tạo mã tự động ngẫu nhiên (VD: `VC7482`).

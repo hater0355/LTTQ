@@ -10,6 +10,10 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 components.Dispose();
             }
+            if (disposing)
+            {
+                picHinhAnh?.Image?.Dispose();
+            }
             base.Dispose(disposing);
         }
 
@@ -36,6 +40,10 @@ namespace HeThongRapChieuPhim.UserControls
             this.lblGia = new System.Windows.Forms.Label();
             this.numGia = new System.Windows.Forms.NumericUpDown();
             this.lblVnd = new System.Windows.Forms.Label();
+            this.lblImage = new System.Windows.Forms.Label();
+            this.btnChooseImage = new System.Windows.Forms.Button();
+            this.lblImagePath = new System.Windows.Forms.Label();
+            this.picHinhAnh = new System.Windows.Forms.PictureBox();
             this.lblTitle = new System.Windows.Forms.Label();
             this.pnlContainer.SuspendLayout();
             this.pnlGrid.SuspendLayout();
@@ -43,6 +51,7 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlActions.SuspendLayout();
             this.pnlForm.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numGia)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picHinhAnh)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlContainer
@@ -63,7 +72,7 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlGrid.BackColor = System.Drawing.SystemColors.Control;
             this.pnlGrid.Controls.Add(this.dgvDoAn);
             this.pnlGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlGrid.Location = new System.Drawing.Point(20, 240);
+            this.pnlGrid.Location = new System.Drawing.Point(20, 270);
             this.pnlGrid.Name = "pnlGrid";
             this.pnlGrid.Padding = new System.Windows.Forms.Padding(5);
             this.pnlGrid.Size = new System.Drawing.Size(1040, 420);
@@ -88,7 +97,7 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlActions.Controls.Add(this.txtSearch);
             this.pnlActions.Controls.Add(this.btnTimKiem);
             this.pnlActions.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlActions.Location = new System.Drawing.Point(20, 185);
+            this.pnlActions.Location = new System.Drawing.Point(20, 215);
             this.pnlActions.Name = "pnlActions";
             this.pnlActions.Padding = new System.Windows.Forms.Padding(0, 10, 0, 10);
             this.pnlActions.Size = new System.Drawing.Size(1040, 55);
@@ -196,13 +205,17 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlForm.Controls.Add(this.lblGia);
             this.pnlForm.Controls.Add(this.numGia);
             this.pnlForm.Controls.Add(this.lblVnd);
+            this.pnlForm.Controls.Add(this.lblImage);
+            this.pnlForm.Controls.Add(this.btnChooseImage);
+            this.pnlForm.Controls.Add(this.lblImagePath);
+            this.pnlForm.Controls.Add(this.picHinhAnh);
             this.pnlForm.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlForm.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
             this.pnlForm.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(83)))), ((int)(((byte)(45)))));
             this.pnlForm.Location = new System.Drawing.Point(20, 65);
             this.pnlForm.Name = "pnlForm";
             this.pnlForm.Padding = new System.Windows.Forms.Padding(15);
-            this.pnlForm.Size = new System.Drawing.Size(1040, 120);
+            this.pnlForm.Size = new System.Drawing.Size(1040, 150);
             this.pnlForm.TabIndex = 1;
             this.pnlForm.TabStop = false;
             this.pnlForm.Text = " Thông tin đồ ăn / combo ";
@@ -320,6 +333,52 @@ namespace HeThongRapChieuPhim.UserControls
             this.lblVnd.Size = new System.Drawing.Size(35, 17);
             this.lblVnd.TabIndex = 8;
             this.lblVnd.Text = "VNĐ";
+            //
+            // lblImage
+            //
+            this.lblImage.AutoSize = true;
+            this.lblImage.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lblImage.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(50)))), ((int)(((byte)(35)))));
+            this.lblImage.Location = new System.Drawing.Point(320, 72);
+            this.lblImage.Name = "lblImage";
+            this.lblImage.Size = new System.Drawing.Size(72, 17);
+            this.lblImage.TabIndex = 9;
+            this.lblImage.Text = "Ảnh món:";
+            //
+            // btnChooseImage
+            //
+            this.btnChooseImage.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnChooseImage.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.btnChooseImage.Location = new System.Drawing.Point(400, 65);
+            this.btnChooseImage.Name = "btnChooseImage";
+            this.btnChooseImage.Size = new System.Drawing.Size(105, 30);
+            this.btnChooseImage.TabIndex = 10;
+            this.btnChooseImage.Text = "Chọn ảnh...";
+            this.btnChooseImage.UseVisualStyleBackColor = true;
+            this.btnChooseImage.Click += new System.EventHandler(this.BtnChonAnh_Click);
+            //
+            // lblImagePath
+            //
+            this.lblImagePath.AutoEllipsis = true;
+            this.lblImagePath.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblImagePath.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(115)))), ((int)(((byte)(100)))));
+            this.lblImagePath.Location = new System.Drawing.Point(515, 70);
+            this.lblImagePath.Name = "lblImagePath";
+            this.lblImagePath.Size = new System.Drawing.Size(300, 22);
+            this.lblImagePath.TabIndex = 11;
+            this.lblImagePath.Text = "Chưa chọn ảnh";
+            this.lblImagePath.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            //
+            // picHinhAnh
+            //
+            this.picHinhAnh.BackColor = System.Drawing.Color.White;
+            this.picHinhAnh.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picHinhAnh.Location = new System.Drawing.Point(850, 48);
+            this.picHinhAnh.Name = "picHinhAnh";
+            this.picHinhAnh.Size = new System.Drawing.Size(100, 72);
+            this.picHinhAnh.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picHinhAnh.TabIndex = 12;
+            this.picHinhAnh.TabStop = false;
             // 
             // lblTitle
             // 
@@ -349,6 +408,7 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlForm.ResumeLayout(false);
             this.pnlForm.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numGia)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picHinhAnh)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -365,6 +425,10 @@ namespace HeThongRapChieuPhim.UserControls
         private System.Windows.Forms.Label lblGia;
         private System.Windows.Forms.NumericUpDown numGia;
         private System.Windows.Forms.Label lblVnd;
+        private System.Windows.Forms.Label lblImage;
+        private System.Windows.Forms.Button btnChooseImage;
+        private System.Windows.Forms.Label lblImagePath;
+        private System.Windows.Forms.PictureBox picHinhAnh;
         private System.Windows.Forms.Panel pnlActions;
         private System.Windows.Forms.Button btnThem;
         private System.Windows.Forms.Button btnSua;

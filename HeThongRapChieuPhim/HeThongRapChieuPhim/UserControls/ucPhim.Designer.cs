@@ -43,6 +43,10 @@ namespace HeThongRapChieuPhim.UserControls
             this.lblGiaPhim = new System.Windows.Forms.Label();
             this.numGiaPhim = new System.Windows.Forms.NumericUpDown();
             this.lblVnd = new System.Windows.Forms.Label();
+            this.lblNgayBatDauChieu = new System.Windows.Forms.Label();
+            this.dtpNgayBatDauChieu = new System.Windows.Forms.DateTimePicker();
+            this.lblNgayKetThucChieu = new System.Windows.Forms.Label();
+            this.dtpNgayKetThucChieu = new System.Windows.Forms.DateTimePicker();
             this.lblMoTa = new System.Windows.Forms.Label();
             this.txtMoTa = new System.Windows.Forms.TextBox();
             this.picPoster = new System.Windows.Forms.PictureBox();
@@ -77,10 +81,10 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlGrid.BackColor = System.Drawing.SystemColors.Control;
             this.pnlGrid.Controls.Add(this.dgvPhim);
             this.pnlGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlGrid.Location = new System.Drawing.Point(20, 360);
+            this.pnlGrid.Location = new System.Drawing.Point(20, 400);
             this.pnlGrid.Name = "pnlGrid";
             this.pnlGrid.Padding = new System.Windows.Forms.Padding(5);
-            this.pnlGrid.Size = new System.Drawing.Size(1040, 300);
+            this.pnlGrid.Size = new System.Drawing.Size(1040, 260);
             this.pnlGrid.TabIndex = 3;
             // 
             // dgvPhim
@@ -102,7 +106,7 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlActions.Controls.Add(this.txtSearch);
             this.pnlActions.Controls.Add(this.btnTimKiem);
             this.pnlActions.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlActions.Location = new System.Drawing.Point(20, 305);
+            this.pnlActions.Location = new System.Drawing.Point(20, 345);
             this.pnlActions.Name = "pnlActions";
             this.pnlActions.Padding = new System.Windows.Forms.Padding(0, 10, 0, 10);
             this.pnlActions.Size = new System.Drawing.Size(1040, 55);
@@ -217,6 +221,10 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlForm.Controls.Add(this.lblGiaPhim);
             this.pnlForm.Controls.Add(this.numGiaPhim);
             this.pnlForm.Controls.Add(this.lblVnd);
+            this.pnlForm.Controls.Add(this.lblNgayBatDauChieu);
+            this.pnlForm.Controls.Add(this.dtpNgayBatDauChieu);
+            this.pnlForm.Controls.Add(this.lblNgayKetThucChieu);
+            this.pnlForm.Controls.Add(this.dtpNgayKetThucChieu);
             this.pnlForm.Controls.Add(this.lblMoTa);
             this.pnlForm.Controls.Add(this.txtMoTa);
             this.pnlForm.Controls.Add(this.picPoster);
@@ -228,7 +236,7 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlForm.Location = new System.Drawing.Point(20, 65);
             this.pnlForm.Name = "pnlForm";
             this.pnlForm.Padding = new System.Windows.Forms.Padding(15);
-            this.pnlForm.Size = new System.Drawing.Size(1040, 240);
+            this.pnlForm.Size = new System.Drawing.Size(1040, 280);
             this.pnlForm.TabIndex = 1;
             this.pnlForm.TabStop = false;
             this.pnlForm.Text = " Thông tin phim & Poster & Nội dung tóm tắt ";
@@ -442,13 +450,57 @@ namespace HeThongRapChieuPhim.UserControls
             this.lblVnd.Size = new System.Drawing.Size(35, 17);
             this.lblVnd.TabIndex = 15;
             this.lblVnd.Text = "VNĐ";
+            //
+            // lblNgayBatDauChieu
+            //
+            this.lblNgayBatDauChieu.AutoSize = true;
+            this.lblNgayBatDauChieu.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lblNgayBatDauChieu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(50)))), ((int)(((byte)(35)))));
+            this.lblNgayBatDauChieu.Location = new System.Drawing.Point(20, 150);
+            this.lblNgayBatDauChieu.Name = "lblNgayBatDauChieu";
+            this.lblNgayBatDauChieu.Size = new System.Drawing.Size(79, 17);
+            this.lblNgayBatDauChieu.TabIndex = 16;
+            this.lblNgayBatDauChieu.Text = "Chiếu từ ngày:";
+            //
+            // dtpNgayBatDauChieu
+            //
+            this.dtpNgayBatDauChieu.Checked = true;
+            this.dtpNgayBatDauChieu.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.dtpNgayBatDauChieu.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpNgayBatDauChieu.Location = new System.Drawing.Point(110, 146);
+            this.dtpNgayBatDauChieu.Name = "dtpNgayBatDauChieu";
+            this.dtpNgayBatDauChieu.ShowCheckBox = true;
+            this.dtpNgayBatDauChieu.Size = new System.Drawing.Size(190, 24);
+            this.dtpNgayBatDauChieu.TabIndex = 17;
+            //
+            // lblNgayKetThucChieu
+            //
+            this.lblNgayKetThucChieu.AutoSize = true;
+            this.lblNgayKetThucChieu.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lblNgayKetThucChieu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(50)))), ((int)(((byte)(35)))));
+            this.lblNgayKetThucChieu.Location = new System.Drawing.Point(320, 150);
+            this.lblNgayKetThucChieu.Name = "lblNgayKetThucChieu";
+            this.lblNgayKetThucChieu.Size = new System.Drawing.Size(78, 17);
+            this.lblNgayKetThucChieu.TabIndex = 18;
+            this.lblNgayKetThucChieu.Text = "Chiếu đến hết:";
+            //
+            // dtpNgayKetThucChieu
+            //
+            this.dtpNgayKetThucChieu.Checked = true;
+            this.dtpNgayKetThucChieu.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.dtpNgayKetThucChieu.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpNgayKetThucChieu.Location = new System.Drawing.Point(405, 146);
+            this.dtpNgayKetThucChieu.Name = "dtpNgayKetThucChieu";
+            this.dtpNgayKetThucChieu.ShowCheckBox = true;
+            this.dtpNgayKetThucChieu.Size = new System.Drawing.Size(190, 24);
+            this.dtpNgayKetThucChieu.TabIndex = 19;
             // 
             // lblMoTa
             // 
             this.lblMoTa.AutoSize = true;
             this.lblMoTa.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.lblMoTa.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(50)))), ((int)(((byte)(35)))));
-            this.lblMoTa.Location = new System.Drawing.Point(20, 150);
+            this.lblMoTa.Location = new System.Drawing.Point(20, 194);
             this.lblMoTa.Name = "lblMoTa";
             this.lblMoTa.Size = new System.Drawing.Size(74, 17);
             this.lblMoTa.TabIndex = 16;
@@ -457,7 +509,7 @@ namespace HeThongRapChieuPhim.UserControls
             // txtMoTa
             // 
             this.txtMoTa.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.txtMoTa.Location = new System.Drawing.Point(100, 146);
+            this.txtMoTa.Location = new System.Drawing.Point(100, 187);
             this.txtMoTa.Multiline = true;
             this.txtMoTa.Name = "txtMoTa";
             this.txtMoTa.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -552,6 +604,10 @@ namespace HeThongRapChieuPhim.UserControls
         private System.Windows.Forms.Label lblGiaPhim;
         private System.Windows.Forms.NumericUpDown numGiaPhim;
         private System.Windows.Forms.Label lblVnd;
+        private System.Windows.Forms.Label lblNgayBatDauChieu;
+        private System.Windows.Forms.DateTimePicker dtpNgayBatDauChieu;
+        private System.Windows.Forms.Label lblNgayKetThucChieu;
+        private System.Windows.Forms.DateTimePicker dtpNgayKetThucChieu;
         private System.Windows.Forms.Label lblMoTa;
         private System.Windows.Forms.TextBox txtMoTa;
         private System.Windows.Forms.PictureBox picPoster;

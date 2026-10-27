@@ -27,6 +27,23 @@ public static class ImageAssetHelper
             candidates.Add(Path.Combine(currentDirectory, path));
             if (!path.StartsWith($"Assets{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
                 candidates.Add(Path.Combine(currentDirectory, "Assets", path));
+
+            foreach (string startPath in new[] { baseDirectory, currentDirectory })
+            {
+                DirectoryInfo? current;
+                try { current = new DirectoryInfo(Path.GetFullPath(startPath)); }
+                catch { continue; }
+
+                while (current is not null)
+                {
+                    if (File.Exists(Path.Combine(current.FullName, "HeThongRapChieuPhim.csproj")))
+                        candidates.Add(Path.Combine(current.FullName, path));
+                    current = current.Parent;
+                }
+            }
+
+            candidates.Add(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NHHCinema", path));
         }
 
         return candidates.FirstOrDefault(File.Exists);

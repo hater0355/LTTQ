@@ -29,6 +29,8 @@ namespace HeThongRapChieuPhim.UserControls
         private readonly HashSet<string> _selectedSeats = new();
         private readonly Dictionary<string, SelectedFoodItem> _selectedFood = new(StringComparer.OrdinalIgnoreCase);
         private readonly List<FoodItemCard> _foodCards = new();
+        private bool _loadingMovies;
+        private int _lastAvailableMovieIndex = -1;
         private int _requiredComboSeats = 0;
         private decimal _comboDiscountPct = 0;
         private string _appliedVoucherCode = "";
@@ -39,6 +41,10 @@ namespace HeThongRapChieuPhim.UserControls
         public ucBanHang()
         {
             InitializeComponent();
+            cboPhim.DrawMode = DrawMode.OwnerDrawFixed;
+            cboPhim.ItemHeight = cboPhim.Font.Height + 6;
+            cboPhim.DrawItem += CboPhim_DrawItem;
+            cboPhim.SelectionChangeCommitted += CboPhim_SelectionChangeCommitted;
             ConfigureSeatGrid();
             pnlSeatMap.CellClick += PnlSeatMap_CellClick;
             if (!DesignMode && System.ComponentModel.LicenseManager.UsageMode != System.ComponentModel.LicenseUsageMode.Designtime)
@@ -213,17 +219,122 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void LoadMovies()
         {
+            string previouslySelectedMovie = _currentMaPhim;
+            int selectedIndex = -1;
             try
             {
-                var dt = Function.Query("SELECT MaPhim, TenPhim, TheLoai, DoTuoi, ThoiLuong, GiaPhim, ISNULL(MoTa, '') AS MoTa, PosterPath FROM Phim ORDER BY TenPhim ASC");
+                var dt = Function.Query(@"
+                    SELECT p.MaPhim, p.TenPhim, p.TheLoai, p.DoTuoi, p.ThoiLuong, p.GiaPhim,
+                           ISNULL(p.MoTa, '') AS MoTa, p.PosterPath,
+                           CAST(CASE WHEN EXISTS (
+                               SELECT 1 FROM dbo.SuatChieu sc
+                               WHERE sc.MaPhim = p.MaPhim
+                                 AND (p.NgayBatDauChieu IS NULL OR sc.NgayChieu >= p.NgayBatDauChieu)
+                                 AND (p.NgayKetThucChieu IS NULL OR sc.NgayChieu <= p.NgayKetThucChieu)
+                                 AND (sc.NgayChieu > CONVERT(date, GETDATE())
+                                      OR (sc.NgayChieu = CONVERT(date, GETDATE())
+                                          AND sc.GioChieu > CONVERT(time, GETDATE())))
+                           ) THEN 1 ELSE 0 END AS bit) AS CoSuatKhaDung
+                    FROM dbo.Phim p
+                    WHERE EXISTS (
+                        SELECT 1 FROM dbo.SuatChieu sc
+                        WHERE sc.MaPhim = p.MaPhim
+                          AND (p.NgayBatDauChieu IS NULL OR sc.NgayChieu >= p.NgayBatDauChieu)
+                          AND (p.NgayKetThucChieu IS NULL OR sc.NgayChieu <= p.NgayKetThucChieu)
+                          AND sc.NgayChieu >= CONVERT(date, GETDATE())
+                    )
+                    ORDER BY p.TenPhim ASC");
+
+                _loadingMovies = true;
                 cboPhim.DataSource = dt;
                 cboPhim.DisplayMember = "TenPhim";
                 cboPhim.ValueMember = "MaPhim";
+
+                int firstAvailableIndex = -1;
+                int previousAvailableIndex = -1;
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    var row = dt.DefaultView[i];
+                    if (!HasSaleableShowtimes(row)) continue;
+                    if (firstAvailableIndex < 0) firstAvailableIndex = i;
+                    if (string.Equals(Convert.ToString(row["MaPhim"]), previouslySelectedMovie, StringComparison.OrdinalIgnoreCase))
+                        previousAvailableIndex = i;
+                }
+
+                selectedIndex = previousAvailableIndex >= 0 ? previousAvailableIndex : firstAvailableIndex;
+                cboPhim.SelectedIndex = selectedIndex;
+                _lastAvailableMovieIndex = selectedIndex;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi tải danh mục phim: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            finally
+            {
+                _loadingMovies = false;
+            }
+
+            if (selectedIndex >= 0 && cboPhim.SelectedItem is DataRowView selectedMovie)
+            {
+                string selectedMovieId = Convert.ToString(selectedMovie["MaPhim"]) ?? string.Empty;
+                if (string.Equals(selectedMovieId, previouslySelectedMovie, StringComparison.OrdinalIgnoreCase))
+                    LoadShowtimesForMovie(selectedMovieId);
+                else
+                    CboPhim_SelectedIndexChanged(cboPhim, EventArgs.Empty);
+            }
+            else
+            {
+                ClearMovieSelection();
+            }
+        }
+
+        private static bool HasSaleableShowtimes(DataRowView movie) =>
+            movie.Row.Table.Columns.Contains("CoSuatKhaDung") &&
+            movie["CoSuatKhaDung"] is not DBNull && Convert.ToBoolean(movie["CoSuatKhaDung"]);
+
+        private void CboPhim_DrawItem(object? sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0 || e.Index >= cboPhim.Items.Count)
+            {
+                e.DrawBackground();
+                return;
+            }
+
+            var movie = cboPhim.Items[e.Index] as DataRowView;
+            bool available = movie is not null && HasSaleableShowtimes(movie);
+            bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+            e.Graphics.FillRectangle(selected ? SystemBrushes.Highlight : SystemBrushes.Window, e.Bounds);
+
+            string name = movie is null ? string.Empty : Convert.ToString(movie["TenPhim"]) ?? string.Empty;
+            if (!available) name += " (đã hết suất)";
+            Color textColor = !available
+                ? SystemColors.GrayText
+                : selected ? SystemColors.HighlightText : SystemColors.WindowText;
+            TextRenderer.DrawText(e.Graphics, name, cboPhim.Font, e.Bounds, textColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+            e.DrawFocusRectangle();
+        }
+
+        private void CboPhim_SelectionChangeCommitted(object? sender, EventArgs e)
+        {
+            if (cboPhim.SelectedItem is DataRowView movie && !HasSaleableShowtimes(movie))
+                cboPhim.SelectedIndex = _lastAvailableMovieIndex;
+        }
+
+        private void ClearMovieSelection()
+        {
+            _currentMaPhim = string.Empty;
+            _currentMaSuatChieu = string.Empty;
+            _currentMaPhong = string.Empty;
+            _currentGiaVe = 0;
+            _bookedSeats.Clear();
+            _selectedSeats.Clear();
+            cboSuatChieu.DataSource = null;
+            lblMovieInfo.Text = "Không có phim với suất chiếu hôm nay hoặc sắp tới.";
+            lblRoomInfo.Text = "Không có suất chiếu còn bán.";
+            LoadPoster(string.Empty);
+            RenderSeatMap();
+            CalculateTotals();
         }
 
         private void LoadCombos()
@@ -350,9 +461,24 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void CboPhim_SelectedIndexChanged(object? sender, EventArgs e)
         {
+            if (_loadingMovies) return;
+
             if (cboPhim.SelectedItem is DataRowView drv)
             {
-                _currentMaPhim = drv["MaPhim"].ToString() ?? "";
+                if (!HasSaleableShowtimes(drv))
+                {
+                    // Keep the previous valid choice when a cashier clicks a disabled movie.
+                    if (cboPhim.SelectedIndex != _lastAvailableMovieIndex)
+                        cboPhim.SelectedIndex = _lastAvailableMovieIndex;
+                    return;
+                }
+
+                string selectedMovieId = Convert.ToString(drv["MaPhim"]) ?? string.Empty;
+                _lastAvailableMovieIndex = cboPhim.SelectedIndex;
+                if (string.Equals(selectedMovieId, _currentMaPhim, StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                _currentMaPhim = selectedMovieId;
                 string ten = drv["TenPhim"].ToString() ?? "";
                 string theLoai = drv["TheLoai"].ToString() ?? "";
                 string doTuoi = drv["DoTuoi"].ToString() ?? "";
@@ -405,6 +531,11 @@ namespace HeThongRapChieuPhim.UserControls
                     JOIN PhongChieu pc ON sc.MaPhong = pc.MaPhong
                     JOIN Phim p ON sc.MaPhim = p.MaPhim
                     WHERE sc.MaPhim = @MaPhim
+                      AND (p.NgayBatDauChieu IS NULL OR sc.NgayChieu >= p.NgayBatDauChieu)
+                      AND (p.NgayKetThucChieu IS NULL OR sc.NgayChieu <= p.NgayKetThucChieu)
+                      AND (sc.NgayChieu > CONVERT(date, GETDATE())
+                           OR (sc.NgayChieu = CONVERT(date, GETDATE())
+                               AND sc.GioChieu > CONVERT(time, GETDATE())))
                     ORDER BY sc.NgayChieu ASC, sc.GioChieu ASC";
 
                 var dt = Function.Query(query, new[] { DbArg.VarChar20("@MaPhim", maPhim) });

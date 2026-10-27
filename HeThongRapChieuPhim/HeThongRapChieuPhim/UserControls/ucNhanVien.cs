@@ -47,7 +47,14 @@ namespace HeThongRapChieuPhim.UserControls
                         CONVERT(VARCHAR(10), nv.NgaySinh, 103) AS [Ngày Sinh],
                         nv.SDT AS [Số ĐT],
                         nv.CCCD AS [CCCD],
-                        nv.ChucVu AS [Chức Vụ]
+                        nv.ChucVu AS [Chức Vụ],
+                        (SELECT COUNT_BIG(1)
+                         FROM dbo.LichLamViec ll
+                         WHERE ll.MaNV = nv.MaNV
+                           AND ll.TrangThai = 'Completed'
+                           AND ll.NgayLam >= DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1)
+                           AND ll.NgayLam < DATEADD(MONTH, 1, DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1)))
+                            AS [Số ca đã làm tháng này]
                     FROM NhanVien nv
                     WHERE (@kw = '' OR nv.MaNV LIKE '%' + @kw + '%' OR nv.HoTen LIKE '%' + @kw + '%' OR nv.SDT LIKE '%' + @kw + '%')
                     ORDER BY nv.MaNV ASC";
@@ -198,10 +205,14 @@ namespace HeThongRapChieuPhim.UserControls
 
             bool isCurrentAccount = maNV.Equals(CurrentUser.MaNV, StringComparison.OrdinalIgnoreCase);
             bool hasLinkedAccount;
+            bool hasShiftHistory;
             try
             {
                 hasLinkedAccount = Convert.ToInt32(Function.Scalar(
                     "SELECT COUNT(*) FROM dbo.TaiKhoan WHERE MaNV=@id",
+                    new[] { DbArg.VarChar20("@id", maNV) })) > 0;
+                hasShiftHistory = Convert.ToInt32(Function.Scalar(
+                    "SELECT COUNT(*) FROM dbo.LichLamViec WHERE MaNV=@id",
                     new[] { DbArg.VarChar20("@id", maNV) })) > 0;
             }
             catch (Exception ex)
@@ -209,9 +220,9 @@ namespace HeThongRapChieuPhim.UserControls
                 MessageBox.Show("Không thể kiểm tra quyền liên kết hồ sơ; không xóa nhân viên.\n" + ex.Message, "Lỗi kiểm tra quyền", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (isCurrentAccount || hasLinkedAccount)
+            if (isCurrentAccount || hasLinkedAccount || hasShiftHistory)
             {
-                MessageBox.Show("Không thể xóa hồ sơ đang đăng nhập hoặc còn được liên kết với tài khoản hệ thống.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Không thể xóa hồ sơ đang đăng nhập, còn liên kết tài khoản hoặc đã có lịch sử phân ca.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 

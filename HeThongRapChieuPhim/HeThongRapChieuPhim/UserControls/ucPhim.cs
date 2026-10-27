@@ -16,6 +16,8 @@ namespace HeThongRapChieuPhim.UserControls
         {
             InitializeComponent();
             ThemeHelper.StyleDataGridView(dgvPhim);
+            dtpNgayBatDauChieu.Value = DateTime.Today;
+            dtpNgayKetThucChieu.Value = DateTime.Today.AddMonths(1);
             if (!DesignTimeHelper.IsDesignTime(this))
             {
                 EnsureMoTaColumn();
@@ -68,6 +70,14 @@ namespace HeThongRapChieuPhim.UserControls
                         DoTuoi AS [Độ Tuổi],
                         ThoiLuong AS [Thời Lượng (Phút)],
                         GiaPhim AS [Giá Vé Gốc (VNĐ)],
+                        NgayBatDauChieu AS [Chiếu từ ngày],
+                        NgayKetThucChieu AS [Chiếu đến hết],
+                        CASE
+                            WHEN NgayBatDauChieu IS NULL AND NgayKetThucChieu IS NULL THEN N'Chưa giới hạn (phim cũ)'
+                            WHEN CONVERT(date, GETDATE()) < NgayBatDauChieu THEN N'Chưa phát hành'
+                            WHEN CONVERT(date, GETDATE()) > NgayKetThucChieu THEN N'Hết hạn'
+                            ELSE N'Đang trong thời hạn'
+                        END AS [Trạng Thái Phát Hành],
                         PosterPath AS [Ảnh Poster],
                         ISNULL(MoTa, N'') AS [Mô Tả Phim]
                     FROM Phim
@@ -82,6 +92,9 @@ namespace HeThongRapChieuPhim.UserControls
                     priceColumn.DefaultCellStyle.Format = "N0";
                     priceColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 }
+                foreach (string dateColumnName in new[] { "Chiếu từ ngày", "Chiếu đến hết" })
+                    if (dgvPhim.Columns[dateColumnName] is { } dateColumn)
+                        dateColumn.DefaultCellStyle.Format = "dd/MM/yyyy";
             }
             catch (Exception ex)
             {
@@ -98,6 +111,10 @@ namespace HeThongRapChieuPhim.UserControls
             cboDoTuoi.SelectedIndex = 0;
             numThoiLuong.Value = 120;
             numGiaPhim.Value = 80000;
+            dtpNgayBatDauChieu.Value = DateTime.Today;
+            dtpNgayKetThucChieu.Value = DateTime.Today.AddMonths(1);
+            dtpNgayBatDauChieu.Checked = true;
+            dtpNgayKetThucChieu.Checked = true;
             txtMoTa.Clear();
             lblPosterPath.Text = "Chưa chọn ảnh poster";
             picPoster.Image = null;
@@ -123,6 +140,9 @@ namespace HeThongRapChieuPhim.UserControls
             if (decimal.TryParse(row.Cells["Giá Vé Gốc (VNĐ)"].Value?.ToString(), out decimal gia))
                 numGiaPhim.Value = Math.Min(Math.Max(gia, numGiaPhim.Minimum), numGiaPhim.Maximum);
 
+            SetDatePickerFromCell(dtpNgayBatDauChieu, row.Cells["Chiếu từ ngày"].Value);
+            SetDatePickerFromCell(dtpNgayKetThucChieu, row.Cells["Chiếu đến hết"].Value);
+
             txtMoTa.Text = row.Cells["Mô Tả Phim"].Value?.ToString() ?? "";
 
             string posterFileName = row.Cells["Ảnh Poster"].Value?.ToString() ?? "";
@@ -146,6 +166,31 @@ namespace HeThongRapChieuPhim.UserControls
             }
 
             txtMaPhim.Enabled = false;
+        }
+
+        private static void SetDatePickerFromCell(DateTimePicker picker, object? value)
+        {
+            DateTime parsed = default;
+            bool hasDate = value is not null and not DBNull && DateTime.TryParse(value.ToString(), out parsed);
+            picker.Checked = hasDate;
+            if (hasDate) picker.Value = parsed.Date;
+        }
+
+        private bool TryGetReleaseWindow(out DateTime start, out DateTime end)
+        {
+            start = dtpNgayBatDauChieu.Value.Date;
+            end = dtpNgayKetThucChieu.Value.Date;
+            if (!dtpNgayBatDauChieu.Checked || !dtpNgayKetThucChieu.Checked)
+            {
+                MessageBox.Show("Vui lòng chọn đủ ngày bắt đầu chiếu và ngày kết thúc chiếu.", "Thiếu thời hạn phim", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+            if (end < start)
+            {
+                MessageBox.Show("Ngày kết thúc chiếu phải bằng hoặc sau ngày bắt đầu chiếu.", "Khoảng ngày không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+            return true;
         }
 
         private void BtnChonAnh_Click(object? sender, EventArgs e)
@@ -192,6 +237,7 @@ namespace HeThongRapChieuPhim.UserControls
             decimal giaVe = numGiaPhim.Value;
             string poster = lblPosterPath.Text.Equals("Chưa chọn ảnh poster", StringComparison.OrdinalIgnoreCase) ? "" : lblPosterPath.Text.Trim();
             string moTa = txtMoTa.Text.Trim();
+            if (!TryGetReleaseWindow(out DateTime ngayBatDau, out DateTime ngayKetThuc)) return;
 
             if (string.IsNullOrEmpty(ma) || string.IsNullOrEmpty(ten))
             {
@@ -210,8 +256,8 @@ namespace HeThongRapChieuPhim.UserControls
                 }
 
                 string insert = @"
-                    INSERT INTO Phim (MaPhim, TenPhim, TheLoai, NgonNgu, DoTuoi, ThoiLuong, GiaPhim, PosterPath, MoTa)
-                    VALUES (@Ma, @Ten, @TheLoai, @NgonNgu, @DoTuoi, @ThoiLuong, @GiaVe, @Poster, @MoTa)";
+                    INSERT INTO Phim (MaPhim, TenPhim, TheLoai, NgonNgu, DoTuoi, ThoiLuong, GiaPhim, PosterPath, MoTa, NgayBatDauChieu, NgayKetThucChieu)
+                    VALUES (@Ma, @Ten, @TheLoai, @NgonNgu, @DoTuoi, @ThoiLuong, @GiaVe, @Poster, @MoTa, @NgayBatDauChieu, @NgayKetThucChieu)";
 
                 var p = new[]
                 {
@@ -223,7 +269,9 @@ namespace HeThongRapChieuPhim.UserControls
                     DbArg.Int("@ThoiLuong", thoiLuong),
                     DbArg.Decimal18_0("@GiaVe", giaVe),
                     DbArg.NVarChar500("@Poster", poster),
-                    DbArg.NVarCharMax("@MoTa", moTa)
+                    DbArg.NVarCharMax("@MoTa", moTa),
+                    DbArg.Date("@NgayBatDauChieu", ngayBatDau),
+                    DbArg.Date("@NgayKetThucChieu", ngayKetThuc)
                 };
                 Function.Execute(insert, p);
 
@@ -247,6 +295,7 @@ namespace HeThongRapChieuPhim.UserControls
             decimal giaVe = numGiaPhim.Value;
             string poster = lblPosterPath.Text.Equals("Chưa chọn ảnh poster", StringComparison.OrdinalIgnoreCase) ? "" : lblPosterPath.Text.Trim();
             string moTa = txtMoTa.Text.Trim();
+            if (!TryGetReleaseWindow(out DateTime ngayBatDau, out DateTime ngayKetThuc)) return;
 
             if (string.IsNullOrEmpty(ma) || string.IsNullOrEmpty(ten))
             {
@@ -259,7 +308,8 @@ namespace HeThongRapChieuPhim.UserControls
                 string update = @"
                     UPDATE Phim
                     SET TenPhim = @Ten, TheLoai = @TheLoai, NgonNgu = @NgonNgu, DoTuoi = @DoTuoi,
-                        ThoiLuong = @ThoiLuong, GiaPhim = @GiaVe, PosterPath = @Poster, MoTa = @MoTa
+                        ThoiLuong = @ThoiLuong, GiaPhim = @GiaVe, PosterPath = @Poster, MoTa = @MoTa,
+                        NgayBatDauChieu = @NgayBatDauChieu, NgayKetThucChieu = @NgayKetThucChieu
                     WHERE MaPhim = @Ma";
 
                 var p = new[]
@@ -272,7 +322,9 @@ namespace HeThongRapChieuPhim.UserControls
                     DbArg.Int("@ThoiLuong", thoiLuong),
                     DbArg.Decimal18_0("@GiaVe", giaVe),
                     DbArg.NVarChar500("@Poster", poster),
-                    DbArg.NVarCharMax("@MoTa", moTa)
+                    DbArg.NVarCharMax("@MoTa", moTa),
+                    DbArg.Date("@NgayBatDauChieu", ngayBatDau),
+                    DbArg.Date("@NgayKetThucChieu", ngayKetThuc)
                 };
                 Function.Execute(update, p);
 

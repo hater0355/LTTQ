@@ -5,7 +5,7 @@ namespace HeThongRapChieuPhim.Forms
 {
     public sealed partial class FormChonKhuVuc : Form
     {
-        private readonly string _imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Beta_Cinemas_Home.png");
+        private readonly string _imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Login_Beta_Cinemas.png");
 
         public FormChonKhuVuc()
         {

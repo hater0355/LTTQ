@@ -116,7 +116,16 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void DtpNgayChieu_ValueChanged(object? sender, EventArgs e)
         {
-            if (!_isLoading) OnCriteriaChanged();
+            if (_isLoading) return;
+            try
+            {
+                LoadMovieOptionsForDate(dtpNgayChieu.Value.Date);
+                OnCriteriaChanged();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể tải phim còn thời hạn cho ngày đã chọn: " + ex.Message, "Lỗi CSDL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void DtpGioChieu_ValueChanged(object? sender, EventArgs e)
@@ -140,14 +149,11 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 _isLoading = true;
 
-                // Load Phim kèm ThoiLuong
-                var dtPhim = Function.Query("SELECT MaPhim, TenPhim, GiaPhim, ISNULL(ThoiLuong, 120) AS ThoiLuong FROM Phim ORDER BY TenPhim ASC");
-                cboPhim.DataSource = dtPhim;
-                cboPhim.DisplayMember = "TenPhim";
-                cboPhim.ValueMember = "MaPhim";
+                // Chỉ đưa phim còn hạn trong ngày đang xếp lịch vào danh sách chọn.
+                LoadMovieOptionsForDate(dtpNgayChieu.Value.Date);
 
                 // Load Filter Phim
-                var dtFPhim = dtPhim.Copy();
+                var dtFPhim = Function.Query("SELECT MaPhim, TenPhim FROM dbo.Phim ORDER BY TenPhim ASC");
                 var allRow = dtFPhim.NewRow();
                 allRow["MaPhim"] = "";
                 allRow["TenPhim"] = "-- Tất cả phim --";
@@ -185,6 +191,57 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 _isLoading = false;
                 MessageBox.Show("Lỗi tải danh sách phim/phòng: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadMovieOptionsForDate(DateTime scheduleDate, string includeMovieId = "")
+        {
+            string previouslySelectedMovie = cboPhim.SelectedValue?.ToString() ?? string.Empty;
+            var dt = Function.Query(@"
+                SELECT MaPhim, TenPhim, GiaPhim, ISNULL(ThoiLuong, 120) AS ThoiLuong,
+                       CAST(1 AS bit) AS TrongThoiHan
+                FROM dbo.Phim
+                WHERE (NgayBatDauChieu IS NULL AND NgayKetThucChieu IS NULL)
+                   OR (@Ngay BETWEEN NgayBatDauChieu AND NgayKetThucChieu)
+                ORDER BY TenPhim ASC", new[] { DbArg.Date("@Ngay", scheduleDate.Date) });
+
+            if (!string.IsNullOrWhiteSpace(includeMovieId) &&
+                !dt.AsEnumerable().Any(row => string.Equals(Convert.ToString(row["MaPhim"]), includeMovieId, StringComparison.OrdinalIgnoreCase)))
+            {
+                var oldMovie = Function.Query(@"
+                    SELECT MaPhim, TenPhim, GiaPhim, ISNULL(ThoiLuong, 120) AS ThoiLuong,
+                    CAST(0 AS bit) AS TrongThoiHan
+                    FROM dbo.Phim WHERE MaPhim=@MaPhim", new[] { DbArg.VarChar20("@MaPhim", includeMovieId) });
+                if (oldMovie.Rows.Count > 0)
+                {
+                    oldMovie.Rows[0]["TenPhim"] = Convert.ToString(oldMovie.Rows[0]["TenPhim"]) + " (ngoài thời hạn)";
+                    dt.ImportRow(oldMovie.Rows[0]);
+                }
+            }
+
+            bool wasLoading = _isLoading;
+            _isLoading = true;
+            try
+            {
+                cboPhim.DataSource = dt;
+                cboPhim.DisplayMember = "TenPhim";
+                cboPhim.ValueMember = "MaPhim";
+
+                string desiredMovie = !string.IsNullOrWhiteSpace(includeMovieId) ? includeMovieId : previouslySelectedMovie;
+                int desiredIndex = -1;
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (string.Equals(Convert.ToString(dt.Rows[i]["MaPhim"]), desiredMovie, StringComparison.OrdinalIgnoreCase))
+                    {
+                        desiredIndex = i;
+                        break;
+                    }
+                }
+                cboPhim.SelectedIndex = desiredIndex >= 0 ? desiredIndex : (dt.Rows.Count > 0 ? 0 : -1);
+            }
+            finally
+            {
+                _isLoading = wasLoading;
             }
         }
 
@@ -235,6 +292,21 @@ namespace HeThongRapChieuPhim.UserControls
                 {
                     numGiaSuatChieu.Value = Math.Max(numGiaSuatChieu.Minimum, Math.Min(numGiaSuatChieu.Maximum, gia));
                 }
+            }
+            else
+            {
+                _currentThoiLuong = 120;
+                lblThoiLuong.Text = "⏱️ Chưa có phim hợp lệ";
+                numGiaSuatChieu.Value = numGiaSuatChieu.Minimum;
+                cboKhungGio.Items.Clear();
+                cboKhungGio.Items.Add("-- Không có phim còn thời hạn trong ngày này --");
+                cboKhungGio.SelectedIndex = 0;
+                lblKetThucVal.Text = "--";
+                lblDonPhongVal.Text = "--";
+                lblStatus.Text = $"⛔ Không có phim còn thời hạn chiếu vào ngày {dtpNgayChieu.Value:dd/MM/yyyy}. Hãy chọn ngày khác hoặc gia hạn phim.";
+                lblStatus.ForeColor = ThemeHelper.AccentRed;
+                btnThem.Enabled = false;
+                return;
             }
 
             // 2. Tính toán và nạp các khung giờ gợi ý (10:00 - 00:00) cho phòng và ngày này
@@ -532,6 +604,22 @@ namespace HeThongRapChieuPhim.UserControls
                 return;
             }
 
+            if (cboPhim.SelectedItem is not DataRowView selectedMovie)
+            {
+                lblStatus.Text = "⛔ Ngày này không có phim còn thời hạn để xếp lịch.";
+                lblStatus.ForeColor = ThemeHelper.AccentRed;
+                btnThem.Enabled = false;
+                return;
+            }
+            if (selectedMovie.Row.Table.Columns.Contains("TrongThoiHan") &&
+                !Convert.ToBoolean(selectedMovie["TrongThoiHan"]))
+            {
+                lblStatus.Text = "⛔ Phim này đã ngoài thời hạn phát hành. Hãy gia hạn phim trước khi xếp lịch.";
+                lblStatus.ForeColor = ThemeHelper.AccentRed;
+                btnThem.Enabled = false;
+                return;
+            }
+
             // 3. Kiểm tra trùng lịch phòng chiếu và thời gian dọn phòng 1 tiếng
             if (!string.IsNullOrEmpty(maPhong))
             {
@@ -594,6 +682,11 @@ namespace HeThongRapChieuPhim.UserControls
                         CONVERT(VARCHAR(10), sc.NgayChieu, 103) AS [Ngày Chiếu],
                         CONVERT(VARCHAR(5), sc.GioChieu, 108) AS [Giờ Bắt Đầu],
                         ISNULL(sc.GiaSuatChieu, p.GiaPhim) AS [Giá Vé (VNĐ)],
+                        CASE
+                            WHEN p.NgayBatDauChieu IS NULL AND p.NgayKetThucChieu IS NULL THEN N'Chưa giới hạn (phim cũ)'
+                            WHEN sc.NgayChieu < p.NgayBatDauChieu OR sc.NgayChieu > p.NgayKetThucChieu THEN N'Ngoài thời hạn phim'
+                            ELSE N'Còn thời hạn'
+                        END AS [Thời Hạn Phim],
                         sc.MaPhim AS [MaPhim],
                         sc.MaPhong AS [MaPhong],
                         sc.NgayChieu AS [NgayChieuRaw],
@@ -644,7 +737,7 @@ namespace HeThongRapChieuPhim.UserControls
                 if (dgvSuatChieu.Columns["NgayChieuRaw"] is { } dateColumn) dateColumn.Visible = false;
                 if (dgvSuatChieu.Columns["GioChieuRaw"] is { } timeColumn) timeColumn.Visible = false;
 
-                foreach (string centeredColumnName in new[] { "Mã Suất Chiếu", "Phòng Chiếu", "Thời Lượng", "Ngày Chiếu", "Giờ Bắt Đầu", "Giờ Kết Thúc", "Dọn Xong Lúc" })
+                foreach (string centeredColumnName in new[] { "Mã Suất Chiếu", "Phòng Chiếu", "Thời Lượng", "Ngày Chiếu", "Giờ Bắt Đầu", "Giờ Kết Thúc", "Dọn Xong Lúc", "Thời Hạn Phim" })
                     if (dgvSuatChieu.Columns[centeredColumnName] is { } centeredColumn)
                         centeredColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
@@ -668,23 +761,32 @@ namespace HeThongRapChieuPhim.UserControls
             txtMaSuatChieu.Text = row.Cells["Mã Suất Chiếu"].Value?.ToString() ?? "";
 
             string maPhim = row.Cells["MaPhim"].Value?.ToString() ?? "";
-            if (!string.IsNullOrEmpty(maPhim)) cboPhim.SelectedValue = maPhim;
+            _isLoading = true;
+            try
+            {
+                if (row.Cells["NgayChieuRaw"].Value is DateTime dt)
+                    dtpNgayChieu.Value = dt;
+                else if (DateTime.TryParse(row.Cells["NgayChieuRaw"].Value?.ToString(), out DateTime parsedDt))
+                    dtpNgayChieu.Value = parsedDt;
 
-            string maPhong = row.Cells["MaPhong"].Value?.ToString() ?? "";
-            if (!string.IsNullOrEmpty(maPhong)) cboPhongChieu.SelectedValue = maPhong;
+                LoadMovieOptionsForDate(dtpNgayChieu.Value.Date, maPhim);
+                if (!string.IsNullOrEmpty(maPhim)) cboPhim.SelectedValue = maPhim;
 
-            if (row.Cells["NgayChieuRaw"].Value is DateTime dt)
-                dtpNgayChieu.Value = dt;
-            else if (DateTime.TryParse(row.Cells["NgayChieuRaw"].Value?.ToString(), out DateTime parsedDt))
-                dtpNgayChieu.Value = parsedDt;
+                string maPhong = row.Cells["MaPhong"].Value?.ToString() ?? "";
+                if (!string.IsNullOrEmpty(maPhong)) cboPhongChieu.SelectedValue = maPhong;
 
-            if (row.Cells["GioChieuRaw"].Value is TimeSpan ts)
-                dtpGioChieu.Value = DateTime.Today.Add(ts);
-            else if (TimeSpan.TryParse(row.Cells["GioChieuRaw"].Value?.ToString(), out TimeSpan parsedTs))
-                dtpGioChieu.Value = DateTime.Today.Add(parsedTs);
+                if (row.Cells["GioChieuRaw"].Value is TimeSpan ts)
+                    dtpGioChieu.Value = DateTime.Today.Add(ts);
+                else if (TimeSpan.TryParse(row.Cells["GioChieuRaw"].Value?.ToString(), out TimeSpan parsedTs))
+                    dtpGioChieu.Value = DateTime.Today.Add(parsedTs);
 
-            if (decimal.TryParse(row.Cells["Giá Vé (VNĐ)"].Value?.ToString(), out decimal gia))
-                numGiaSuatChieu.Value = Math.Max(numGiaSuatChieu.Minimum, Math.Min(numGiaSuatChieu.Maximum, gia));
+                if (decimal.TryParse(row.Cells["Giá Vé (VNĐ)"].Value?.ToString(), out decimal gia))
+                    numGiaSuatChieu.Value = Math.Max(numGiaSuatChieu.Minimum, Math.Min(numGiaSuatChieu.Maximum, gia));
+            }
+            finally
+            {
+                _isLoading = false;
+            }
 
             OnCriteriaChanged();
         }
@@ -849,10 +951,19 @@ namespace HeThongRapChieuPhim.UserControls
         private void ClearForm()
         {
             BtnAutoMa_Click(null, EventArgs.Empty);
-            if (cboPhim.Items.Count > 0) cboPhim.SelectedIndex = 0;
-            if (cboPhongChieu.Items.Count > 0) cboPhongChieu.SelectedIndex = 0;
-            dtpNgayChieu.Value = DateTime.Today;
-            dtpGioChieu.Value = DateTime.Today.AddHours(10); // 10:00 sáng
+            _isLoading = true;
+            try
+            {
+                dtpNgayChieu.Value = DateTime.Today;
+                LoadMovieOptionsForDate(DateTime.Today);
+                if (cboPhim.Items.Count > 0) cboPhim.SelectedIndex = 0;
+                if (cboPhongChieu.Items.Count > 0) cboPhongChieu.SelectedIndex = 0;
+                dtpGioChieu.Value = DateTime.Today.AddHours(10); // 10:00 sáng
+            }
+            finally
+            {
+                _isLoading = false;
+            }
             OnCriteriaChanged();
             txtMaSuatChieu.Focus();
         }

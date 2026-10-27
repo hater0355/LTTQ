@@ -20,6 +20,7 @@ namespace HeThongRapChieuPhim.Forms
         private ucPhim? _ucPhim;
         private ucPhongChieu? _ucPhongChieu;
         private ucNhanVien? _ucNhanVien;
+        private ucLichLamViec? _ucLichLamViec;
         private ucDoAn? _ucDoAn;
         private ucCaiSuatChieu? _ucCaiSuatChieu;
         private ucCaiUuDai? _ucCaiUuDai;
@@ -78,6 +79,9 @@ namespace HeThongRapChieuPhim.Forms
             menuNhanVien.Visible = isSuper || CurrentUser.IsHumanResourcesAdmin;
             menuTaiKhoanThuNgan.Visible = isSuper || CurrentUser.IsHumanResourcesAdmin;
 
+            // Lịch ca: HR/Admin tổng quản lý; thu ngân chỉ xem lịch cá nhân.
+            menuLichLamViec.Visible = isSuper || CurrentUser.IsHumanResourcesAdmin || CurrentUser.IsCashier;
+
             // Báo cáo doanh thu (Admin doanh thu hoặc Admin tổng)
             menuDoanhThu.Visible = isSuper || CurrentUser.IsRevenueAdmin;
         }
@@ -131,6 +135,14 @@ namespace HeThongRapChieuPhim.Forms
             if (!RequireRole(CurrentUser.IsHumanResourcesAdmin || CurrentUser.IsSuperAdmin, "Admin Nhân sự hoặc Admin tổng")) return;
             _ucNhanVien ??= new ucNhanVien();
             SwitchView(_ucNhanVien, "Danh mục nhân viên");
+        }
+
+        public void ShowLichLamViec()
+        {
+            if (!RequireRole(CurrentUser.IsHumanResourcesAdmin || CurrentUser.IsSuperAdmin || CurrentUser.IsCashier,
+                    "Thu ngân, Admin Nhân sự hoặc Admin tổng")) return;
+            _ucLichLamViec ??= new ucLichLamViec();
+            SwitchView(_ucLichLamViec, "Lịch làm việc & thay ca");
         }
 
         public void ShowDoAn()
@@ -247,6 +259,7 @@ namespace HeThongRapChieuPhim.Forms
         private void MenuCombo_Click(object? sender, EventArgs e) => ShowCombo();
         private void MenuVoucher_Click(object? sender, EventArgs e) => ShowVoucher();
         private void MenuNhanVien_Click(object? sender, EventArgs e) => ShowNhanVien();
+        private void MenuLichLamViec_Click(object? sender, EventArgs e) => ShowLichLamViec();
         private void MenuTaiKhoanThuNgan_Click(object? sender, EventArgs e) => ShowTaiKhoanThuNgan();
         private void MenuDoanhThu_Click(object? sender, EventArgs e) => ShowDashboard();
     }

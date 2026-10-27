@@ -46,6 +46,9 @@
     <Compile Update="UserControls\ucHoaDon.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="UserControls\ucLichLamViec.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="UserControls\ucNhanVien.cs">
       <SubType>UserControl</SubType>
     </Compile>

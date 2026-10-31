@@ -1,5 +1,5 @@
-/* Safe, repeatable schema update. Run in NHHCinemaDB; preserves existing invoices. */
-USE NHHCinemaDB;
+/* Safe, repeatable schema update. Run in QuanLyRapChieuPhim; preserves existing invoices. */
+USE QuanLyRapChieuPhim;
 GO
 
 /* Required when creating the filtered PayOS order-code index from sqlcmd. */

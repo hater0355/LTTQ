@@ -1,5 +1,5 @@
 /* Expand the former Admin role into job-specific roles. Existing admin access is assigned to HR/account management. */
-USE NHHCinemaDB;
+USE QuanLyRapChieuPhim;
 GO
 
 UPDATE dbo.TaiKhoan

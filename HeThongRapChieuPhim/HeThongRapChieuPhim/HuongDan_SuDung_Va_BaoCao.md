@@ -6,7 +6,7 @@
 ## 1. TỔNG QUAN HỆ THỐNG
 - **Tên hệ thống:** Quản lý rạp chiếu phim **NHH Cinema**
 - **Nền tảng:** C# Windows Forms App (.NET, Visual Studio)
-- **Cơ sở dữ liệu:** Microsoft SQL Server (`NHHCinemaDB`)
+- **Cơ sở dữ liệu:** Microsoft SQL Server (`QuanLyRapChieuPhim`)
 - **Hai đối tượng sử dụng:**
   1. **Admin:** Dashboard, danh mục, cài đặt và quản lý tài khoản thu ngân.
   2. **Thu ngân:** Chỉ truy cập bán vé/bắp nước và tra cứu hóa đơn.
@@ -29,8 +29,8 @@ Hai tài khoản mẫu yêu cầu đổi mật khẩu ngay lần đăng nhập �
 ---
 
 ## 3. CƠ SỞ DỮ LIỆU SQL SERVER
-- Script SQL hoàn chỉnh được đặt tại: `Database/NHHCinema.sql`.
-- **Cài mới:** Sao lưu nếu cần, sau đó chạy `Database/NHHCinema.sql` trên SQL Server. Script tạo các bảng còn thiếu và tài khoản demo; hai tài khoản mẫu đều buộc đổi mật khẩu ở lần đăng nhập đầu.
+- Script SQL hoàn chỉnh được đặt tại: `Database/Install_QuanLyRapChieuPhim.sql`.
+- **Cài mới:** Sao lưu nếu cần, sau đó chạy `Database/Install_QuanLyRapChieuPhim.sql` trên SQL Server. Script tạo các bảng còn thiếu và tài khoản demo; hai tài khoản mẫu đều buộc đổi mật khẩu ở lần đăng nhập đầu.
 - **Nâng cấp database đã có dữ liệu:** Tạo bản sao lưu có thể khôi phục trước. Mở SSMS và chạy lần lượt từng script sau trong `Database/Migrations`:
   1. `20261014_RolesAndPasswordStorage.sql`
   2. `20261014_SalesAndPayOsSafety.sql`
@@ -46,7 +46,7 @@ Hai tài khoản mẫu yêu cầu đổi mật khẩu ngay lần đăng nhập �
 - Không dùng `Database/ResetDemoDatabase.sql` với dữ liệu cần giữ: script này xóa toàn bộ database demo trước khi tạo lại.
 - Chuỗi kết nối nằm tại class `Classes/DataProcesser.cs`:
   ```csharp
-  Server=.;Database=NHHCinemaDB;Integrated Security=True;TrustServerCertificate=True;
+  Server=.;Database=QuanLyRapChieuPhim;Integrated Security=True;TrustServerCertificate=True;
   ```
 
 ---
@@ -136,7 +136,7 @@ HeThongRapChieuPhim/
 │   ├── P01.jpg
 │   └── P03.jpg
 ├── Database/
-│   ├── NHHCinema.sql              # Script khởi tạo database mới
+│   ├── Install_QuanLyRapChieuPhim.sql # Script cài đặt SQL Server
 │   └── Migrations/                # Script nâng cấp database đang dùng
 ├── Data/
 │   └── CurrentUser.cs             # Quản lý phiên đăng nhập

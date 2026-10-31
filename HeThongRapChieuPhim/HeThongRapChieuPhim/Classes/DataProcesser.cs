@@ -65,7 +65,7 @@ namespace HeThongRapChieuPhim.Classes
         public static string ConnectionString { get; set; } =
             Environment.GetEnvironmentVariable("CINEMA_DB_CONNECTION") ??
             LocalPaymentsSettings.ReadValue("ConnectionStrings", "CinemaDb") ??
-            @"Server=.;Database=NHHCinemaDB;Integrated Security=True;TrustServerCertificate=True;Connect Timeout=5;";
+            @"Server=.;Database=QuanLyRapChieuPhim;Integrated Security=True;TrustServerCertificate=True;Connect Timeout=5;";
 
         public static bool TestConnection(out string errorMessage)
         {

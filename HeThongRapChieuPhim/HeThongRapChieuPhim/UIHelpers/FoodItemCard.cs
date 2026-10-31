@@ -60,6 +60,7 @@ public sealed class FoodItemCard : UserControl
         {
             Location = new Point(94, 7),
             Size = new Size(190, 22),
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
             Text = item.TenDoAn,
             Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
             ForeColor = Color.FromArgb(20, 83, 45),
@@ -70,6 +71,7 @@ public sealed class FoodItemCard : UserControl
         {
             Location = new Point(94, 29),
             Size = new Size(190, 34),
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
             Text = string.IsNullOrWhiteSpace(item.MoTa) ? "Bắp nước tươi ngon, dùng trong rạp." : item.MoTa,
             Font = new Font("Segoe UI", 8f),
             ForeColor = Color.FromArgb(90, 115, 100),
@@ -80,6 +82,7 @@ public sealed class FoodItemCard : UserControl
         _sizeSelector.Font = new Font("Segoe UI", 8.5f);
         _sizeSelector.Location = new Point(94, 66);
         _sizeSelector.Size = new Size(130, 25);
+        _sizeSelector.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         foreach (var size in item.KichCo) _sizeSelector.Items.Add(size);
         _sizeSelector.SelectedIndexChanged += (_, _) =>
         {
@@ -90,12 +93,14 @@ public sealed class FoodItemCard : UserControl
 
         _priceLabel.Location = new Point(224, 67);
         _priceLabel.Size = new Size(65, 22);
+        _priceLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _priceLabel.Font = new Font("Segoe UI", 8.5f, FontStyle.Bold);
         _priceLabel.ForeColor = Color.FromArgb(180, 83, 9);
         _priceLabel.TextAlign = ContentAlignment.MiddleRight;
 
         _removeButton.Location = new Point(94, 97);
         _removeButton.Size = new Size(32, 24);
+        _removeButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
         _removeButton.Text = "−";
         _removeButton.Font = new Font("Segoe UI", 10f, FontStyle.Bold);
         _removeButton.FlatStyle = FlatStyle.Flat;
@@ -104,6 +109,7 @@ public sealed class FoodItemCard : UserControl
 
         _quantityLabel.Location = new Point(130, 99);
         _quantityLabel.Size = new Size(88, 20);
+        _quantityLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         _quantityLabel.Font = new Font("Segoe UI", 8f, FontStyle.Bold);
         _quantityLabel.ForeColor = Color.FromArgb(20, 50, 35);
         _quantityLabel.TextAlign = ContentAlignment.MiddleCenter;
@@ -111,6 +117,7 @@ public sealed class FoodItemCard : UserControl
 
         _addButton.Location = new Point(222, 97);
         _addButton.Size = new Size(67, 24);
+        _addButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
         _addButton.Text = "+ Thêm";
         _addButton.Font = new Font("Segoe UI", 8f, FontStyle.Bold);
         _addButton.BackColor = Color.FromArgb(16, 163, 74);

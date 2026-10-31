@@ -1,5 +1,5 @@
 /* Promote the existing admin login to the single all-pages administrator. Password and account data stay unchanged. */
-USE NHHCinemaDB;
+USE QuanLyRapChieuPhim;
 GO
 
 UPDATE dbo.TaiKhoan

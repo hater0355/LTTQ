@@ -6,13 +6,13 @@
 USE master;
 GO
 
-IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'NHHCinemaDB')
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'QuanLyRapChieuPhim')
 BEGIN
-    CREATE DATABASE NHHCinemaDB COLLATE Vietnamese_CI_AS;
+    CREATE DATABASE QuanLyRapChieuPhim COLLATE Vietnamese_CI_AS;
 END
 GO
 
-USE NHHCinemaDB;
+USE QuanLyRapChieuPhim;
 GO
 
 -- 1. BẢNG NHÂN VIÊN
@@ -142,6 +142,17 @@ IF OBJECT_ID(N'dbo.SuatChieu', N'U') IS NULL CREATE TABLE SuatChieu (
 );
 GO
 
+-- Giá vé riêng cho từng hàng ghế của từng suất chiếu.
+IF OBJECT_ID(N'dbo.GiaVeHangGhe', N'U') IS NULL CREATE TABLE dbo.GiaVeHangGhe (
+    MaSuatChieu VARCHAR(20) NOT NULL,
+    HangGhe VARCHAR(10) NOT NULL,
+    GiaVe DECIMAL(18,0) NOT NULL,
+    CONSTRAINT PK_GiaVeHangGhe PRIMARY KEY (MaSuatChieu, HangGhe),
+    CONSTRAINT FK_GiaVeHangGhe_SuatChieu FOREIGN KEY (MaSuatChieu) REFERENCES dbo.SuatChieu(MaSuatChieu) ON DELETE CASCADE,
+    CONSTRAINT CK_GiaVeHangGhe_GiaNonNegative CHECK (GiaVe >= 0)
+);
+GO
+
 -- 7. BẢNG ƯU ĐÃI COMBO
 IF OBJECT_ID(N'dbo.UuDaiCombo', N'U') IS NULL CREATE TABLE UuDaiCombo (
     MaCombo VARCHAR(20) PRIMARY KEY,
@@ -205,6 +216,7 @@ IF OBJECT_ID(N'dbo.ChiTietHoaDon_Ghe', N'U') IS NULL CREATE TABLE ChiTietHoaDon_
     MaHD VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES HoaDon(MaHD) ON DELETE CASCADE,
     MaSuatChieu VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES SuatChieu(MaSuatChieu),
     MaGhe VARCHAR(10) NOT NULL, -- Vd: 'A1', 'A2', 'B3'
+    GiaVe DECIMAL(18,0) NOT NULL CONSTRAINT DF_ChiTietHoaDon_Ghe_GiaVe DEFAULT (0),
     CONSTRAINT FK_ChiTietHoaDon_Ghe_HoaDon_Suat FOREIGN KEY (MaHD, MaSuatChieu)
         REFERENCES dbo.HoaDon(MaHD, MaSuatChieu)
 );

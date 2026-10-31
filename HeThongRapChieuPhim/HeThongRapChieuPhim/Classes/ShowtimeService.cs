@@ -79,6 +79,41 @@ public static class ShowtimeService
             saveCmd.Parameters.Add(DbArg.Time("@time", start).CreateSqlParameter());
             saveCmd.Parameters.Add(DbArg.Decimal18_0("@price", price).CreateSqlParameter());
             if (saveCmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Không tìm thấy suất chiếu cần cập nhật.");
+
+            using var pricingCmd = new SqlCommand(@"
+                SELECT pc.SoHangGhe, ISNULL(sc.GiaSuatChieu, p.GiaPhim)
+                FROM dbo.SuatChieu sc
+                JOIN dbo.PhongChieu pc ON pc.MaPhong=sc.MaPhong
+                JOIN dbo.Phim p ON p.MaPhim=sc.MaPhim
+                WHERE sc.MaSuatChieu=@id", connection, transaction);
+            pricingCmd.Parameters.Add(DbArg.VarChar20("@id", showId).CreateSqlParameter());
+            int rowCount;
+            decimal baseFare;
+            using (var pricingReader = pricingCmd.ExecuteReader())
+            {
+                if (!pricingReader.Read()) throw new InvalidOperationException("Không đọc được thông tin giá suất chiếu.");
+                rowCount = pricingReader.GetInt32(0);
+                baseFare = pricingReader.GetDecimal(1);
+            }
+
+            using (var deletePrices = new SqlCommand("DELETE FROM dbo.GiaVeHangGhe WHERE MaSuatChieu=@id", connection, transaction))
+            {
+                deletePrices.Parameters.Add(DbArg.VarChar20("@id", showId).CreateSqlParameter());
+                deletePrices.ExecuteNonQuery();
+            }
+
+            for (int row = 0; row < rowCount; row++)
+            {
+                decimal factor = rowCount == 1 ? 1m : 0.8m + 0.4m * row / (rowCount - 1m);
+                decimal rowFare = Math.Round(baseFare * factor, 0, MidpointRounding.AwayFromZero);
+                using var insertPrice = new SqlCommand(
+                    "INSERT INTO dbo.GiaVeHangGhe (MaSuatChieu, HangGhe, GiaVe) VALUES (@show,@row,@fare)",
+                    connection, transaction);
+                insertPrice.Parameters.Add(DbArg.VarChar20("@show", showId).CreateSqlParameter());
+                insertPrice.Parameters.Add(DbArg.VarChar10("@row", ((char)('A' + row)).ToString()).CreateSqlParameter());
+                insertPrice.Parameters.Add(DbArg.Decimal18_0("@fare", rowFare).CreateSqlParameter());
+                insertPrice.ExecuteNonQuery();
+            }
             return true;
         }, IsolationLevel.Serializable);
     }

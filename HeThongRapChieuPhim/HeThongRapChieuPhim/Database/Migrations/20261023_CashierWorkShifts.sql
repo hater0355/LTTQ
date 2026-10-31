@@ -3,7 +3,7 @@
   Existing employee and sales records are not changed or removed.
   Run after 20261023_MovieReleaseWindow.sql on an existing database.
 */
-USE NHHCinemaDB;
+USE QuanLyRapChieuPhim;
 GO
 
 SET XACT_ABORT ON;

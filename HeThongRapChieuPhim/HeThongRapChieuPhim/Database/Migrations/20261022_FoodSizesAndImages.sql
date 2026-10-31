@@ -3,7 +3,7 @@
   Historical food details keep their saved quantity and price; their size stays NULL
   because the old schema did not record one.
 */
-USE NHHCinemaDB;
+USE QuanLyRapChieuPhim;
 GO
 
 SET XACT_ABORT ON;

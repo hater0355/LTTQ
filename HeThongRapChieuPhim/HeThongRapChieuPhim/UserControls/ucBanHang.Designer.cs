@@ -22,8 +22,12 @@
             lblCashierInfo = new Label();
             pnlBody = new TableLayoutPanel();
             pnlLeft = new Panel();
+            tabOrderOptions = new TabControl();
+            tabSeats = new TabPage();
+            tabFood = new TabPage();
             flpFoodItems = new FlowLayoutPanel();
             lblSec4 = new Label();
+            lblFoodHint = new Label();
             lblComboNote = new Label();
             cboCombo = new ComboBox();
             lblSec3 = new Label();
@@ -79,6 +83,9 @@
             pnlMovieMeta.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picPoster).BeginInit();
             pnlCenter.SuspendLayout();
+            tabOrderOptions.SuspendLayout();
+            tabSeats.SuspendLayout();
+            tabFood.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pnlSeatMap).BeginInit();
             pnlSeatHeader.SuspendLayout();
             pnlLegend.SuspendLayout();
@@ -131,9 +138,9 @@
             // pnlBody
             // 
             pnlBody.ColumnCount = 3;
-            pnlBody.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
-            pnlBody.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45F));
-            pnlBody.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            pnlBody.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 26F));
+            pnlBody.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 48F));
+            pnlBody.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 26F));
             pnlBody.Controls.Add(pnlLeft, 0, 0);
             pnlBody.Controls.Add(pnlCenter, 1, 0);
             pnlBody.Controls.Add(pnlRight, 2, 0);
@@ -150,8 +157,6 @@
             // 
             pnlLeft.AutoScroll = true;
             pnlLeft.BackColor = Color.White;
-            pnlLeft.Controls.Add(flpFoodItems);
-            pnlLeft.Controls.Add(lblSec4);
             pnlLeft.Controls.Add(lblComboNote);
             pnlLeft.Controls.Add(cboCombo);
             pnlLeft.Controls.Add(lblSec3);
@@ -172,25 +177,36 @@
             // flpFoodItems
             // 
             flpFoodItems.AutoScroll = true;
-            flpFoodItems.Dock = DockStyle.Top;
+            flpFoodItems.Dock = DockStyle.Fill;
             flpFoodItems.FlowDirection = FlowDirection.TopDown;
-            flpFoodItems.Location = new Point(12, 437);
+            flpFoodItems.Location = new Point(3, 92);
             flpFoodItems.Name = "flpFoodItems";
-            flpFoodItems.Padding = new Padding(0, 0, 8, 0);
-            flpFoodItems.Size = new Size(301, 260);
+            flpFoodItems.Padding = new Padding(10, 8, 10, 8);
+            flpFoodItems.Size = new Size(542, 535);
             flpFoodItems.TabIndex = 10;
             flpFoodItems.WrapContents = false;
             // 
             // lblSec4
             // 
             lblSec4.Dock = DockStyle.Top;
-            lblSec4.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+            lblSec4.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             lblSec4.ForeColor = Color.FromArgb(20, 83, 45);
-            lblSec4.Location = new Point(12, 412);
+            lblSec4.Location = new Point(3, 3);
             lblSec4.Name = "lblSec4";
-            lblSec4.Size = new Size(301, 25);
+            lblSec4.Size = new Size(542, 30);
             lblSec4.TabIndex = 9;
-            lblSec4.Text = "4. CHỌN BẮP NƯỚC (F&B)";
+            lblSec4.Text = "ĐỒ ĂN & THỨC UỐNG";
+            // 
+            // lblFoodHint
+            // 
+            lblFoodHint.Dock = DockStyle.Top;
+            lblFoodHint.Font = new Font("Segoe UI", 9F);
+            lblFoodHint.ForeColor = Color.FromArgb(90, 115, 100);
+            lblFoodHint.Location = new Point(3, 33);
+            lblFoodHint.Name = "lblFoodHint";
+            lblFoodHint.Size = new Size(542, 26);
+            lblFoodHint.TabIndex = 11;
+            lblFoodHint.Text = "Chọn cỡ, xem giá rồi nhấn + Thêm. Số lượng đã chọn được giữ khi quay lại chọn ghế.";
             // 
             // lblComboNote
             // 
@@ -224,7 +240,7 @@
             lblSec3.Name = "lblSec3";
             lblSec3.Size = new Size(301, 25);
             lblSec3.TabIndex = 6;
-            lblSec3.Text = "3. ƯU ĐÃI & COMBO VÉ";
+            lblSec3.Text = "COMBO VÉ (TÙY CHỌN)";
             // 
             // lblRoomInfo
             // 
@@ -257,7 +273,7 @@
             lblSec2.Name = "lblSec2";
             lblSec2.Size = new Size(301, 25);
             lblSec2.TabIndex = 3;
-            lblSec2.Text = "2. CHỌN SUẤT CHIẾU";
+            lblSec2.Text = "SUẤT CHIẾU";
             // 
             // pnlMovieMeta
             // 
@@ -314,14 +330,12 @@
             lblSec1.Name = "lblSec1";
             lblSec1.Size = new Size(301, 25);
             lblSec1.TabIndex = 0;
-            lblSec1.Text = "1. CHỌN PHIM";
+            lblSec1.Text = "CHỌN PHIM";
             // 
             // pnlCenter
             // 
             pnlCenter.BackColor = Color.White;
-            pnlCenter.Controls.Add(pnlSeatMap);
-            pnlCenter.Controls.Add(lblScreen);
-            pnlCenter.Controls.Add(pnlSeatHeader);
+            pnlCenter.Controls.Add(tabOrderOptions);
             pnlCenter.Dock = DockStyle.Fill;
             pnlCenter.Location = new Point(368, 14);
             pnlCenter.Margin = new Padding(4);
@@ -329,6 +343,43 @@
             pnlCenter.Padding = new Padding(12);
             pnlCenter.Size = new Size(523, 672);
             pnlCenter.TabIndex = 1;
+            // 
+            // tabOrderOptions
+            // 
+            tabOrderOptions.Controls.Add(tabSeats);
+            tabOrderOptions.Controls.Add(tabFood);
+            tabOrderOptions.Dock = DockStyle.Fill;
+            tabOrderOptions.Location = new Point(12, 12);
+            tabOrderOptions.Name = "tabOrderOptions";
+            tabOrderOptions.SelectedIndex = 0;
+            tabOrderOptions.Size = new Size(542, 648);
+            tabOrderOptions.TabIndex = 0;
+            // 
+            // tabSeats
+            // 
+            tabSeats.Controls.Add(pnlSeatMap);
+            tabSeats.Controls.Add(lblScreen);
+            tabSeats.Controls.Add(pnlSeatHeader);
+            tabSeats.Location = new Point(4, 32);
+            tabSeats.Name = "tabSeats";
+            tabSeats.Padding = new Padding(8);
+            tabSeats.Size = new Size(534, 612);
+            tabSeats.TabIndex = 0;
+            tabSeats.Text = "1. CHỌN GHẾ";
+            tabSeats.UseVisualStyleBackColor = true;
+            // 
+            // tabFood
+            // 
+            tabFood.Controls.Add(flpFoodItems);
+            tabFood.Controls.Add(lblFoodHint);
+            tabFood.Controls.Add(lblSec4);
+            tabFood.Location = new Point(4, 32);
+            tabFood.Name = "tabFood";
+            tabFood.Padding = new Padding(8);
+            tabFood.Size = new Size(534, 612);
+            tabFood.TabIndex = 1;
+            tabFood.Text = "2. BẮP NƯỚC";
+            tabFood.UseVisualStyleBackColor = true;
             // 
             // pnlSeatMap
             // 
@@ -338,13 +389,13 @@
             pnlSeatMap.AllowUserToResizeRows = false;
             pnlSeatMap.ColumnHeadersHeight = 29;
             pnlSeatMap.Dock = DockStyle.Fill;
-            pnlSeatMap.Location = new Point(12, 105);
+            pnlSeatMap.Location = new Point(8, 113);
             pnlSeatMap.MultiSelect = false;
             pnlSeatMap.Name = "pnlSeatMap";
             pnlSeatMap.ReadOnly = true;
             pnlSeatMap.RowHeadersWidth = 42;
             pnlSeatMap.SelectionMode = DataGridViewSelectionMode.CellSelect;
-            pnlSeatMap.Size = new Size(499, 555);
+            pnlSeatMap.Size = new Size(518, 479);
             pnlSeatMap.TabIndex = 2;
             // 
             // lblScreen
@@ -353,9 +404,9 @@
             lblScreen.Dock = DockStyle.Top;
             lblScreen.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
             lblScreen.ForeColor = Color.FromArgb(20, 83, 45);
-            lblScreen.Location = new Point(12, 77);
+            lblScreen.Location = new Point(8, 85);
             lblScreen.Name = "lblScreen";
-            lblScreen.Size = new Size(499, 28);
+            lblScreen.Size = new Size(518, 28);
             lblScreen.TabIndex = 1;
             lblScreen.Text = "📺 MÀN HÌNH CHIẾU";
             lblScreen.TextAlign = ContentAlignment.MiddleCenter;
@@ -365,9 +416,9 @@
             pnlSeatHeader.Controls.Add(pnlLegend);
             pnlSeatHeader.Controls.Add(lblSeatMapTitle);
             pnlSeatHeader.Dock = DockStyle.Top;
-            pnlSeatHeader.Location = new Point(12, 12);
+            pnlSeatHeader.Location = new Point(8, 8);
             pnlSeatHeader.Name = "pnlSeatHeader";
-            pnlSeatHeader.Size = new Size(499, 65);
+            pnlSeatHeader.Size = new Size(518, 65);
             pnlSeatHeader.TabIndex = 0;
             // 
             // pnlLegend
@@ -378,7 +429,7 @@
             pnlLegend.Dock = DockStyle.Top;
             pnlLegend.Location = new Point(0, 25);
             pnlLegend.Name = "pnlLegend";
-            pnlLegend.Size = new Size(499, 35);
+            pnlLegend.Size = new Size(518, 35);
             pnlLegend.TabIndex = 1;
             // 
             // pnlLegendAvailable
@@ -477,7 +528,7 @@
             lblSeatMapTitle.Name = "lblSeatMapTitle";
             lblSeatMapTitle.Size = new Size(499, 25);
             lblSeatMapTitle.TabIndex = 0;
-            lblSeatMapTitle.Text = "SƠ ĐỒ CHỌN GHẾ NGỒI";
+            lblSeatMapTitle.Text = "SƠ ĐỒ GHẾ — GIÁ HIỂN THỊ THEO TỪNG HÀNG";
             // 
             // pnlRight
             // 
@@ -682,7 +733,7 @@
             pnlBillDetails.Location = new Point(12, 42);
             pnlBillDetails.Name = "pnlBillDetails";
             pnlBillDetails.Padding = new Padding(10);
-            pnlBillDetails.Size = new Size(263, 252);
+            pnlBillDetails.Size = new Size(263, 300);
             pnlBillDetails.TabIndex = 1;
             // 
             // lblSumTotal
@@ -692,7 +743,7 @@
             lblSumTotal.ForeColor = Color.FromArgb(217, 119, 6);
             lblSumTotal.Location = new Point(10, 192);
             lblSumTotal.Name = "lblSumTotal";
-            lblSumTotal.Size = new Size(243, 55);
+            lblSumTotal.Size = new Size(243, 68);
             lblSumTotal.TabIndex = 7;
             lblSumTotal.Text = "TỔNG TIỀN:\r\n0 đ";
             lblSumTotal.TextAlign = ContentAlignment.MiddleLeft;
@@ -714,7 +765,7 @@
             lblSumFood.ForeColor = Color.FromArgb(20, 50, 35);
             lblSumFood.Location = new Point(10, 146);
             lblSumFood.Name = "lblSumFood";
-            lblSumFood.Size = new Size(243, 44);
+            lblSumFood.Size = new Size(243, 52);
             lblSumFood.TabIndex = 5;
             lblSumFood.Text = "Tiền đồ ăn: 0 đ";
             // 
@@ -758,7 +809,7 @@
             lblSumSeats.ForeColor = Color.FromArgb(20, 83, 45);
             lblSumSeats.Location = new Point(10, 56);
             lblSumSeats.Name = "lblSumSeats";
-            lblSumSeats.Size = new Size(243, 24);
+            lblSumSeats.Size = new Size(243, 42);
             lblSumSeats.TabIndex = 2;
             lblSumSeats.Text = "Ghế chọn: 0 ghế ()";
             // 
@@ -813,6 +864,9 @@
             ((System.ComponentModel.ISupportInitialize)picPoster).EndInit();
             pnlCenter.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pnlSeatMap).EndInit();
+            tabSeats.ResumeLayout(false);
+            tabFood.ResumeLayout(false);
+            tabOrderOptions.ResumeLayout(false);
             pnlSeatHeader.ResumeLayout(false);
             pnlLegend.ResumeLayout(false);
             pnlLegendAvailable.ResumeLayout(false);
@@ -838,6 +892,9 @@
         private System.Windows.Forms.Label lblCashierInfo;
         private System.Windows.Forms.TableLayoutPanel pnlBody;
         private System.Windows.Forms.Panel pnlLeft;
+        private System.Windows.Forms.TabControl tabOrderOptions;
+        private System.Windows.Forms.TabPage tabSeats;
+        private System.Windows.Forms.TabPage tabFood;
         private System.Windows.Forms.Label lblSec1;
         private System.Windows.Forms.ComboBox cboPhim;
         private System.Windows.Forms.Panel pnlMovieMeta;
@@ -850,6 +907,7 @@
         private System.Windows.Forms.ComboBox cboCombo;
         private System.Windows.Forms.Label lblComboNote;
         private System.Windows.Forms.Label lblSec4;
+        private System.Windows.Forms.Label lblFoodHint;
         private System.Windows.Forms.FlowLayoutPanel flpFoodItems;
         private System.Windows.Forms.Panel pnlCenter;
         private System.Windows.Forms.Panel pnlSeatHeader;

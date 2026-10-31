@@ -91,15 +91,23 @@ public static class SalesService
             voucherValue = Convert.ToDecimal(voucher.Rows[0]["GiaTriGiam"]);
         }
 
-        decimal ticketPrice = Convert.ToDecimal(s["GiaVe"]);
-        decimal tickets = ticketPrice * seats.Length;
+        var rowPriceRows = DataProcesser.Query(
+            "SELECT HangGhe, GiaVe FROM dbo.GiaVeHangGhe WHERE MaSuatChieu=@show",
+            DbArg.VarChar20("@show", draft.MaSuatChieu));
+        var rowPrices = rowPriceRows.Rows.Cast<DataRow>().ToDictionary(
+            r => Convert.ToString(r["HangGhe"]) ?? string.Empty,
+            r => Convert.ToDecimal(r["GiaVe"]), StringComparer.OrdinalIgnoreCase);
+        if (seats.Any(seat => !rowPrices.ContainsKey(seat[..1])))
+            throw new InvalidOperationException("Suất chiếu chưa có bảng giá theo hàng ghế. Hãy chạy migration giá vé theo hàng trong SSMS rồi thử lại.");
+        var seatPrices = seats.ToDictionary(seat => seat, seat => rowPrices[seat[..1]], StringComparer.OrdinalIgnoreCase);
+        decimal tickets = seatPrices.Values.Sum();
         decimal foodTotal = foodData.Sum(f => f.Price * f.Qty);
         decimal comboDiscount = comboSeats > 0 ? tickets * comboPct / 100m : 0;
         decimal voucherDiscount = 0;
         if (voucherType.Contains("phần trăm", StringComparison.OrdinalIgnoreCase))
             voucherDiscount = Math.Max(0, tickets - comboDiscount) * voucherValue / 100m;
         else if (voucherType.Contains("vé", StringComparison.OrdinalIgnoreCase))
-            voucherDiscount = Math.Min((int)voucherValue, seats.Length) * ticketPrice;
+            voucherDiscount = seatPrices.Values.OrderBy(price => price).Take(Math.Min((int)voucherValue, seats.Length)).Sum();
         else if (!string.IsNullOrEmpty(voucherType))
             voucherDiscount = Math.Min(voucherValue, Math.Max(0, tickets - comboDiscount) + foodTotal);
         decimal totalDiscount = Math.Min(tickets + foodTotal, comboDiscount + voucherDiscount);
@@ -141,7 +149,7 @@ public static class SalesService
         };
         foreach (var seat in seats)
         {
-            statements.Add(new TransactionCommand("INSERT INTO dbo.ChiTietHoaDon_Ghe (MaHD, MaSuatChieu, MaGhe) VALUES (@bill,@show,@seat)", [DbArg.VarChar20("@bill", maHD), DbArg.VarChar20("@show", draft.MaSuatChieu), DbArg.VarChar10("@seat", seat)]));
+            statements.Add(new TransactionCommand("INSERT INTO dbo.ChiTietHoaDon_Ghe (MaHD, MaSuatChieu, MaGhe, GiaVe) VALUES (@bill,@show,@seat,@fare)", [DbArg.VarChar20("@bill", maHD), DbArg.VarChar20("@show", draft.MaSuatChieu), DbArg.VarChar10("@seat", seat), DbArg.Decimal18_0("@fare", seatPrices[seat])]));
             statements.Add(new TransactionCommand("INSERT INTO dbo.GheDatCho (MaSuatChieu,MaGhe,MaHD,HetHan) VALUES (@show,@seat,@bill,@expiry)", [DbArg.VarChar20("@show", draft.MaSuatChieu), DbArg.VarChar10("@seat", seat), DbArg.VarChar20("@bill", maHD), DbArg.DateTime2("@expiry", pendingPayOs ? DateTime.UtcNow.AddMinutes(15) : DBNull.Value)]));
         }
         foreach (var food in foodData)

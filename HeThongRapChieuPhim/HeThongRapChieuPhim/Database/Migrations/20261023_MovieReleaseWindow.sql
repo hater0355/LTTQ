@@ -3,7 +3,7 @@
   Existing movie rows remain unrestricted (both dates NULL) so prior schedules are preserved.
   New movie records created through the application require both dates.
 */
-USE NHHCinemaDB;
+USE QuanLyRapChieuPhim;
 GO
 
 SET XACT_ABORT ON;

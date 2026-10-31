@@ -1,9 +1,9 @@
 /*
   Idempotent upgrade for the Admin/Cashier roles and password storage.
-  Run against NHHCinemaDB. This migration does not drop tables or remove data.
+  Run against QuanLyRapChieuPhim. This migration does not drop tables or remove data.
   Legacy plaintext passwords are upgraded after the account's next successful login.
 */
-USE NHHCinemaDB;
+USE QuanLyRapChieuPhim;
 GO
 
 IF COL_LENGTH(N'dbo.TaiKhoan', N'MatKhau') IS NOT NULL

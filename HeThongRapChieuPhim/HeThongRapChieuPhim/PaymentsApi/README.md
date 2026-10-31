@@ -11,7 +11,7 @@ The WinForms application does not contain PayOS credentials. Run this ASP.NET Co
 
 The local settings file is ignored by Git and must not be committed. The local return and cancel pages are served at `/payos/return` and `/payos/cancel`. They only show a message; payment status is confirmed by the verified webhook and the desktop app's status polling.
 
-The current database connection defaults to `Server=.;Database=NHHCinemaDB;Integrated Security=True;TrustServerCertificate=True;Connect Timeout=5;`. Set `ConnectionStrings:CinemaDb` in the local file if your SQL Server uses a different connection string. Both the API and desktop now read that same value; `CINEMA_DB_CONNECTION`, when set, overrides it in both processes.
+The current database connection defaults to `Server=.;Database=QuanLyRapChieuPhim;Integrated Security=True;TrustServerCertificate=True;Connect Timeout=5;`. Set `ConnectionStrings:CinemaDb` in the local file if your SQL Server uses a different connection string. Both the API and desktop now read that same value; `CINEMA_DB_CONNECTION`, when set, overrides it in both processes.
 
 ## Server environment for deployment
 
@@ -48,7 +48,7 @@ Back up the database, then run the additive migrations in order:
 7. `Database/Migrations/20261023_MovieReleaseWindow.sql`
 8. `Database/Migrations/20261023_CashierWorkShifts.sql`
 
-Back up the database before rollout. `20261022_DataIntegrityAndTypedParameters.sql` preflights legacy values and cross-show seat references, reports incompatible record keys, and rolls back without modifying or deleting historical sales. It also reports invoice seat-count/list differences for manual review. `Database/NHHCinema.sql` is the schema initializer for a new database; it sets both sample logins to require a password change on first login. `Database/ResetDemoDatabase.sql` is destructive and is only for disposable demo data.
+Back up the database before rollout. `20261022_DataIntegrityAndTypedParameters.sql` preflights legacy values and cross-show seat references, reports incompatible record keys, and rolls back without modifying or deleting historical sales. It also reports invoice seat-count/list differences for manual review. `Database/Install_QuanLyRapChieuPhim.sql` is the schema initializer for a new database; it sets both sample logins to require a password change on first login. `Database/ResetDemoDatabase.sql` is destructive and is only for disposable demo data.
 
 The first migration adds roles and password storage, the second adds sales/payment safety tables and columns, the next two finalize admin roles, and the following migrations add integrity constraints, food sizes/images, movie release dates, and employee shifts. Run all eight in this order on an existing database. Sample accounts on an existing database are also marked to require a password change once by the integrity migration.
 

@@ -72,7 +72,7 @@ namespace HeThongRapChieuPhim.Forms
                     lblStatus.Text = "Không kết nối được SQL Server!";
                     MessageBox.Show(
                         $"Không thể kết nối đến cơ sở dữ liệu SQL Server!\n\nChi tiết: {err}\n\n" +
-                        $"Vui lòng kiểm tra dịch vụ SQL Server và file cơ sở dữ liệu Database\\NHHCinema.sql.",
+                        $"Vui lòng kiểm tra dịch vụ SQL Server và file cơ sở dữ liệu Database\\Install_QuanLyRapChieuPhim.sql.",
                         "Lỗi kết nối CSDL",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error
@@ -128,8 +128,8 @@ namespace HeThongRapChieuPhim.Forms
                     && ex.Message.Contains("Invalid column name", StringComparison.OrdinalIgnoreCase))
                 {
                     const string migrationMessage =
-                        "Database NHHCinemaDB chưa được cập nhật cho phiên bản phần mềm này.\n\n" +
-                        "Mở SQL Server Management Studio, chọn database NHHCinemaDB và chạy lần lượt:\n" +
+                        "Database QuanLyRapChieuPhim chưa được cập nhật cho phiên bản phần mềm này.\n\n" +
+                        "Mở SQL Server Management Studio, chọn database QuanLyRapChieuPhim và chạy lần lượt:\n" +
                         "1. Database\\Migrations\\20261014_RolesAndPasswordStorage.sql\n" +
                         "2. Database\\Migrations\\20261014_SalesAndPayOsSafety.sql\n\n" +
                         "Hai script này nâng cấp cộng dồn và giữ dữ liệu hiện có. Không chạy ResetDemoDatabase.sql.";

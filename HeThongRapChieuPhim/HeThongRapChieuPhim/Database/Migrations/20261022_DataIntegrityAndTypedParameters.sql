@@ -3,7 +3,7 @@
   migrations. It never deletes, rewrites, or guesses at historical sales data.
   Any incompatible row is returned with its key and the migration is rolled back.
 */
-USE NHHCinemaDB;
+USE QuanLyRapChieuPhim;
 GO
 
 SET QUOTED_IDENTIFIER ON;

@@ -35,7 +35,7 @@ public static class LocalPaymentsSettings
             },
             ConnectionStrings = new
             {
-                CinemaDb = @"Server=.;Database=NHHCinemaDB;Integrated Security=True;TrustServerCertificate=True;Connect Timeout=5;"
+                CinemaDb = @"Server=.;Database=QuanLyRapChieuPhim;Integrated Security=True;TrustServerCertificate=True;Connect Timeout=5;"
             }
         };
 

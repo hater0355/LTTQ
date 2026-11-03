@@ -1,10 +1,11 @@
-using System.Data;
+﻿using System.Data;
 using HeThongRapChieuPhim.Data;
 
 namespace HeThongRapChieuPhim.Classes;
 
-public sealed record FoodOrder(string MaDoAn, int SoLuong, string MaKichCo = "M");
-public sealed record SaleDraft(string MaSuatChieu, IReadOnlyList<string> Ghe, IReadOnlyList<FoodOrder> DoAn, string? MaCombo, string? MaVoucher, string TenDangNhapNguoiBan);
+public sealed record FoodOrder(string MaDoAn, int SoLuong);
+public sealed record SaleDraft(string MaSuatChieu, IReadOnlyList<string> Ghe, IReadOnlyList<FoodOrder> DoAn, string? MaCombo, string? MaVoucher, string TenDangNhapNguoiBan,
+    IReadOnlyDictionary<string, decimal>? ExpectedSeatPrices = null);
 public sealed record SaleResult(
     string MaHD, long? PayOSOrderCode, DateTime NgayLap, string TenPhim, string TenPhong, string SuatChieu,
     string DanhSachGhe, int SoLuongVe, string TenCombo, string DanhSachDoAn,
@@ -19,7 +20,7 @@ public static class SalesService
     private static SaleResult CreateSale(SaleDraft draft, bool pendingPayOs)
     {
         var show = DataProcesser.Query(@"
-            SELECT sc.MaSuatChieu, sc.NgayChieu, sc.GioChieu, GETDATE() AS ServerNow, pc.TenPhong, pc.SoHangGhe, pc.SoGheMoiHang,
+            SELECT sc.MaSuatChieu, sc.MaPhong, sc.NgayChieu, sc.GioChieu, GETDATE() AS ServerNow, pc.TenPhong, pc.SoHangGhe, pc.SoGheMoiHang,
                    p.TenPhim, p.ThoiLuong, p.NgayBatDauChieu, p.NgayKetThucChieu, ISNULL(sc.GiaSuatChieu, p.GiaPhim) AS GiaVe
             FROM dbo.SuatChieu sc
             JOIN dbo.PhongChieu pc ON pc.MaPhong = sc.MaPhong
@@ -58,19 +59,17 @@ public static class SalesService
             if (seats.Length != comboSeats) throw new InvalidOperationException($"Combo yêu cầu chọn đúng {comboSeats} ghế.");
         }
 
-        var foodData = new List<(string Id, string SizeCode, string SizeName, string Name, int Qty, decimal Price)>();
+        var foodData = new List<(string Id, string Name, int Qty, decimal Price)>();
         foreach (var food in draft.DoAn)
         {
             if (food.SoLuong is < 1 or > 20) throw new InvalidOperationException("Số lượng mỗi món phải từ 1 đến 20.");
             var row = DataProcesser.Query(@"
-                SELECT da.TenDoAn, kc.TenKichCo, kc.DonGia
+                SELECT da.TenDoAn, da.Gia AS DonGia
                 FROM dbo.DoAn da
-                INNER JOIN dbo.DoAnKichCo kc ON kc.MaDoAn=da.MaDoAn
-                WHERE da.MaDoAn=@id AND kc.MaKichCo=@size",
-                DbArg.VarChar20("@id", food.MaDoAn), DbArg.VarChar10("@size", food.MaKichCo));
-            if (row.Rows.Count != 1) throw new InvalidOperationException($"Món {food.MaDoAn} hoặc cỡ {food.MaKichCo} không còn tồn tại.");
-            foodData.Add((food.MaDoAn, food.MaKichCo,
-                Convert.ToString(row.Rows[0]["TenKichCo"]) ?? food.MaKichCo,
+                WHERE da.MaDoAn=@id",
+                DbArg.VarChar20("@id", food.MaDoAn));
+            if (row.Rows.Count != 1) throw new InvalidOperationException($"Món {food.MaDoAn} không còn tồn tại.");
+            foodData.Add((food.MaDoAn,
                 NormalizeFoodName(Convert.ToString(row.Rows[0]["TenDoAn"]) ?? food.MaDoAn),
                 food.SoLuong, Convert.ToDecimal(row.Rows[0]["DonGia"])));
         }
@@ -91,15 +90,12 @@ public static class SalesService
             voucherValue = Convert.ToDecimal(voucher.Rows[0]["GiaTriGiam"]);
         }
 
-        var rowPriceRows = DataProcesser.Query(
-            "SELECT HangGhe, GiaVe FROM dbo.GiaVeHangGhe WHERE MaSuatChieu=@show",
-            DbArg.VarChar20("@show", draft.MaSuatChieu));
-        var rowPrices = rowPriceRows.Rows.Cast<DataRow>().ToDictionary(
-            r => Convert.ToString(r["HangGhe"]) ?? string.Empty,
-            r => Convert.ToDecimal(r["GiaVe"]), StringComparer.OrdinalIgnoreCase);
-        if (seats.Any(seat => !rowPrices.ContainsKey(seat[..1])))
-            throw new InvalidOperationException("Suất chiếu chưa có bảng giá theo hàng ghế. Hãy chạy migration giá vé theo hàng trong SSMS rồi thử lại.");
-        var seatPrices = seats.ToDictionary(seat => seat, seat => rowPrices[seat[..1]], StringComparer.OrdinalIgnoreCase);
+        decimal ticketPrice = Convert.ToDecimal(s["GiaVe"]);
+        var vip = RoomVipService.Get(Convert.ToString(s["MaPhong"]) ?? "");
+        var seatPrices = seats.ToDictionary(seat => seat, seat => vip.Price(ticketPrice, seat[..1]), StringComparer.OrdinalIgnoreCase);
+        if (draft.ExpectedSeatPrices != null && seats.Any(seat =>
+            !draft.ExpectedSeatPrices.TryGetValue(seat, out decimal expected) || expected != seatPrices[seat]))
+            throw new InvalidOperationException("Giá vé hoặc cấu hình VIP đã thay đổi. Hãy chọn lại suất chiếu để cập nhật giá trước khi thanh toán.");
         decimal tickets = seatPrices.Values.Sum();
         decimal foodTotal = foodData.Sum(f => f.Price * f.Qty);
         decimal comboDiscount = comboSeats > 0 ? tickets * comboPct / 100m : 0;
@@ -125,6 +121,19 @@ public static class SalesService
         string paymentState = pendingPayOs ? "Pending" : "Paid";
         var statements = new List<TransactionCommand>
         {
+            new(@"IF NOT EXISTS (
+                    SELECT 1 FROM dbo.SuatChieu sc WITH (UPDLOCK,HOLDLOCK)
+                    JOIN dbo.Phim p WITH (HOLDLOCK) ON p.MaPhim=sc.MaPhim
+                    JOIN dbo.PhongChieu pc WITH (HOLDLOCK) ON pc.MaPhong=sc.MaPhong
+                    LEFT JOIN dbo.PhongChieuVip v WITH (UPDLOCK,HOLDLOCK) ON v.MaPhong=pc.MaPhong
+                    WHERE sc.MaSuatChieu=@show AND sc.MaPhong=@room
+                      AND ISNULL(sc.GiaSuatChieu,p.GiaPhim)=@base
+                      AND ISNULL(v.HangVip,'')=@vip AND ISNULL(v.PhanTramTang,0)=@pct
+                      AND (sc.NgayChieu>CONVERT(date,GETDATE()) OR
+                          (sc.NgayChieu=CONVERT(date,GETDATE()) AND sc.GioChieu>CONVERT(time,GETDATE())))
+                ) THROW 51112,N'Suất chiếu hoặc giá VIP đã thay đổi. Hãy chọn lại suất chiếu.',1;",
+                [DbArg.VarChar20("@show",draft.MaSuatChieu), DbArg.VarChar20("@room",Convert.ToString(s["MaPhong"])),
+                 DbArg.Decimal18_0("@base",ticketPrice), DbArg.VarChar("@vip",vip.Rows,51), DbArg.Decimal("@pct",vip.Percent,7,2)]),
             new(@"IF NOT EXISTS (
                     SELECT 1
                     FROM dbo.SuatChieu sc
@@ -153,8 +162,8 @@ public static class SalesService
             statements.Add(new TransactionCommand("INSERT INTO dbo.GheDatCho (MaSuatChieu,MaGhe,MaHD,HetHan) VALUES (@show,@seat,@bill,@expiry)", [DbArg.VarChar20("@show", draft.MaSuatChieu), DbArg.VarChar10("@seat", seat), DbArg.VarChar20("@bill", maHD), DbArg.DateTime2("@expiry", pendingPayOs ? DateTime.UtcNow.AddMinutes(15) : DBNull.Value)]));
         }
         foreach (var food in foodData)
-            statements.Add(new TransactionCommand("INSERT INTO dbo.ChiTietHoaDon_DoAn (MaHD,MaDoAn,MaKichCo,SoLuong,DonGia,ThanhTien) VALUES (@bill,@food,@size,@qty,@price,@subtotal)",
-                [DbArg.VarChar20("@bill", maHD), DbArg.VarChar20("@food", food.Id), DbArg.VarChar10("@size", food.SizeCode), DbArg.Int("@qty", food.Qty), DbArg.Decimal18_0("@price", food.Price), DbArg.Decimal18_0("@subtotal", food.Price * food.Qty)]));
+            statements.Add(new TransactionCommand("INSERT INTO dbo.ChiTietHoaDon_DoAn (MaHD,MaDoAn,MaKichCo,SoLuong,DonGia,ThanhTien) VALUES (@bill,@food,NULL,@qty,@price,@subtotal)",
+                [DbArg.VarChar20("@bill", maHD), DbArg.VarChar20("@food", food.Id), DbArg.Int("@qty", food.Qty), DbArg.Decimal18_0("@price", food.Price), DbArg.Decimal18_0("@subtotal", food.Price * food.Qty)]));
         if (!string.IsNullOrWhiteSpace(draft.MaVoucher))
         {
             statements.Add(new TransactionCommand("INSERT INTO dbo.VoucherClaim(MaVoucher,MaHD,TrangThai,HetHan) VALUES(@voucher,@bill,@state,@expiry)",
@@ -165,7 +174,7 @@ public static class SalesService
         var saleResult = new SaleResult(maHD, orderCode, DateTime.Now, Convert.ToString(s["TenPhim"]) ?? string.Empty,
             Convert.ToString(s["TenPhong"]) ?? string.Empty, ((TimeSpan)s["GioChieu"]).ToString(@"hh\:mm"),
             string.Join(", ", seats), seats.Length, comboName,
-            string.Join(", ", foodData.Select(f => $"{f.Name} - {f.SizeName} (x{f.Qty})")), Math.Round(tickets, 0),
+            string.Join(", ", foodData.Select(f => $"{f.Name} (x{f.Qty})")), Math.Round(tickets, 0),
             Math.Round(totalDiscount, 0), Math.Round(foodTotal, 0), Math.Round(total, 0), pendingPayOs ? "Chuyển khoản PayOS" : "Tiền mặt");
 
         DataProcesser.ExecuteTransaction(statements, System.Data.IsolationLevel.Serializable);

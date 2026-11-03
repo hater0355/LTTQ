@@ -15,7 +15,6 @@ namespace HeThongRapChieuPhim.UserControls
         public ucPhim()
         {
             InitializeComponent();
-            ThemeHelper.StyleDataGridView(dgvPhim);
             dtpNgayBatDauChieu.Value = DateTime.Today;
             dtpNgayKetThucChieu.Value = DateTime.Today.AddMonths(1);
             if (!DesignTimeHelper.IsDesignTime(this))
@@ -326,7 +325,7 @@ namespace HeThongRapChieuPhim.UserControls
                     DbArg.Date("@NgayBatDauChieu", ngayBatDau),
                     DbArg.Date("@NgayKetThucChieu", ngayKetThuc)
                 };
-                Function.Execute(update, p);
+                MovieScheduleService.UpdateDetails(ma, thoiLuong, ngayBatDau, ngayKetThuc, update, p);
 
                 MessageBox.Show("Cập nhật thông tin phim thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearForm();

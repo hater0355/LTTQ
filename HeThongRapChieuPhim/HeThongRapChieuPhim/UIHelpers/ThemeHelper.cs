@@ -35,7 +35,7 @@ namespace HeThongRapChieuPhim.UIHelpers
 
         // Seat Colors
         public static readonly Color SeatAvailable = Color.White;
-        public static readonly Color SeatSelected = Color.FromArgb(135, 206, 250);     // Light sky blue
+        public static readonly Color SeatSelected = Color.FromArgb(22, 163, 74);       // Selected seats
         public static readonly Color SeatBooked = Color.FromArgb(255, 160, 160);       // Light red
 
         public static void StyleDataGridView(DataGridView dgv)

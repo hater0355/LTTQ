@@ -4,7 +4,33 @@ namespace HeThongRapChieuPhim.Data
     {
         public static string TenDangNhap { get; set; } = string.Empty;
         public static string MaNV { get; set; } = string.Empty;
-        public static string HoTen { get; set; } = string.Empty;
+        private static string _hoTen = string.Empty;
+        public static string HoTen
+        {
+            get => _hoTen;
+            set => _hoTen = RepairDisplayName(value ?? string.Empty);
+        }
+
+        private static string RepairDisplayName(string value)
+        {
+            // Recover UTF-8 names previously imported as Windows-1252.
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            var legacy = System.Text.Encoding.GetEncoding(1252,
+                System.Text.EncoderFallback.ExceptionFallback, System.Text.DecoderFallback.ExceptionFallback);
+            var utf8 = new System.Text.UTF8Encoding(false, true);
+            for (int i = 0; i < 2 && (value.Contains('Ã') || value.Contains('Â') || value.Contains('á')); i++)
+            {
+                try
+                {
+                    string decoded = utf8.GetString(legacy.GetBytes(value));
+                    if (decoded == value) break;
+                    value = decoded;
+                }
+                catch (System.Text.EncoderFallbackException) { break; }
+                catch (System.Text.DecoderFallbackException) { break; }
+            }
+            return value;
+        }
         public static string VaiTro { get; set; } = string.Empty;
         public static bool MustChangePassword { get; set; }
 

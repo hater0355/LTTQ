@@ -14,7 +14,6 @@ namespace HeThongRapChieuPhim.UserControls
         public ucHoaDon()
         {
             InitializeComponent();
-            ThemeHelper.StyleDataGridView(dgvHoaDon);
             if (!DesignTimeHelper.IsDesignTime(this)) LoadHoaDon();
         }
 

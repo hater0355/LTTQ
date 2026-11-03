@@ -12,8 +12,7 @@ namespace HeThongRapChieuPhim.Forms
     public partial class FormMain : Form
     {
         // UserControls
-        private ucDashboard? _ucDashboard;
-        private ucBanHang? _ucBanHang;
+        private ucChonPhim? _ucChonPhim;
         private ucHoaDon? _ucHoaDon;
         private ucTaiKhoanThuNgan? _ucTaiKhoanThuNgan;
 
@@ -32,169 +31,48 @@ namespace HeThongRapChieuPhim.Forms
         public FormMain()
         {
             InitializeComponent();
-            ApplyAppearance();
+            InitializeSidebarBehavior();
         }
 
-        private void ApplyAppearance()
+        private sealed record SidebarItemLayout(string Text, Size Size, Padding Padding,
+            ContentAlignment TextAlign, bool AutoSize);
+        private readonly Dictionary<ToolStripItem, SidebarItemLayout> _expandedItems = new();
+        private int _expandedSidebarWidth;
+        private Padding _expandedMenuPadding;
+        private string _expandedSystemText = "";
+
+        private void InitializeSidebarBehavior()
         {
-            var teal = Color.FromArgb(0, 154, 130);
-            var tealDark = Color.FromArgb(0, 112, 98);
-            menuStripMain.Dock = DockStyle.Left;
-            menuStripMain.LayoutStyle = ToolStripLayoutStyle.VerticalStackWithOverflow;
-            menuStripMain.AutoSize = false;
-            menuStripMain.Width = 232;
-            menuStripMain.CanOverflow = false;
-            menuStripMain.GripStyle = ToolStripGripStyle.Hidden;
-            menuStripMain.BackColor = teal;
-            menuStripMain.ForeColor = Color.White;
-            menuStripMain.Padding = new Padding(8);
-
-            _sidebarToggle.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            _sidebarToggle.Size = new Size(216, 42);
-            _sidebarToggle.Text = "☰    CinemaManager";
-            _sidebarToggle.ForeColor = Color.White;
-            _sidebarToggle.BackColor = Color.FromArgb(5, 48, 45);
-            _sidebarToggle.TextAlign = ContentAlignment.MiddleLeft;
-            _sidebarToggle.Padding = new Padding(10, 8, 8, 8);
-            _sidebarToggle.Click += (_, _) => SetSidebarCollapsed(!_sidebarCollapsed);
-
-            _menuHome.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            _menuHome.Size = new Size(216, 42);
-            _menuHome.Text = "⌂  Trang chủ";
-            _menuHome.ForeColor = Color.White;
-            _menuHome.BackColor = Color.FromArgb(0, 112, 98);
-            _menuHome.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            _menuHome.TextAlign = ContentAlignment.MiddleLeft;
-            _menuHome.Padding = new Padding(10, 8, 8, 8);
-            _menuHome.Click += (_, _) => ShowDashboard();
-
-            var iconMap = new Dictionary<ToolStripMenuItem, string>
-            {
-                [menuHeThong] = "⚙", [menuPhim] = "▣", [menuPhongChieu] = "▦", [menuSuatChieu] = "◷",
-                [menuBanHang] = "▤", [menuHoaDon] = "▧", [menuDoAn] = "♨", [menuCombo] = "✦",
-                [menuVoucher] = "%", [menuNhanVien] = "♙", [menuLichLamViec] = "▣",
-                [menuTaiKhoanThuNgan] = "♟", [menuDoanhThu] = "▥"
-            };
+            _expandedSidebarWidth = sidebarPanel.Width;
+            _expandedMenuPadding = menuStripMain.Padding;
+            _expandedSystemText = btnSystem.Text;
             foreach (ToolStripItem item in menuStripMain.Items)
-            {
-                item.ForeColor = Color.White;
-                item.BackColor = Color.FromArgb(5, 48, 45);
-                item.AutoSize = false;
-                item.Size = new Size(216, 42);
-                item.Overflow = ToolStripItemOverflow.Never;
-                item.TextAlign = ContentAlignment.MiddleLeft;
-                item.Padding = new Padding(10, 8, 8, 8);
-                if (item is ToolStripDropDownItem dropDown)
-                    StyleDropDownItems(dropDown);
-            }
-
-            foreach (var pair in iconMap)
-            {
-                string label = (pair.Key.Text ?? string.Empty).Trim();
-                if (label.StartsWith(pair.Value, StringComparison.Ordinal))
-                    label = label[pair.Value.Length..].Trim();
-                const string escapedAmpersand = "\u0001";
-                label = label.Replace("&&", escapedAmpersand).Replace("&", "").Replace(escapedAmpersand, "&");
-                pair.Key.Tag = (label, pair.Value);
-                pair.Key.Text = $"{pair.Value}   {EscapeMenuAmpersands(label)}";
-                pair.Key.Font = new Font("Segoe UI", 9.5F);
-            }
-
-            menuStripMain.Renderer = new ToolStripProfessionalRenderer(new AppMenuColorTable(teal, tealDark));
-            SetSidebarCollapsed(false);
-            statusStripMain.BackColor = Color.White;
-            statusStripMain.ForeColor = Color.FromArgb(83, 96, 107);
-            statusStripMain.SizingGrip = false;
-            pnlContent.BackColor = Color.FromArgb(243, 246, 249);
-            BackColor = Color.FromArgb(243, 246, 249);
+                _expandedItems[item] = new(item.Text ?? "", item.Size, item.Padding, item.TextAlign, item.AutoSize);
+            _menuHome.Click += (_, _) => ShowDashboard();
         }
 
         private void SetSidebarCollapsed(bool collapsed)
         {
             _sidebarCollapsed = collapsed;
-            int width = collapsed ? 48 : 232;
-            int itemWidth = collapsed ? width - 8 : width - 16;
-            menuStripMain.Width = width;
-            menuStripMain.Padding = collapsed ? new Padding(4) : new Padding(8);
-            _sidebarToggle.Size = new Size(itemWidth, 42);
-            _sidebarToggle.Text = collapsed ? "☰" : "☰    CinemaManager";
+            sidebarPanel.Width = collapsed ? 48 : _expandedSidebarWidth;
+            menuStripMain.Padding = collapsed ? new Padding(4) : _expandedMenuPadding;
+            btnSystem.Text = collapsed ? "⚙" : _expandedSystemText;
             _sidebarToggle.ToolTipText = collapsed ? "Mở rộng thanh điều hướng" : "Thu gọn thanh điều hướng";
-            _sidebarToggle.TextAlign = collapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft;
-            _sidebarToggle.Padding = collapsed ? new Padding(0) : new Padding(10, 8, 8, 8);
-            _menuHome.Size = new Size(itemWidth, 42);
-            _menuHome.Text = collapsed ? "⌂" : "⌂  Trang chủ";
-            _menuHome.TextAlign = collapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft;
-
-            foreach (ToolStripItem item in menuStripMain.Items)
+            foreach (var pair in _expandedItems)
             {
-                item.Size = new Size(itemWidth, 42);
-                item.Padding = collapsed ? new Padding(0) : new Padding(10, 8, 8, 8);
-                if (item == _sidebarToggle)
-                {
-                    item.Visible = true;
-                    continue;
-                }
-                if (item == _menuHome)
-                {
-                    item.Visible = !collapsed;
-                    continue;
-                }
-                if (item is not ToolStripMenuItem menuItem || item.Tag is not ValueTuple<string, string> value)
-                    continue;
-
-                if (collapsed)
-                    menuItem.Visible = false;
-                else if (_sidebarRoleVisibility.TryGetValue(menuItem, out bool roleAllowsItem))
-                    menuItem.Visible = roleAllowsItem;
-                else
-                    menuItem.Visible = true;
-
-                menuItem.Text = collapsed ? value.Item2 : $"{value.Item2}   {EscapeMenuAmpersands(value.Item1)}";
-                menuItem.ToolTipText = collapsed ? value.Item1 : string.Empty;
-                menuItem.TextAlign = collapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft;
+                ToolStripItem item = pair.Key;
+                SidebarItemLayout layout = pair.Value;
+                item.AutoSize = collapsed ? false : layout.AutoSize;
+                item.Size = collapsed ? new Size(40, layout.Size.Height) : layout.Size;
+                item.Padding = collapsed ? Padding.Empty : layout.Padding;
+                item.TextAlign = collapsed ? ContentAlignment.MiddleCenter : layout.TextAlign;
+                item.Text = collapsed && item == _sidebarToggle ? "☰" : layout.Text;
+                if (item == _sidebarToggle) item.Visible = true;
+                else if (item == _menuHome) item.Visible = !collapsed;
+                else if (item is ToolStripMenuItem menuItem)
+                    item.Visible = !collapsed && (!_sidebarRoleVisibility.TryGetValue(menuItem, out bool allowed) || allowed);
             }
         }
-
-        private static string EscapeMenuAmpersands(string label) => label.Replace("&", "&&");
-
-        private static void StyleDropDownItems(ToolStripDropDownItem parent)
-        {
-            foreach (ToolStripItem item in parent.DropDownItems)
-            {
-                item.ForeColor = Color.FromArgb(45, 57, 67);
-                item.BackColor = Color.White;
-                if (item is ToolStripDropDownItem child)
-                    StyleDropDownItems(child);
-            }
-        }
-
-        private sealed class AppMenuColorTable : ProfessionalColorTable
-        {
-            private readonly Color _baseColor;
-            private readonly Color _selectedColor;
-
-            public AppMenuColorTable(Color baseColor, Color selectedColor)
-            {
-                _baseColor = baseColor;
-                _selectedColor = selectedColor;
-                UseSystemColors = false;
-            }
-
-            public override Color MenuStripGradientBegin => _baseColor;
-            public override Color MenuStripGradientEnd => _baseColor;
-            public override Color ToolStripDropDownBackground => Color.White;
-            public override Color MenuItemSelected => Color.FromArgb(224, 244, 239);
-            public override Color MenuItemSelectedGradientBegin => Color.FromArgb(224, 244, 239);
-            public override Color MenuItemSelectedGradientEnd => Color.FromArgb(224, 244, 239);
-            public override Color MenuItemPressedGradientBegin => _selectedColor;
-            public override Color MenuItemPressedGradientEnd => _selectedColor;
-            public override Color ImageMarginGradientBegin => Color.White;
-            public override Color ImageMarginGradientMiddle => Color.White;
-            public override Color ImageMarginGradientEnd => Color.White;
-            public override Color SeparatorDark => Color.FromArgb(230, 235, 239);
-            public override Color SeparatorLight => Color.White;
-        }
-
         private void FormMain_Load(object? sender, EventArgs e)
         {
             if (DesignTimeHelper.IsDesignTime(this)) return;
@@ -273,20 +151,28 @@ namespace HeThongRapChieuPhim.Forms
         {
             lblStatusView.Text = $"Chức năng: {title}";
             pnlContent.SuspendLayout();
-            pnlContent.Controls.Clear();
+            dashboardLayout.Visible = false;
+            foreach (Control view in pnlContent.Controls.Cast<Control>().ToArray())
+                if (view != dashboardLayout) pnlContent.Controls.Remove(view);
             uc.Dock = DockStyle.Fill;
             uc.AutoScroll = true;
             uc.AutoScrollMinSize = new Size(1100, 720);
             pnlContent.Controls.Add(uc);
+            uc.BringToFront();
             pnlContent.ResumeLayout();
         }
 
         public void ShowDashboard()
         {
             if (!RequireRole(CurrentUser.IsRevenueAdmin || CurrentUser.IsSuperAdmin, "Admin Doanh thu hoặc Admin tổng")) return;
-            _ucDashboard ??= new ucDashboard();
-            SwitchView(_ucDashboard, "Báo cáo doanh thu tổng quan");
-            _ucDashboard.LoadDashboardData();
+            lblStatusView.Text = "Chức năng: Báo cáo doanh thu tổng quan";
+            pnlContent.SuspendLayout();
+            foreach (Control view in pnlContent.Controls.Cast<Control>().ToArray())
+                if (view != dashboardLayout) pnlContent.Controls.Remove(view);
+            dashboardLayout.Visible = true;
+            dashboardLayout.BringToFront();
+            pnlContent.ResumeLayout();
+            LoadDashboardData();
         }
 
         public void ShowPhim()
@@ -349,11 +235,29 @@ namespace HeThongRapChieuPhim.Forms
         public void ShowBanHang()
         {
             if (!CurrentUser.IsCashier && !CurrentUser.IsSuperAdmin) return;
-            _ucBanHang ??= new ucBanHang();
-            SwitchView(_ucBanHang, "Bán vé xem phim & Bắp nước");
-            _ucBanHang.LoadData();
+            if (_ucChonPhim is null)
+            {
+                _ucChonPhim = new ucChonPhim();
+                _ucChonPhim.MovieSelected += ShowBookingForMovie;
+            }
+            SwitchView(_ucChonPhim, "Chọn phim mua vé");
+            _ucChonPhim.LoadMovies();
         }
 
+        private void ShowBookingForMovie(string movieId)
+        {
+            if (!CurrentUser.IsCashier && !CurrentUser.IsSuperAdmin) return;
+            using var window = new FormBooking();
+            var booking = window.Booking;
+            if (!booking.SelectMovie(movieId))
+            {
+                MessageBox.Show("Phim này không còn suất chiếu khả dụng. Vui lòng chọn phim khác.", "Chọn phim",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            window.ShowDialog(this);
+            _ucChonPhim?.LoadMovies();
+        }
         public void ShowHoaDon()
         {
             if (!CurrentUser.IsCashier && !CurrentUser.IsRevenueAdmin && !CurrentUser.IsSuperAdmin) return;
@@ -366,7 +270,7 @@ namespace HeThongRapChieuPhim.Forms
         {
             if (!RequireRole(CurrentUser.IsHumanResourcesAdmin || CurrentUser.IsSuperAdmin, "Admin Nhân sự hoặc Admin tổng")) return;
             _ucTaiKhoanThuNgan ??= new ucTaiKhoanThuNgan();
-            SwitchView(_ucTaiKhoanThuNgan, "Quản lý tài khoản thu ngân");
+            SwitchView(_ucTaiKhoanThuNgan, "Quản lý tài khoản");
         }
 
         public void ShowDanhMuc(int tabIndex = 0)
@@ -435,5 +339,13 @@ namespace HeThongRapChieuPhim.Forms
         private void MenuLichLamViec_Click(object? sender, EventArgs e) => ShowLichLamViec();
         private void MenuTaiKhoanThuNgan_Click(object? sender, EventArgs e) => ShowTaiKhoanThuNgan();
         private void MenuDoanhThu_Click(object? sender, EventArgs e) => ShowDashboard();
+
+        private void SystemButton_Click(object? sender, EventArgs e)
+        {
+            systemMenu.Show(btnSystem, new Point(0, 0), ToolStripDropDownDirection.AboveRight);
+        }
+
+        private void _sidebarToggle_Click(object sender, EventArgs e) => SetSidebarCollapsed(!_sidebarCollapsed);
     }
 }
+

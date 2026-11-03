@@ -581,6 +581,45 @@ namespace HeThongRapChieuPhim.UserControls
             ((System.ComponentModel.ISupportInitialize)(this.numThoiLuong)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numGiaPhim)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPoster)).EndInit();
+
+
+            dgvPhim.BackgroundColor = Color.White;
+            dgvPhim.GridColor = Color.FromArgb(235, 239, 242);
+            dgvPhim.BorderStyle = BorderStyle.None;
+            dgvPhim.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvPhim.EnableHeadersVisualStyles = false;
+            dgvPhim.RowHeadersVisible = false;
+            dgvPhim.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvPhim.MultiSelect = false;
+            dgvPhim.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvPhim.AllowUserToAddRows = false;
+            dgvPhim.AllowUserToDeleteRows = false;
+            dgvPhim.ReadOnly = true;
+            dgvPhim.RowTemplate.Height = 28;
+
+            // Header Style
+            dgvPhim.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvPhim.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(247, 249, 250);
+            dgvPhim.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(107, 120, 131);
+            dgvPhim.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            dgvPhim.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dgvPhim.ColumnHeadersDefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+            dgvPhim.ColumnHeadersHeight = 36;
+
+            // Rows Style
+            dgvPhim.DefaultCellStyle.BackColor = Color.White;
+            dgvPhim.DefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvPhim.DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Regular);
+            dgvPhim.DefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvPhim.DefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+            dgvPhim.DefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+
+            // Alternating Row Style
+            dgvPhim.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 251, 252);
+            dgvPhim.AlternatingRowsDefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvPhim.AlternatingRowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvPhim.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+
             this.ResumeLayout(false);
 
         }

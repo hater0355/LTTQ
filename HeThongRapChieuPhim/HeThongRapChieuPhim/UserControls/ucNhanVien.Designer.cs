@@ -373,6 +373,45 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlActions.PerformLayout();
             this.pnlForm.ResumeLayout(false);
             this.pnlForm.PerformLayout();
+
+
+            dgvNhanVien.BackgroundColor = Color.White;
+            dgvNhanVien.GridColor = Color.FromArgb(235, 239, 242);
+            dgvNhanVien.BorderStyle = BorderStyle.None;
+            dgvNhanVien.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvNhanVien.EnableHeadersVisualStyles = false;
+            dgvNhanVien.RowHeadersVisible = false;
+            dgvNhanVien.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvNhanVien.MultiSelect = false;
+            dgvNhanVien.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvNhanVien.AllowUserToAddRows = false;
+            dgvNhanVien.AllowUserToDeleteRows = false;
+            dgvNhanVien.ReadOnly = true;
+            dgvNhanVien.RowTemplate.Height = 28;
+
+            // Header Style
+            dgvNhanVien.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvNhanVien.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(247, 249, 250);
+            dgvNhanVien.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(107, 120, 131);
+            dgvNhanVien.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            dgvNhanVien.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dgvNhanVien.ColumnHeadersDefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+            dgvNhanVien.ColumnHeadersHeight = 36;
+
+            // Rows Style
+            dgvNhanVien.DefaultCellStyle.BackColor = Color.White;
+            dgvNhanVien.DefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvNhanVien.DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Regular);
+            dgvNhanVien.DefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvNhanVien.DefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+            dgvNhanVien.DefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+
+            // Alternating Row Style
+            dgvNhanVien.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 251, 252);
+            dgvNhanVien.AlternatingRowsDefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvNhanVien.AlternatingRowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvNhanVien.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+
             this.ResumeLayout(false);
 
         }

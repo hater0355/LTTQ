@@ -329,6 +329,45 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlActions.PerformLayout();
             this.pnlFilter.ResumeLayout(false);
             this.pnlFilter.PerformLayout();
+
+
+            dgvHoaDon.BackgroundColor = Color.White;
+            dgvHoaDon.GridColor = Color.FromArgb(235, 239, 242);
+            dgvHoaDon.BorderStyle = BorderStyle.None;
+            dgvHoaDon.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvHoaDon.EnableHeadersVisualStyles = false;
+            dgvHoaDon.RowHeadersVisible = false;
+            dgvHoaDon.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvHoaDon.MultiSelect = false;
+            dgvHoaDon.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvHoaDon.AllowUserToAddRows = false;
+            dgvHoaDon.AllowUserToDeleteRows = false;
+            dgvHoaDon.ReadOnly = true;
+            dgvHoaDon.RowTemplate.Height = 28;
+
+            // Header Style
+            dgvHoaDon.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvHoaDon.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(247, 249, 250);
+            dgvHoaDon.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(107, 120, 131);
+            dgvHoaDon.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            dgvHoaDon.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dgvHoaDon.ColumnHeadersDefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+            dgvHoaDon.ColumnHeadersHeight = 36;
+
+            // Rows Style
+            dgvHoaDon.DefaultCellStyle.BackColor = Color.White;
+            dgvHoaDon.DefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvHoaDon.DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Regular);
+            dgvHoaDon.DefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvHoaDon.DefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+            dgvHoaDon.DefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+
+            // Alternating Row Style
+            dgvHoaDon.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 251, 252);
+            dgvHoaDon.AlternatingRowsDefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvHoaDon.AlternatingRowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvHoaDon.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+
             this.ResumeLayout(false);
 
         }

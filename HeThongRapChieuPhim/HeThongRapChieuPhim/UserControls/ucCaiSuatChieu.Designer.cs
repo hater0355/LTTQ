@@ -15,6 +15,14 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void InitializeComponent()
         {
+            _cboFilterPhong = new ComboBox();
+            _chkFilterGio = new CheckBox();
+            _dtpFilterGioTu = new DateTimePicker();
+            _dtpFilterGioDen = new DateTimePicker();
+            lblPhongFilter = new Label();
+            lblNgayFilter = new Label();
+            lblGioDen = new Label();
+
             pnlContainer = new Panel();
             pnlGrid = new Panel();
             dgvSuatChieu = new DataGridView();
@@ -475,7 +483,7 @@ namespace HeThongRapChieuPhim.UserControls
             lblKetThucVal.AutoSize = true;
             lblKetThucVal.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
             lblKetThucVal.ForeColor = Color.FromArgb(217, 119, 6);
-            lblKetThucVal.Location = new Point(315, 114);
+            lblKetThucVal.Location = new Point(340, 114);
             lblKetThucVal.Name = "lblKetThucVal";
             lblKetThucVal.Size = new Size(57, 25);
             lblKetThucVal.TabIndex = 19;
@@ -486,7 +494,7 @@ namespace HeThongRapChieuPhim.UserControls
             lblDonPhongTitle.AutoSize = true;
             lblDonPhongTitle.Font = new Font("Segoe UI", 9.5F);
             lblDonPhongTitle.ForeColor = Color.FromArgb(20, 50, 35);
-            lblDonPhongTitle.Location = new Point(380, 116);
+            lblDonPhongTitle.Location = new Point(410, 116);
             lblDonPhongTitle.Name = "lblDonPhongTitle";
             lblDonPhongTitle.Size = new Size(172, 21);
             lblDonPhongTitle.TabIndex = 20;
@@ -497,7 +505,7 @@ namespace HeThongRapChieuPhim.UserControls
             lblDonPhongVal.AutoSize = true;
             lblDonPhongVal.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
             lblDonPhongVal.ForeColor = Color.FromArgb(16, 163, 74);
-            lblDonPhongVal.Location = new Point(530, 114);
+            lblDonPhongVal.Location = new Point(595, 114);
             lblDonPhongVal.Name = "lblDonPhongVal";
             lblDonPhongVal.Size = new Size(57, 25);
             lblDonPhongVal.TabIndex = 21;
@@ -508,7 +516,7 @@ namespace HeThongRapChieuPhim.UserControls
             lblRule.AutoSize = true;
             lblRule.Font = new Font("Segoe UI", 9F, FontStyle.Italic);
             lblRule.ForeColor = Color.FromArgb(90, 115, 100);
-            lblRule.Location = new Point(620, 116);
+            lblRule.Location = new Point(680, 116);
             lblRule.Name = "lblRule";
             lblRule.Size = new Size(604, 20);
             lblRule.TabIndex = 22;
@@ -565,6 +573,88 @@ namespace HeThongRapChieuPhim.UserControls
             pnlForm.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numGiaSuatChieu).EndInit();
             pnlStatusBox.ResumeLayout(false);
+            pnlActions.Height = 96;
+            lblFPhim.Location = new Point(450, 16);
+            cboFilterPhim.Location = new Point(520, 12);
+            cboFilterPhim.Size = new Size(160, 29);
+            dtpFilterNgay.Location = new Point(520, 55);
+            dtpFilterNgay.Size = new Size(115, 29);
+            btnFilter.Location = new Point(1020, 54);
+            btnFilter.Size = new Size(80, 30);
+            lblPhongFilter.Text = "Lọc phòng:";
+            lblPhongFilter.Location = new Point(690, 16);
+            lblPhongFilter.AutoSize = true;
+            pnlActions.Controls.Add(lblPhongFilter);
+            lblNgayFilter.Text = "Ngày:";
+            lblNgayFilter.Location = new Point(450, 59);
+            lblNgayFilter.AutoSize = true;
+            pnlActions.Controls.Add(lblNgayFilter);
+            lblGioDen.Text = "đến";
+            lblGioDen.Location = new Point(824, 59);
+            lblGioDen.AutoSize = true;
+            pnlActions.Controls.Add(lblGioDen);
+            _cboFilterPhong.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboFilterPhong.Location = new Point(765, 12);
+            _cboFilterPhong.Size = new Size(180, 29);
+            _chkFilterGio.Text = "Lọc giờ:";
+            _chkFilterGio.Location = new Point(650, 59);
+            _chkFilterGio.AutoSize = true;
+            _chkFilterGio.CheckedChanged += FilterTimeChanged;
+            _dtpFilterGioTu.Format = DateTimePickerFormat.Custom;
+            _dtpFilterGioTu.CustomFormat = "HH:mm";
+            _dtpFilterGioTu.ShowUpDown = true;
+            _dtpFilterGioTu.Location = new Point(730, 55);
+            _dtpFilterGioTu.Size = new Size(82, 29);
+            _dtpFilterGioTu.Enabled = false;
+            _dtpFilterGioDen.Format = DateTimePickerFormat.Custom;
+            _dtpFilterGioDen.CustomFormat = "HH:mm";
+            _dtpFilterGioDen.ShowUpDown = true;
+            _dtpFilterGioDen.Location = new Point(860, 55);
+            _dtpFilterGioDen.Size = new Size(82, 29);
+            _dtpFilterGioDen.Enabled = false;
+            pnlActions.Controls.Add(_cboFilterPhong);
+            pnlActions.Controls.Add(_chkFilterGio);
+            pnlActions.Controls.Add(_dtpFilterGioTu);
+            pnlActions.Controls.Add(_dtpFilterGioDen);
+
+
+            dgvSuatChieu.BackgroundColor = Color.White;
+            dgvSuatChieu.GridColor = Color.FromArgb(235, 239, 242);
+            dgvSuatChieu.BorderStyle = BorderStyle.None;
+            dgvSuatChieu.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvSuatChieu.EnableHeadersVisualStyles = false;
+            dgvSuatChieu.RowHeadersVisible = false;
+            dgvSuatChieu.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvSuatChieu.MultiSelect = false;
+            dgvSuatChieu.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvSuatChieu.AllowUserToAddRows = false;
+            dgvSuatChieu.AllowUserToDeleteRows = false;
+            dgvSuatChieu.ReadOnly = true;
+            dgvSuatChieu.RowTemplate.Height = 28;
+
+            // Header Style
+            dgvSuatChieu.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvSuatChieu.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(247, 249, 250);
+            dgvSuatChieu.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(107, 120, 131);
+            dgvSuatChieu.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            dgvSuatChieu.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dgvSuatChieu.ColumnHeadersDefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+            dgvSuatChieu.ColumnHeadersHeight = 36;
+
+            // Rows Style
+            dgvSuatChieu.DefaultCellStyle.BackColor = Color.White;
+            dgvSuatChieu.DefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvSuatChieu.DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Regular);
+            dgvSuatChieu.DefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvSuatChieu.DefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+            dgvSuatChieu.DefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+
+            // Alternating Row Style
+            dgvSuatChieu.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 251, 252);
+            dgvSuatChieu.AlternatingRowsDefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvSuatChieu.AlternatingRowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvSuatChieu.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+
             ResumeLayout(false);
 
         }
@@ -608,5 +698,12 @@ namespace HeThongRapChieuPhim.UserControls
         private System.Windows.Forms.Button btnFilter;
         private System.Windows.Forms.Panel pnlGrid;
         private System.Windows.Forms.DataGridView dgvSuatChieu;
+        private ComboBox _cboFilterPhong;
+        private CheckBox _chkFilterGio;
+        private DateTimePicker _dtpFilterGioTu;
+        private DateTimePicker _dtpFilterGioDen;
+        private Label lblPhongFilter;
+        private Label lblNgayFilter;
+        private Label lblGioDen;
     }
 }

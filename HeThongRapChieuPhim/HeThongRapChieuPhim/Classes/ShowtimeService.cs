@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using Microsoft.Data.SqlClient;
 
 namespace HeThongRapChieuPhim.Classes;
@@ -6,6 +6,17 @@ namespace HeThongRapChieuPhim.Classes;
 /// <summary>Validates and writes schedules atomically so concurrent admins cannot overlap a room's timetable.</summary>
 public static class ShowtimeService
 {
+    public const int CleaningMinutes = 60;
+    public static readonly TimeSpan OpeningTime = TimeSpan.FromHours(10);
+    public static readonly TimeSpan ClosingTime = TimeSpan.FromHours(24);
+
+    public static bool IsWithinOperatingHours(TimeSpan start, int duration) =>
+        duration > 0 && start >= OpeningTime && start < ClosingTime
+        && start.Add(TimeSpan.FromMinutes(duration + CleaningMinutes)) <= ClosingTime;
+
+    public static bool Overlaps(TimeSpan start, TimeSpan cleanEnd, TimeSpan otherStart, TimeSpan otherCleanEnd) =>
+        start < otherCleanEnd && otherStart < cleanEnd;
+
     public static void Save(string showId, string movieId, string roomId, DateTime day, TimeSpan start, decimal price, bool update)
     {
         if (string.IsNullOrWhiteSpace(showId) || string.IsNullOrWhiteSpace(movieId) || string.IsNullOrWhiteSpace(roomId))
@@ -34,11 +45,20 @@ public static class ShowtimeService
                 throw new InvalidOperationException($"Chưa đến ngày phát hành của phim ({releaseStart:dd/MM/yyyy}).");
             if (releaseEnd.HasValue && day.Date > releaseEnd.Value)
                 throw new InvalidOperationException($"Phim đã hết hạn phát hành từ ngày {releaseEnd:dd/MM/yyyy}. Hãy gia hạn phim trước khi xếp lịch.");
-            DateTime endAt = startAt.AddMinutes(duration + 60);
-            if (start < TimeSpan.FromHours(10) || endAt.Date != startAt.Date)
+            if (price < 0) throw new InvalidOperationException("Giá vé không được âm.");
+            if (!IsWithinOperatingHours(start, duration))
                 throw new InvalidOperationException("Suất chiếu phải bắt đầu từ 10:00 và kết thúc/dọn phòng trước 00:00.");
             if (update)
             {
+                using var oldShow = new SqlCommand(@"
+                    SELECT CASE WHEN DATEADD(SECOND, DATEDIFF(SECOND,CONVERT(time,'00:00'),GioChieu),CAST(NgayChieu AS datetime2))
+                        > SYSDATETIME() THEN 1 ELSE 0 END
+                    FROM dbo.SuatChieu WITH (UPDLOCK,HOLDLOCK) WHERE MaSuatChieu=@id", connection, transaction);
+                oldShow.Parameters.Add(DbArg.VarChar20("@id", showId).CreateSqlParameter());
+                object? originalStart = oldShow.ExecuteScalar();
+                if (originalStart == null) throw new InvalidOperationException("Không tìm thấy suất chiếu cần sửa.");
+                if (Convert.ToInt32(originalStart) != 1)
+                    throw new InvalidOperationException("Không thể sửa suất chiếu đã bắt đầu.");
                 using var salesCmd = new SqlCommand("SELECT COUNT(*) FROM dbo.HoaDon WITH (UPDLOCK,HOLDLOCK) WHERE MaSuatChieu=@id AND TrangThaiThanhToan IN ('Paid','Pending')", connection, transaction);
                 salesCmd.Parameters.Add(DbArg.VarChar20("@id", showId).CreateSqlParameter());
                 if (Convert.ToInt32(salesCmd.ExecuteScalar()) > 0)
@@ -51,8 +71,8 @@ public static class ShowtimeService
                 JOIN dbo.Phim p ON p.MaPhim=sc.MaPhim
                 WHERE sc.MaPhong=@room AND sc.NgayChieu=@day
                   AND (@update=0 OR sc.MaSuatChieu<>@id)
-                  AND DATEADD(MINUTE, DATEDIFF(MINUTE, 0, sc.GioChieu) + p.ThoiLuong + 60, CAST(sc.NgayChieu AS datetime)) > @start
-                  AND DATEADD(MINUTE, DATEDIFF(MINUTE, 0, @startTime) + @duration + 60, CAST(@day AS datetime)) >
+                  AND DATEADD(MINUTE, DATEDIFF(MINUTE, 0, sc.GioChieu) + p.ThoiLuong + @clean, CAST(sc.NgayChieu AS datetime)) > @start
+                  AND DATEADD(MINUTE, DATEDIFF(MINUTE, 0, @startTime) + @duration + @clean, CAST(@day AS datetime)) >
                       DATEADD(MINUTE, DATEDIFF(MINUTE, 0, sc.GioChieu), CAST(sc.NgayChieu AS datetime))
                 ORDER BY sc.GioChieu";
             using var conflictCmd = new SqlCommand(conflictSql, connection, transaction);
@@ -63,6 +83,7 @@ public static class ShowtimeService
             conflictCmd.Parameters.Add(DbArg.DateTime("@start", startAt).CreateSqlParameter());
             conflictCmd.Parameters.Add(DbArg.Time("@startTime", start).CreateSqlParameter());
             conflictCmd.Parameters.Add(DbArg.Int("@duration", duration).CreateSqlParameter());
+            conflictCmd.Parameters.Add(DbArg.Int("@clean", CleaningMinutes).CreateSqlParameter());
             using (var reader = conflictCmd.ExecuteReader())
             {
                 if (reader.Read()) throw new InvalidOperationException($"Xung đột lịch với suất {reader.GetString(0)} ({reader.GetString(1)}). Cần chừa 60 phút dọn phòng.");
@@ -80,40 +101,25 @@ public static class ShowtimeService
             saveCmd.Parameters.Add(DbArg.Decimal18_0("@price", price).CreateSqlParameter());
             if (saveCmd.ExecuteNonQuery() != 1) throw new InvalidOperationException("Không tìm thấy suất chiếu cần cập nhật.");
 
-            using var pricingCmd = new SqlCommand(@"
-                SELECT pc.SoHangGhe, ISNULL(sc.GiaSuatChieu, p.GiaPhim)
-                FROM dbo.SuatChieu sc
-                JOIN dbo.PhongChieu pc ON pc.MaPhong=sc.MaPhong
-                JOIN dbo.Phim p ON p.MaPhim=sc.MaPhim
-                WHERE sc.MaSuatChieu=@id", connection, transaction);
-            pricingCmd.Parameters.Add(DbArg.VarChar20("@id", showId).CreateSqlParameter());
-            int rowCount;
-            decimal baseFare;
-            using (var pricingReader = pricingCmd.ExecuteReader())
-            {
-                if (!pricingReader.Read()) throw new InvalidOperationException("Không đọc được thông tin giá suất chiếu.");
-                rowCount = pricingReader.GetInt32(0);
-                baseFare = pricingReader.GetDecimal(1);
-            }
+            return true;
+        }, IsolationLevel.Serializable);
+    }
 
-            using (var deletePrices = new SqlCommand("DELETE FROM dbo.GiaVeHangGhe WHERE MaSuatChieu=@id", connection, transaction))
-            {
-                deletePrices.Parameters.Add(DbArg.VarChar20("@id", showId).CreateSqlParameter());
-                deletePrices.ExecuteNonQuery();
-            }
-
-            for (int row = 0; row < rowCount; row++)
-            {
-                decimal factor = rowCount == 1 ? 1m : 0.8m + 0.4m * row / (rowCount - 1m);
-                decimal rowFare = Math.Round(baseFare * factor, 0, MidpointRounding.AwayFromZero);
-                using var insertPrice = new SqlCommand(
-                    "INSERT INTO dbo.GiaVeHangGhe (MaSuatChieu, HangGhe, GiaVe) VALUES (@show,@row,@fare)",
-                    connection, transaction);
-                insertPrice.Parameters.Add(DbArg.VarChar20("@show", showId).CreateSqlParameter());
-                insertPrice.Parameters.Add(DbArg.VarChar10("@row", ((char)('A' + row)).ToString()).CreateSqlParameter());
-                insertPrice.Parameters.Add(DbArg.Decimal18_0("@fare", rowFare).CreateSqlParameter());
-                insertPrice.ExecuteNonQuery();
-            }
+    public static void Delete(string showId)
+    {
+        DataProcesser.ExecuteInTransaction((connection, transaction) =>
+        {
+            using var command = new SqlCommand(@"
+                DECLARE @start datetime2;
+                SELECT @start=DATEADD(SECOND,DATEDIFF(SECOND,CONVERT(time,'00:00'),GioChieu),CAST(NgayChieu AS datetime2))
+                FROM dbo.SuatChieu WITH (UPDLOCK,HOLDLOCK) WHERE MaSuatChieu=@id;
+                IF @start IS NULL THROW 51103,N'Không tìm thấy suất chiếu.',1;
+                IF @start<=SYSDATETIME() THROW 51104,N'Không thể xóa suất chiếu đã bắt đầu.',1;
+                IF EXISTS (SELECT 1 FROM dbo.HoaDon WITH (UPDLOCK,HOLDLOCK) WHERE MaSuatChieu=@id)
+                    THROW 51105,N'Suất chiếu đã có hóa đơn. Cần giữ lịch sử giao dịch, không thể xóa.',1;
+                DELETE FROM dbo.SuatChieu WHERE MaSuatChieu=@id;", connection, transaction);
+            command.Parameters.Add(DbArg.VarChar20("@id", showId).CreateSqlParameter());
+            command.ExecuteNonQuery();
             return true;
         }, IsolationLevel.Serializable);
     }

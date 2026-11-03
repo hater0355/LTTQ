@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 namespace HeThongRapChieuPhim.Classes;
 
@@ -33,21 +33,16 @@ public static class InvoiceService
             DbArg.VarChar20("@id", billId));
         if (header.Rows.Count == 0) return null;
         var foods = DataProcesser.Query(@"
-            SELECT da.TenDoAn, kc.TenKichCo, ct.MaKichCo, ct.SoLuong
+            SELECT da.TenDoAn, ct.SoLuong
             FROM dbo.ChiTietHoaDon_DoAn ct
             JOIN dbo.DoAn da ON ct.MaDoAn=da.MaDoAn
-            LEFT JOIN dbo.DoAnKichCo kc ON kc.MaDoAn=ct.MaDoAn AND kc.MaKichCo=ct.MaKichCo
+
             WHERE ct.MaHD=@id",
             DbArg.VarChar20("@id", billId));
         string foodDescription = string.Join(", ", foods.Rows.Cast<DataRow>().Select(r =>
         {
             string foodName = Convert.ToString(r["TenDoAn"]) ?? string.Empty;
-            string sizeName = r["TenKichCo"] is DBNull ? string.Empty : Convert.ToString(r["TenKichCo"]) ?? string.Empty;
-            const string mediumSuffix = " cỡ vừa";
-            if (!string.IsNullOrWhiteSpace(sizeName) && foodName.EndsWith(mediumSuffix, StringComparison.OrdinalIgnoreCase))
-                foodName = foodName[..^mediumSuffix.Length].TrimEnd();
-            string sizeSuffix = string.IsNullOrWhiteSpace(sizeName) ? string.Empty : $" - {sizeName}";
-            return $"{foodName}{sizeSuffix} (x{r["SoLuong"]})";
+            return $"{foodName} (x{r["SoLuong"]})";
         }));
         return new InvoicePrintData(header.Rows[0], foodDescription);
     }

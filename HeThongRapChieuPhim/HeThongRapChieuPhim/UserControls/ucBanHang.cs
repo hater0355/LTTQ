@@ -16,18 +16,18 @@ namespace HeThongRapChieuPhim.UserControls
     public partial class ucBanHang : UserControl
     {
         private sealed record SelectedFoodItem(
-            string MaDoAn, string MaKichCo, string TenDoAn, string TenKichCo, decimal DonGia, int SoLuong);
+            string MaDoAn, string TenDoAn, decimal DonGia, int SoLuong);
 
         // State tracking
         private string _currentMaPhim = "";
         private string _currentMaSuatChieu = "";
         private string _currentMaPhong = "";
         private decimal _currentGiaVe = 80000;
+        private RoomVipSettings _vipSettings = new("", 0);
         private int _roomRows = 6;
         private int _roomCols = 10;
         private readonly HashSet<string> _bookedSeats = new();
         private readonly HashSet<string> _selectedSeats = new();
-        private readonly Dictionary<string, decimal> _rowTicketPrices = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, SelectedFoodItem> _selectedFood = new(StringComparer.OrdinalIgnoreCase);
         private readonly List<FoodItemCard> _foodCards = new();
         private bool _loadingMovies;
@@ -42,6 +42,11 @@ namespace HeThongRapChieuPhim.UserControls
         public ucBanHang()
         {
             InitializeComponent();
+            // Selection comes from the movie catalog; keep only its data binding here.
+            cboPhim.BindingContext = new BindingContext();
+            InitializePageEvents();
+            InitializeShowtimeOptions();
+            InitializeBookingSteps();
             flpFoodItems.SizeChanged += (_, _) => ResizeFoodCards();
             cboPhim.DrawMode = DrawMode.OwnerDrawFixed;
             cboPhim.ItemHeight = cboPhim.Font.Height + 6;
@@ -53,6 +58,21 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 LoadData();
             }
+        }
+
+        private Label lblShowtimeEmpty => showtimePage.lblShowtimeEmpty;
+        private void InitializePageEvents()
+        {
+            cboPhim.SelectedIndexChanged += CboPhim_SelectedIndexChanged;
+            cboSuatChieu.SelectedIndexChanged += CboSuatChieu_SelectedIndexChanged;
+            cboCombo.SelectedIndexChanged += CboCombo_SelectedIndexChanged;
+            btnReset.Click += BtnReset_Click;
+            btnConfirm.Click += BtnConfirm_Click;
+            btnShowQR.Click += BtnShowQR_Click;
+            radTransfer.CheckedChanged += RadTransfer_CheckedChanged;
+            btnHuyVoucher.Click += BtnHuyVoucher_Click;
+            btnApDungVoucher.Click += BtnApDungVoucher_Click;
+            txtVoucherCode.KeyDown += TxtVoucherCode_KeyDown;
         }
 
         private void BtnShowQR_Click(object? sender, EventArgs e)
@@ -219,6 +239,21 @@ namespace HeThongRapChieuPhim.UserControls
             LoadFoods();
         }
 
+        public bool SelectMovie(string movieId)
+        {
+            for (int i = 0; i < cboPhim.Items.Count; i++)
+            {
+                if (cboPhim.Items[i] is DataRowView movie && HasSaleableShowtimes(movie) &&
+                    string.Equals(Convert.ToString(movie["MaPhim"]), movieId, StringComparison.OrdinalIgnoreCase))
+                {
+                    cboPhim.SelectedIndex = i;
+                    CboPhim_SelectedIndexChanged(cboPhim, EventArgs.Empty);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private void LoadMovies()
         {
             string previouslySelectedMovie = _currentMaPhim;
@@ -329,10 +364,10 @@ namespace HeThongRapChieuPhim.UserControls
             _currentMaSuatChieu = string.Empty;
             _currentMaPhong = string.Empty;
             _currentGiaVe = 0;
-            _rowTicketPrices.Clear();
             _bookedSeats.Clear();
             _selectedSeats.Clear();
             cboSuatChieu.DataSource = null;
+            RenderShowtimeOptions();
             lblMovieInfo.Text = "Không có phim với suất chiếu hôm nay hoặc sắp tới.";
             lblRoomInfo.Text = "Không có suất chiếu còn bán.";
             LoadPoster(string.Empty);
@@ -371,39 +406,21 @@ namespace HeThongRapChieuPhim.UserControls
                 flpFoodItems.Controls.Clear();
 
                 var dt = Function.Query(@"
-                    SELECT da.MaDoAn, da.TenDoAn, ISNULL(da.MoTa,N'') AS MoTa,
-                           ISNULL(da.HinhAnhPath,N'') AS HinhAnhPath,
-                           kc.MaKichCo, kc.TenKichCo, kc.DonGia
-                    FROM dbo.DoAn da
-                    INNER JOIN dbo.DoAnKichCo kc ON kc.MaDoAn=da.MaDoAn
-                    ORDER BY da.MaDoAn,
-                        CASE kc.MaKichCo WHEN 'S' THEN 1 WHEN 'M' THEN 2 WHEN 'L' THEN 3 ELSE 4 END,
-                        kc.TenKichCo");
-
-                var groupedFoods = dt.AsEnumerable()
-                    .GroupBy(row => Convert.ToString(row["MaDoAn"]) ?? string.Empty, StringComparer.OrdinalIgnoreCase);
-
-                foreach (var group in groupedFoods)
+                    SELECT MaDoAn, TenDoAn, ISNULL(MoTa,N'') AS MoTa,
+                           ISNULL(HinhAnhPath,N'') AS HinhAnhPath, Gia
+                    FROM dbo.DoAn ORDER BY MaDoAn");
+                foreach (DataRow row in dt.Rows)
                 {
-                    var first = group.First();
-                    string foodName = Convert.ToString(first["TenDoAn"]) ?? group.Key;
-                    const string mediumSuffix = " cỡ vừa";
-                    if (foodName.EndsWith(mediumSuffix, StringComparison.OrdinalIgnoreCase))
-                        foodName = foodName[..^mediumSuffix.Length].TrimEnd();
                     var item = new FoodMenuItem(
-                        group.Key,
-                        foodName,
-                        Convert.ToString(first["MoTa"]) ?? string.Empty,
-                        Convert.ToString(first["HinhAnhPath"]) ?? string.Empty,
-                        group.Select(row => new FoodSizeOption(
-                            Convert.ToString(row["MaKichCo"]) ?? string.Empty,
-                            Convert.ToString(row["TenKichCo"]) ?? string.Empty,
-                            Convert.ToDecimal(row["DonGia"]))).ToArray());
-
+                        Convert.ToString(row["MaDoAn"]) ?? "",
+                        Convert.ToString(row["TenDoAn"]) ?? "",
+                        Convert.ToString(row["MoTa"]) ?? "",
+                        Convert.ToString(row["HinhAnhPath"]) ?? "",
+                        Convert.ToDecimal(row["Gia"]));
                     var card = new FoodItemCard(item);
                     card.Width = Math.Max(270, flpFoodItems.ClientSize.Width - 42);
                     card.QuantityChanged += FoodCard_QuantityChanged;
-                    card.SelectedSizeChanged += (_, _) => UpdateFoodCardQuantity(card);
+
                     _foodCards.Add(card);
                     flpFoodItems.Controls.Add(card);
                     UpdateFoodCardQuantity(card);
@@ -412,15 +429,7 @@ namespace HeThongRapChieuPhim.UserControls
                 ResizeFoodCards();
 
                 if (_foodCards.Count == 0)
-                    flpFoodItems.Controls.Add(new Label
-                    {
-                        AutoSize = false,
-                        Size = new Size(280, 52),
-                        Text = "Chưa có món nào có cỡ bán. Hãy thêm cỡ/giá món trong CSDL.",
-                        Font = new Font("Segoe UI", 8.5f),
-                        ForeColor = ThemeHelper.TextMuted,
-                        TextAlign = ContentAlignment.MiddleCenter
-                    });
+                    flpFoodItems.Controls.Add(foodPage.lblFoodEmpty);
             }
             catch (Exception ex)
             {
@@ -430,16 +439,29 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void ResizeFoodCards()
         {
-            int cardWidth = Math.Max(270, flpFoodItems.ClientSize.Width - 42);
-            foreach (var card in _foodCards)
-                card.Width = cardWidth;
+            int scrollY = -flpFoodItems.AutoScrollPosition.Y;
+            int cardWidth = Math.Max(270, flpFoodItems.ClientSize.Width
+                - flpFoodItems.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth - 6);
+            flpFoodItems.SuspendLayout();
+            try
+            {
+                flpFoodItems.AutoScroll = false;
+                foreach (var card in _foodCards) card.Width = cardWidth;
+            }
+            finally
+            {
+                flpFoodItems.ResumeLayout(true);
+                flpFoodItems.AutoScroll = true;
+                flpFoodItems.PerformLayout();
+            }
+            flpFoodItems.AutoScrollPosition = new Point(0, scrollY);
         }
 
-        private static string FoodSelectionKey(string maDoAn, string maKichCo) => $"{maDoAn}|{maKichCo}";
+
 
         private void FoodCard_QuantityChanged(object? sender, FoodQuantityChangedEventArgs e)
         {
-            string key = FoodSelectionKey(e.Item.MaDoAn, e.Size.MaKichCo);
+            string key = e.Item.MaDoAn;
             _selectedFood.TryGetValue(key, out var existing);
             int quantity = (existing?.SoLuong ?? 0) + e.Delta;
 
@@ -450,7 +472,7 @@ namespace HeThongRapChieuPhim.UserControls
             else if (quantity <= 20)
             {
                 _selectedFood[key] = new SelectedFoodItem(
-                    e.Item.MaDoAn, e.Size.MaKichCo, e.Item.TenDoAn, e.Size.TenKichCo, e.Size.DonGia, quantity);
+                    e.Item.MaDoAn, e.Item.TenDoAn, e.Item.DonGia, quantity);
             }
 
             if (sender is FoodItemCard card) UpdateFoodCardQuantity(card);
@@ -459,10 +481,7 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void UpdateFoodCardQuantity(FoodItemCard card)
         {
-            var selectedSize = card.SelectedSize;
-            int quantity = selectedSize is null ? 0 :
-                _selectedFood.TryGetValue(FoodSelectionKey(card.Item.MaDoAn, selectedSize.MaKichCo), out var selected)
-                    ? selected.SoLuong : 0;
+            int quantity = _selectedFood.TryGetValue(card.Item.MaDoAn, out var selected) ? selected.SoLuong : 0;
             card.SetSelectedQuantity(quantity);
         }
 
@@ -532,6 +551,7 @@ namespace HeThongRapChieuPhim.UserControls
                     SELECT 
                         sc.MaSuatChieu,
                         sc.NgayChieu,
+                        CONVERT(VARCHAR(5), sc.GioChieu, 108) AS ShowTime,
                         (CONVERT(VARCHAR(5), sc.NgayChieu, 103) + ' ' + 
                          CONVERT(VARCHAR(5), sc.GioChieu, 108) + ' - ' + pc.TenPhong) AS ShowInfo,
                         sc.MaPhong,
@@ -551,9 +571,12 @@ namespace HeThongRapChieuPhim.UserControls
                     ORDER BY sc.NgayChieu ASC, sc.GioChieu ASC";
 
                 var dt = Function.Query(query, new[] { DbArg.VarChar20("@MaPhim", maPhim) });
+                _bindingShowtimes = true;
                 cboSuatChieu.DataSource = dt;
                 cboSuatChieu.DisplayMember = "ShowInfo";
                 cboSuatChieu.ValueMember = "MaSuatChieu";
+                _bindingShowtimes = false;
+                RenderShowtimeOptions();
 
                 if (dt.Rows.Count == 0)
                 {
@@ -568,46 +591,44 @@ namespace HeThongRapChieuPhim.UserControls
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi tải suất chiếu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _bindingShowtimes = false;
+                cboSuatChieu.DataSource = null;
+                RenderShowtimeOptions();
             }
         }
 
         private void CboSuatChieu_SelectedIndexChanged(object? sender, EventArgs e)
         {
+            if (_bindingShowtimes) return;
             if (cboSuatChieu.SelectedItem is DataRowView drv)
             {
                 _currentMaSuatChieu = drv["MaSuatChieu"].ToString() ?? "";
                 _currentMaPhong = drv["MaPhong"].ToString() ?? "";
+                UpdateShowtimeSelection();
                 string tenPhong = drv["TenPhong"].ToString() ?? "";
                 _roomRows = Convert.ToInt32(drv["SoHangGhe"]);
                 _roomCols = Convert.ToInt32(drv["SoGheMoiHang"]);
                 _currentGiaVe = Convert.ToDecimal(drv["GiaVe"]);
-                _rowTicketPrices.Clear();
-                try
-                {
-                    var fares = Function.Query("SELECT HangGhe, GiaVe FROM dbo.GiaVeHangGhe WHERE MaSuatChieu=@MaSC",
-                        new[] { DbArg.VarChar20("@MaSC", _currentMaSuatChieu) });
-                    foreach (DataRow fare in fares.Rows)
-                        _rowTicketPrices[Convert.ToString(fare["HangGhe"]) ?? ""] = Convert.ToDecimal(fare["GiaVe"]);
-                }
+                try { _vipSettings = RoomVipService.Get(_currentMaPhong); }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Không tải được giá vé theo hàng ghế. Hãy chạy migration giá vé trong SSMS.\n" + ex.Message,
-                        "Thiếu bảng giá ghế", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    ClearSelectedShowtime("Không tải được cấu hình VIP. Hãy chọn lại suất.");
+                    MessageBox.Show(ex.Message, "Lỗi tải giá vé", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
-
-                lblRoomInfo.Text = $"Phòng: {tenPhong} ({_roomRows * _roomCols} ghế) - Giá vé thay đổi theo hàng ghế";
+                lblRoomInfo.Text = $"Phòng: {tenPhong} ({_roomRows * _roomCols} ghế) - Giá vé: {_currentGiaVe:N0} đ";
 
                 _selectedSeats.Clear();
-                LoadBookedSeatsForShowtime(_currentMaSuatChieu);
+                if (!LoadBookedSeatsForShowtime(_currentMaSuatChieu)) return;
                 RenderSeatMap();
                 CalculateTotals();
             }
         }
 
-        private void LoadBookedSeatsForShowtime(string maSuatChieu)
+        private bool LoadBookedSeatsForShowtime(string maSuatChieu)
         {
             _bookedSeats.Clear();
-            if (string.IsNullOrEmpty(maSuatChieu)) return;
+            if (string.IsNullOrEmpty(maSuatChieu)) return false;
 
             try
             {
@@ -617,10 +638,13 @@ namespace HeThongRapChieuPhim.UserControls
                 {
                     _bookedSeats.Add(row["MaGhe"].ToString() ?? "");
                 }
+                return true;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi tải ghế đã đặt: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ClearSelectedShowtime("Không tải được trạng thái ghế. Hãy chọn lại suất để thử lại.");
+                return false;
             }
         }
 
@@ -633,13 +657,11 @@ namespace HeThongRapChieuPhim.UserControls
                 {
                     _requiredComboSeats = 0;
                     _comboDiscountPct = 0;
-                    lblComboNote.Text = "Không áp dụng ưu đãi combo";
                 }
                 else
                 {
                     _requiredComboSeats = Convert.ToInt32(drv["SoLuongGhe"]);
                     _comboDiscountPct = Convert.ToDecimal(drv["PhanTramGiam"]);
-                    lblComboNote.Text = $"Yêu cầu chọn đúng {_requiredComboSeats} ghế. Giảm {_comboDiscountPct:0.#}% giá vé!";
                 }
                 CalculateTotals();
             }
@@ -648,13 +670,15 @@ namespace HeThongRapChieuPhim.UserControls
         private void RenderSeatMap()
         {
             bool hasShowtime = !string.IsNullOrEmpty(_currentMaSuatChieu);
+            pnlSeatMap.Visible = hasShowtime;
+            lblScreen.Visible = hasShowtime;
             for (int row = 0; row < pnlSeatMap.Rows.Count; row++)
             {
                 char rowLetter = (char)('A' + row);
                 DataGridViewRow gridRow = pnlSeatMap.Rows[row];
                 decimal rowFare = GetRowTicketPrice(rowLetter.ToString());
                 gridRow.HeaderCell.Value = row < _roomRows
-                    ? (rowFare > 0 ? $"{rowLetter}\n{rowFare:N0}đ" : rowLetter.ToString())
+                    ? rowLetter + (_vipSettings.IsVip(rowLetter.ToString()) ? " VIP" : "")
                     : null;
                 gridRow.Visible = row < _roomRows;
                 for (int column = 0; column < pnlSeatMap.Columns.Count; column++)
@@ -666,11 +690,12 @@ namespace HeThongRapChieuPhim.UserControls
                     cell.Value = hasShowtime && visibleSeat ? seatCode : string.Empty;
                     bool booked = hasShowtime && _bookedSeats.Contains(seatCode);
                     bool selected = hasShowtime && _selectedSeats.Contains(seatCode);
-                    cell.Style.BackColor = booked ? ThemeHelper.SeatBooked : selected ? ThemeHelper.SeatSelected : ThemeHelper.SeatAvailable;
+                    cell.Style.BackColor = booked ? boxLegendBooked.BackColor : selected ? boxLegendSelected.BackColor
+                        : _vipSettings.IsVip(rowLetter.ToString()) ? Color.FromArgb(255, 229, 153) : boxLegendAvailable.BackColor;
                     cell.Style.ForeColor = booked || selected ? Color.White : ThemeHelper.TextPrimary;
                     cell.Style.SelectionBackColor = cell.Style.BackColor;
                     cell.Style.SelectionForeColor = cell.Style.ForeColor;
-                    string fareText = rowFare > 0 ? $"Giá vé: {rowFare:N0} đ" : "Chưa có giá cho hàng ghế này";
+                    string fareText = $"Giá vé: {rowFare:N0} đ";
                     cell.ToolTipText = $"{fareText} / ghế — " + (booked ? "Ghế đã được đặt" : selected ? "Ghế đang chọn" : "Ghế trống");
                     cell.ReadOnly = booked || !hasShowtime || !visibleSeat;
                 }
@@ -679,33 +704,7 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void ConfigureSeatGrid()
         {
-            pnlSeatMap.AutoGenerateColumns = false;
-            pnlSeatMap.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            pnlSeatMap.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
-            pnlSeatMap.BackgroundColor = Color.White;
-            pnlSeatMap.BorderStyle = BorderStyle.None;
-            pnlSeatMap.GridColor = Color.FromArgb(218, 230, 222);
-            pnlSeatMap.ColumnHeadersHeight = 28;
-            pnlSeatMap.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            pnlSeatMap.RowTemplate.Height = 42;
-            pnlSeatMap.RowHeadersWidth = 90;
-            pnlSeatMap.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            pnlSeatMap.RowHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            pnlSeatMap.RowHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            pnlSeatMap.Columns.Clear();
             pnlSeatMap.Rows.Clear();
-            for (int column = 1; column <= 30; column++)
-            {
-                pnlSeatMap.Columns.Add(new DataGridViewButtonColumn
-                {
-                    Name = $"colSeat{column}",
-                    HeaderText = column.ToString(),
-                    Width = 44,
-                    MinimumWidth = 42,
-                    FlatStyle = FlatStyle.Flat,
-                    SortMode = DataGridViewColumnSortMode.NotSortable
-                });
-            }
             for (int row = 0; row < 26; row++)
             {
                 int index = pnlSeatMap.Rows.Add();
@@ -731,19 +730,6 @@ namespace HeThongRapChieuPhim.UserControls
             }
             else
             {
-                // Nếu đang chọn combo và đã chọn đủ số ghế combo quy định
-                if (_requiredComboSeats > 0 && _selectedSeats.Count >= _requiredComboSeats)
-                {
-                    MessageBox.Show(
-                        $"Combo đang chọn yêu cầu ĐÚNG {_requiredComboSeats} ghế!\n" +
-                        $"Nếu muốn chọn thêm ghế, vui lòng bỏ chọn bớt ghế cũ hoặc đổi sang combo khác / Không áp dụng combo.",
-                        "Ràng buộc Combo ghế",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
-                    );
-                    return;
-                }
-
                 _selectedSeats.Add(seatCode);
             }
 
@@ -751,13 +737,36 @@ namespace HeThongRapChieuPhim.UserControls
             CalculateTotals();
         }
 
+        private void SelectBestComboForSeats()
+        {
+            int bestIndex = -1;
+            decimal bestDiscount = 0;
+            for (int i = 0; i < cboCombo.Items.Count; i++)
+            {
+                if (cboCombo.Items[i] is not DataRowView row) continue;
+                if (string.IsNullOrWhiteSpace(Convert.ToString(row["MaCombo"])))
+                {
+                    if (bestIndex < 0) bestIndex = i;
+                    continue;
+                }
+                int seats = Convert.ToInt32(row["SoLuongGhe"]);
+                decimal discount = Convert.ToDecimal(row["PhanTramGiam"]);
+                if (seats > 0 && seats == _selectedSeats.Count && discount > bestDiscount)
+                {
+                    bestIndex = i;
+                    bestDiscount = discount;
+                }
+            }
+            if (cboCombo.SelectedIndex != bestIndex) cboCombo.SelectedIndex = bestIndex;
+        }
         private void CalculateTotals()
         {
+            SelectBestComboForSeats();
             // Movie info
             lblSumMovie.Text = $"Phim: {cboPhim.Text}";
             string showInfo = cboSuatChieu.SelectedItem is DataRowView showRow && showRow.Row.Table.Columns.Contains("ShowInfo")
                 ? Convert.ToString(showRow["ShowInfo"]) ?? string.Empty
-                : cboSuatChieu.Text;
+                : "Chưa chọn suất chiếu";
             lblSumShow.Text = $"Suất: {showInfo}";
 
             // Seats
@@ -800,7 +809,7 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 decimal itemTotal = kv.Value.DonGia * kv.Value.SoLuong;
                 foodTotal += itemTotal;
-                foodItems.Add($"{kv.Value.TenDoAn} - {kv.Value.TenKichCo} x{kv.Value.SoLuong}");
+                foodItems.Add($"{kv.Value.TenDoAn} x{kv.Value.SoLuong}");
             }
             string foodDescription = string.Join(", ", foodItems);
             lblSumFood.Text = foodTotal > 0
@@ -843,10 +852,12 @@ namespace HeThongRapChieuPhim.UserControls
             decimal totalDiscount = comboDiscount + voucherDiscount;
             decimal finalTotal = Math.Max(0, rawTicketPrice + foodTotal - totalDiscount);
             lblSumTotal.Text = $"TỔNG TIỀN:\n{finalTotal:N0} đ";
+            _bookingTotal = finalTotal;
+            UpdateStepSummary();
         }
 
         private decimal GetRowTicketPrice(string rowLetter) =>
-            _rowTicketPrices.TryGetValue(rowLetter, out decimal price) ? price : 0m;
+            _vipSettings.Price(_currentGiaVe, rowLetter);
 
         private void BtnConfirm_Click(object? sender, EventArgs e)
         {
@@ -882,8 +893,9 @@ namespace HeThongRapChieuPhim.UserControls
                 string maCombo = cboCombo.SelectedValue?.ToString() ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(maCombo)) maCombo = null!;
                 var draft = new SaleDraft(_currentMaSuatChieu, sortedSeats,
-                    _selectedFood.Values.Select(x => new FoodOrder(x.MaDoAn, x.SoLuong, x.MaKichCo)).ToArray(), maCombo,
-                    string.IsNullOrWhiteSpace(_appliedVoucherCode) ? null : _appliedVoucherCode, CurrentUser.TenDangNhap);
+                    _selectedFood.Values.Select(x => new FoodOrder(x.MaDoAn, x.SoLuong)).ToArray(), maCombo,
+                    string.IsNullOrWhiteSpace(_appliedVoucherCode) ? null : _appliedVoucherCode, CurrentUser.TenDangNhap,
+                    sortedSeats.ToDictionary(seat => seat, seat => GetRowTicketPrice(seat[..1])));
                 SaleResult sale;
 
                 if (radTransfer.Checked)
@@ -919,6 +931,7 @@ namespace HeThongRapChieuPhim.UserControls
                 HuyVoucher(silent: true);
                 RenderSeatMap();
                 CalculateTotals();
+                BookingCompleted?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -934,7 +947,277 @@ namespace HeThongRapChieuPhim.UserControls
             HuyVoucher(silent: true);
             RenderSeatMap();
             CalculateTotals();
+            ShowBookingStep(1);
         }
+
+        #region Liên kết control của các trang
+
+        private Panel pnlLeft => showtimePage.pnlLeft;
+        private Label lblRoomInfo => showtimePage.lblRoomInfo;
+        private FlowLayoutPanel _showtimeOptions => showtimePage._showtimeOptions;
+        private Button btnShowtimePreview1 => showtimePage.btnShowtimePreview1;
+        private Button btnShowtimePreview2 => showtimePage.btnShowtimePreview2;
+        private Button btnShowtimePreview3 => showtimePage.btnShowtimePreview3;
+        private Button btnShowtimePreview4 => showtimePage.btnShowtimePreview4;
+        private ComboBox cboSuatChieu => showtimePage.cboSuatChieu;
+        private ComboBox cboShowRoom => showtimePage.cboShowRoom;
+        private Label lblShowRoom => showtimePage.lblShowRoom;
+        private ComboBox cboShowDate => showtimePage.cboShowDate;
+        private Label lblShowDate => showtimePage.lblShowDate;
+        private Label lblSec2 => showtimePage.lblSec2;
+        private Panel pnlMovieMeta => showtimePage.pnlMovieMeta;
+        private Label lblMovieInfo => showtimePage.lblMovieInfo;
+        private PictureBox picPoster => showtimePage.picPoster;
+        private ComboBox cboCombo => seatPage.cboCombo;
+        private Label lblSec3 => seatPage.lblSec3;
+        private Panel pnlCenter => seatPage.pnlCenter;
+        private Panel tabSeats => seatPage.tabSeats;
+        private DataGridView pnlSeatMap => seatPage.pnlSeatMap;
+        private Label lblScreen => seatPage.lblScreen;
+        private Panel pnlSeatHeader => seatPage.pnlSeatHeader;
+        private Panel pnlLegend => seatPage.pnlLegend;
+        private Panel pnlLegendAvailable => seatPage.pnlLegendAvailable;
+        private Panel boxLegendAvailable => seatPage.boxLegendAvailable;
+        private Label lblLegendAvailable => seatPage.lblLegendAvailable;
+        private Panel pnlLegendSelected => seatPage.pnlLegendSelected;
+        private Panel boxLegendSelected => seatPage.boxLegendSelected;
+        private Label lblLegendSelected => seatPage.lblLegendSelected;
+        private Panel pnlLegendBooked => seatPage.pnlLegendBooked;
+        private Panel boxLegendBooked => seatPage.boxLegendBooked;
+        private Label lblLegendBooked => seatPage.lblLegendBooked;
+        private Label lblSeatMapTitle => seatPage.lblSeatMapTitle;
+        private FlowLayoutPanel flpFoodItems => foodPage.flpFoodItems;
+        private Label lblFoodHint => foodPage.lblFoodHint;
+        private Label lblSec4 => foodPage.lblSec4;
+        private Panel pnlRight => paymentPage.pnlRight;
+        private Button btnReset => paymentPage.btnReset;
+        private Button btnConfirm => paymentPage.btnConfirm;
+        private GroupBox grpPayment => paymentPage.grpPayment;
+        private Button btnShowQR => paymentPage.btnShowQR;
+        private RadioButton radTransfer => paymentPage.radTransfer;
+        private RadioButton radCash => paymentPage.radCash;
+        private GroupBox grpVoucher => paymentPage.grpVoucher;
+        private Label lblVoucherStatus => paymentPage.lblVoucherStatus;
+        private Button btnHuyVoucher => paymentPage.btnHuyVoucher;
+        private Button btnApDungVoucher => paymentPage.btnApDungVoucher;
+        private TextBox txtVoucherCode => paymentPage.txtVoucherCode;
+        private Panel pnlBillDetails => paymentPage.pnlBillDetails;
+        private Label lblSumTotal => paymentPage.lblSumTotal;
+        private Panel divLine => paymentPage.divLine;
+        private Label lblSumFood => paymentPage.lblSumFood;
+        private Label lblSumVoucher => paymentPage.lblSumVoucher;
+        private Label lblSumDiscount => paymentPage.lblSumDiscount;
+        private Label lblSumTicketPrice => paymentPage.lblSumTicketPrice;
+        private Label lblSumSeats => paymentPage.lblSumSeats;
+        private Label lblSumShow => paymentPage.lblSumShow;
+        private Label lblSumMovie => paymentPage.lblSumMovie;
+        private Label lblBillTitle => paymentPage.lblBillTitle;
+        #endregion
+
+        #region Chọn ngày, phòng và suất chiếu
+
+        private DataTable? _allShowtimes;
+        private bool _loadingShowDates;
+        private bool _bindingShowtimes;
+        private bool _loadingShowRooms;
+        private sealed record ShowRoom(string Id, string Name);
+
+        private void InitializeShowtimeOptions()
+        {
+            cboShowDate.SelectedIndexChanged += (_, _) => ApplyShowDate();
+            cboShowRoom.DisplayMember = nameof(ShowRoom.Name);
+            cboShowRoom.SelectedIndexChanged += (_, _) => { if (!_loadingShowRooms) ApplyShowRoom(); };
+        }
+
+        private void RenderShowtimeOptions()
+        {
+            _allShowtimes = cboSuatChieu.DataSource as DataTable;
+            DateTime? previous = cboShowDate.SelectedItem is DateTime day ? day : null;
+            _loadingShowDates = true;
+            try
+            {
+                cboShowDate.Items.Clear();
+                if (_allShowtimes != null)
+                    foreach (DateTime date in _allShowtimes.AsEnumerable()
+                        .Select(row => Convert.ToDateTime(row["NgayChieu"]).Date).Distinct().OrderBy(date => date))
+                        cboShowDate.Items.Add(date);
+                cboShowDate.Enabled = cboShowDate.Items.Count > 0;
+                if (cboShowDate.Items.Count > 0)
+                    cboShowDate.SelectedIndex = previous.HasValue && cboShowDate.Items.Contains(previous.Value)
+                        ? cboShowDate.Items.IndexOf(previous.Value) : 0;
+            }
+            finally { _loadingShowDates = false; }
+            ApplyShowDate();
+        }
+
+        private void ApplyShowDate()
+        {
+            if (_loadingShowDates) return;
+            string? previous = (cboShowRoom.SelectedItem as ShowRoom)?.Id;
+            _loadingShowRooms = true;
+            try
+            {
+                cboShowRoom.Items.Clear();
+                cboShowRoom.Items.Add(new ShowRoom("", "Tất cả phòng"));
+                if (_allShowtimes != null && cboShowDate.SelectedItem is DateTime day)
+                    foreach (var room in _allShowtimes.AsEnumerable()
+                        .Where(row => Convert.ToDateTime(row["NgayChieu"]).Date == day.Date)
+                        .Select(row => new ShowRoom(Convert.ToString(row["MaPhong"]) ?? "", Convert.ToString(row["TenPhong"]) ?? ""))
+                        .Distinct().OrderBy(room => room.Name))
+                        cboShowRoom.Items.Add(room);
+                cboShowRoom.Enabled = cboShowRoom.Items.Count > 1;
+                if (cboShowRoom.Items.Count > 0)
+                {
+                    int index = cboShowRoom.Items.Cast<ShowRoom>().ToList().FindIndex(room => room.Id == previous);
+                    cboShowRoom.SelectedIndex = index >= 0 ? index : 0;
+                }
+            }
+            finally { _loadingShowRooms = false; }
+            ApplyShowRoom();
+        }
+
+        private void ApplyShowRoom()
+        {
+            _showtimeOptions.SuspendLayout();
+            _showtimeOptions.Controls.Remove(lblShowtimeEmpty);
+            try
+            {
+                while (_showtimeOptions.Controls.Count > 0)
+                    _showtimeOptions.Controls[0].Dispose();
+                DataTable? filtered = _allShowtimes?.Clone();
+                if (filtered != null && cboShowDate.SelectedItem is DateTime day)
+                    foreach (DataRow row in _allShowtimes!.Rows)
+                        if (Convert.ToDateTime(row["NgayChieu"]).Date == day.Date
+                            && cboShowRoom.SelectedItem is ShowRoom roomOption
+                            && (roomOption.Id.Length == 0 || Convert.ToString(row["MaPhong"]) == roomOption.Id))
+                            filtered.ImportRow(row);
+
+                _bindingShowtimes = true;
+                try
+                {
+                    cboSuatChieu.DataSource = filtered;
+                    cboSuatChieu.SelectedIndex = -1;
+                }
+                finally { _bindingShowtimes = false; }
+                ClearSelectedShowtime("Chọn giờ chiếu để xem ghế và giá vé.");
+                if (filtered != null && filtered.Rows.Count > 0)
+                {
+                    bool allRooms = cboShowRoom.SelectedItem is ShowRoom selected && selected.Id.Length == 0;
+                    foreach (DataRow row in filtered.Rows)
+                    {
+                        string id = Convert.ToString(row["MaSuatChieu"]) ?? "";
+                        string time = Convert.ToString(row["ShowTime"]) ?? "";
+                        string room = Convert.ToString(row["TenPhong"]) ?? "";
+                        var button = new HeThongRapChieuPhim.UIHelpers.ShowtimeOption();
+                        button.Bind(id, time, room, cboShowDate.Text, allRooms);
+                        button.Chosen += (_, _) => cboSuatChieu.SelectedValue = id;
+                        _showtimeOptions.Controls.Add(button);
+                    }
+                }
+                else
+                {
+                    ClearSelectedShowtime("Không có suất chiếu còn bán cho lựa chọn này.");
+                    _showtimeOptions.Controls.Add(lblShowtimeEmpty);
+                    RenderSeatMap();
+                    CalculateTotals();
+                }
+                UpdateShowtimeSelection();
+            }
+            finally { _showtimeOptions.ResumeLayout(true); }
+        }
+
+        private void ClearSelectedShowtime(string message)
+        {
+            _bindingShowtimes = true;
+            try { cboSuatChieu.SelectedIndex = -1; }
+            finally { _bindingShowtimes = false; }
+            _currentMaSuatChieu = "";
+            _currentMaPhong = "";
+            _currentGiaVe = 0;
+            _vipSettings = new("", 0);
+            _selectedSeats.Clear();
+            _bookedSeats.Clear();
+
+            lblRoomInfo.Text = message;
+            RenderSeatMap();
+            CalculateTotals();
+            UpdateShowtimeSelection();
+        }
+
+        private void UpdateShowtimeSelection()
+        {
+            foreach (Control control in _showtimeOptions.Controls)
+            {
+                if (control is not HeThongRapChieuPhim.UIHelpers.ShowtimeOption button) continue;
+                button.SetSelected(Convert.ToString(button.Tag) == _currentMaSuatChieu);
+            }
+        }
+        #endregion
+
+        #region Điều hướng các bước bán vé
+
+        private int _bookingStep;
+        private bool _changingStep;
+        private decimal _bookingTotal;
+        public event EventHandler? BookingCancelled;
+        public event EventHandler? BookingCompleted;
+        public event EventHandler? BookingStepChanged;
+        public int CurrentBookingStep => _bookingStep;
+
+        private void InitializeBookingSteps()
+        {
+            _stepBack.Click += (_, _) => { if (_bookingStep == 0) BookingCancelled?.Invoke(this, EventArgs.Empty); else ShowBookingStep(_bookingStep - 1); };
+            _stepNext.Click += (_, _) => AdvanceBookingStep();
+            if (!UIHelpers.DesignTimeHelper.IsDesignTime(this))
+                bookingPages.Selecting += (_, e) => { if (!_changingStep) e.Cancel = true; };
+            if (!UIHelpers.DesignTimeHelper.IsDesignTime(this)) ShowBookingStep(0);
+        }
+
+        private bool AdvanceBookingStep()
+        {
+            if (_bookingStep == 0 && string.IsNullOrEmpty(_currentMaSuatChieu))
+            {
+                MessageBox.Show("Hãy chọn ngày, phòng và bấm giờ chiếu trước khi tiếp tục.", "Chọn suất chiếu");
+                return false;
+            }
+            if (_bookingStep == 1 && (_selectedSeats.Count == 0 ||
+                (_requiredComboSeats > 0 && _selectedSeats.Count != _requiredComboSeats)))
+            {
+                MessageBox.Show(_selectedSeats.Count == 0 ? "Hãy chọn ít nhất một ghế." : $"Combo yêu cầu chọn đúng {_requiredComboSeats} ghế.", "Chọn ghế");
+                return false;
+            }
+            if (_bookingStep < 3) ShowBookingStep(_bookingStep + 1);
+            return true;
+        }
+
+        private void ShowBookingStep(int step)
+        {
+            _bookingStep = step;
+            _changingStep = true;
+            try { bookingPages.SelectedIndex = step; }
+            finally { _changingStep = false; }
+            lblTitle.Text = bookingPages.TabPages[step].Text.ToUpper(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
+            _stepBack.Text = step == 0 ? "← Chọn phim khác" : "← Quay lại";
+            _stepNext.Text = step == 0 ? "Chọn chỗ ngồi →" : step == 1 ? "Chọn bắp nước →" : "Thanh toán →";
+            _stepNext.Visible = step < 3;
+            navigation.ColumnStyles[2].Width = step == 3 ? 0 : 190;
+            UpdateStepSummary();
+
+            if (step >= 2) CalculateTotals();
+            BookingStepChanged?.Invoke(this, EventArgs.Empty);
+            if (step == 2)
+            {
+                ResizeFoodCards();
+                _stepNext.Focus();
+                flpFoodItems.AutoScrollPosition = Point.Empty;
+            }
+        }
+
+        private void UpdateStepSummary()
+        {
+            _stepSummary.Text = _bookingStep == 0 ? "Bước 1 / 4 · Chọn ngày, phòng và giờ chiếu"
+                : $"{cboPhim.Text} · {cboSuatChieu.Text}\nBước {_bookingStep + 1} / 4 · {_selectedSeats.Count} ghế · Tạm tính: {_bookingTotal:N0} đ";
+        }
+        #endregion
     }
 }
-

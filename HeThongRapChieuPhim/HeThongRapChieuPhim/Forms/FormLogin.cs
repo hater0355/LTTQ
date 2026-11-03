@@ -72,7 +72,7 @@ namespace HeThongRapChieuPhim.Forms
                     lblStatus.Text = "Không kết nối được SQL Server!";
                     MessageBox.Show(
                         $"Không thể kết nối đến cơ sở dữ liệu SQL Server!\n\nChi tiết: {err}\n\n" +
-                        $"Vui lòng kiểm tra dịch vụ SQL Server và file cơ sở dữ liệu Database\\Install_QuanLyRapChieuPhim.sql.",
+                        $"Vui lòng kiểm tra dịch vụ SQL Server và file cơ sở dữ liệu Database\\NHHcinema.sql.",
                         "Lỗi kết nối CSDL",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error
@@ -130,9 +130,8 @@ namespace HeThongRapChieuPhim.Forms
                     const string migrationMessage =
                         "Database QuanLyRapChieuPhim chưa được cập nhật cho phiên bản phần mềm này.\n\n" +
                         "Mở SQL Server Management Studio, chọn database QuanLyRapChieuPhim và chạy lần lượt:\n" +
-                        "1. Database\\Migrations\\20261014_RolesAndPasswordStorage.sql\n" +
-                        "2. Database\\Migrations\\20261014_SalesAndPayOsSafety.sql\n\n" +
-                        "Hai script này nâng cấp cộng dồn và giữ dữ liệu hiện có. Không chạy ResetDemoDatabase.sql.";
+                        "Database\\NHHcinema.sql\n\n" +
+                        "File này tạo hoặc cập nhật schema, giữ dữ liệu hiện có.";
                     lblStatus.Text = "Database cần được cập nhật.";
                     MessageBox.Show(migrationMessage, "Cần cập nhật database", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;

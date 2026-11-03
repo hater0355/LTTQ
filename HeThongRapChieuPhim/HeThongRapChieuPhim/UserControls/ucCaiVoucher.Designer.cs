@@ -492,6 +492,45 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlLeft.PerformLayout();
             this.pnlButtons.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.numGiaTriGiam)).EndInit();
+
+
+            dgvVoucher.BackgroundColor = Color.White;
+            dgvVoucher.GridColor = Color.FromArgb(235, 239, 242);
+            dgvVoucher.BorderStyle = BorderStyle.None;
+            dgvVoucher.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvVoucher.EnableHeadersVisualStyles = false;
+            dgvVoucher.RowHeadersVisible = false;
+            dgvVoucher.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvVoucher.MultiSelect = false;
+            dgvVoucher.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvVoucher.AllowUserToAddRows = false;
+            dgvVoucher.AllowUserToDeleteRows = false;
+            dgvVoucher.ReadOnly = true;
+            dgvVoucher.RowTemplate.Height = 28;
+
+            // Header Style
+            dgvVoucher.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvVoucher.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(247, 249, 250);
+            dgvVoucher.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(107, 120, 131);
+            dgvVoucher.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            dgvVoucher.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dgvVoucher.ColumnHeadersDefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+            dgvVoucher.ColumnHeadersHeight = 36;
+
+            // Rows Style
+            dgvVoucher.DefaultCellStyle.BackColor = Color.White;
+            dgvVoucher.DefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvVoucher.DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Regular);
+            dgvVoucher.DefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvVoucher.DefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+            dgvVoucher.DefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+
+            // Alternating Row Style
+            dgvVoucher.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 251, 252);
+            dgvVoucher.AlternatingRowsDefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvVoucher.AlternatingRowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvVoucher.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+
             this.ResumeLayout(false);
 
         }

@@ -16,13 +16,13 @@
     <Compile Update="Forms\FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FormMain.Dashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\FormQRPayment.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="UserControls\ucBanHang.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="UserControls\ucCaiDat.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="UserControls\ucCaiSuatChieu.cs">
@@ -34,10 +34,7 @@
     <Compile Update="UserControls\ucCaiVoucher.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="UserControls\ucDanhMuc.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="UserControls\ucDashboard.cs">
+    <Compile Update="UserControls\ucChonPhim.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="UserControls\ucDoAn.cs">

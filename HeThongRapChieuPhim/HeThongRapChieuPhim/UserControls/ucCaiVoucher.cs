@@ -14,7 +14,6 @@ namespace HeThongRapChieuPhim.UserControls
         public ucCaiVoucher()
         {
             InitializeComponent();
-            ThemeHelper.StyleDataGridView(dgvVoucher);
             cboLoaiGiam.SelectedIndex = 0;
             cboTrangThai.SelectedIndex = 0;
             dtpHanSuDung.Value = DateTime.Today.AddMonths(3);

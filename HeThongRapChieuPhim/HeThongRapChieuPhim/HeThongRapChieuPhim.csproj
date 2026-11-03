@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="QRCoder" Version="1.8.0" />
+    <PackageReference Include="WinForms.DataVisualization" Version="1.10.2" />
     <ProjectReference Include="Core\HeThongRapChieuPhim.Core.csproj" />
     <Compile Remove="Classes\**\*.cs;Data\CurrentUser.cs;Data\AccessRoles.cs;Core\**\*.cs;PaymentsApi\**\*.cs" />
     <Content Remove="Core\**\*;PaymentsApi\**\*" />
@@ -20,15 +21,51 @@
     <None Update="Assets\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Database\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Forms\FormMain.Dashboard.resx">
+      <ManifestResourceName>HeThongRapChieuPhim.Forms.FormMain.Dashboard</ManifestResourceName>
+    </EmbeddedResource>
     <Folder Include="Assets\" />
   </ItemGroup>
 
 
 
+  <ItemGroup>
+    <Compile Update="UserControls\ucLichLamViec.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Update="UserControls\ucLichLamViec.Designer.cs"><DependentUpon>ucLichLamViec.cs</DependentUpon></Compile>
+    <EmbeddedResource Update="UserControls\ucLichLamViec.resx"><DependentUpon>ucLichLamViec.cs</DependentUpon><ManifestResourceName>HeThongRapChieuPhim.UserControls.ucLichLamViec</ManifestResourceName></EmbeddedResource>
+    <Compile Update="UserControls\ucChonPhim.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Update="UserControls\ucChonPhim.Designer.cs"><DependentUpon>ucChonPhim.cs</DependentUpon></Compile>
+    <EmbeddedResource Update="UserControls\ucChonPhim.resx"><DependentUpon>ucChonPhim.cs</DependentUpon><ManifestResourceName>HeThongRapChieuPhim.UserControls.ucChonPhim</ManifestResourceName></EmbeddedResource>
+    <Compile Update="UserControls\ucBanHangShowtimes.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Update="UserControls\ucBanHangShowtimes.Designer.cs"><DependentUpon>ucBanHangShowtimes.cs</DependentUpon></Compile>
+    <EmbeddedResource Update="UserControls\ucBanHangShowtimes.resx"><DependentUpon>ucBanHangShowtimes.cs</DependentUpon><ManifestResourceName>HeThongRapChieuPhim.UserControls.ucBanHangShowtimes</ManifestResourceName></EmbeddedResource>
+    <Compile Update="UserControls\ucBanHangSeats.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Update="UserControls\ucBanHangSeats.Designer.cs"><DependentUpon>ucBanHangSeats.cs</DependentUpon></Compile>
+    <EmbeddedResource Update="UserControls\ucBanHangSeats.resx"><DependentUpon>ucBanHangSeats.cs</DependentUpon><ManifestResourceName>HeThongRapChieuPhim.UserControls.ucBanHangSeats</ManifestResourceName></EmbeddedResource>
+    <Compile Update="UserControls\ucBanHangPayment.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Update="UserControls\ucBanHangPayment.Designer.cs"><DependentUpon>ucBanHangPayment.cs</DependentUpon></Compile>
+    <EmbeddedResource Update="UserControls\ucBanHangPayment.resx"><DependentUpon>ucBanHangPayment.cs</DependentUpon><ManifestResourceName>HeThongRapChieuPhim.UserControls.ucBanHangPayment</ManifestResourceName></EmbeddedResource>
+    <Compile Update="Forms\FormBooking.cs"><SubType>Form</SubType></Compile>
+    <Compile Update="Forms\FormBooking.Designer.cs"><DependentUpon>FormBooking.cs</DependentUpon></Compile>
+    <EmbeddedResource Update="Forms\FormBooking.resx"><DependentUpon>FormBooking.cs</DependentUpon><ManifestResourceName>HeThongRapChieuPhim.Forms.FormBooking</ManifestResourceName></EmbeddedResource>
+    <Compile Update="UIHelpers\FoodItemCard.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Update="UIHelpers\FoodItemCard.Designer.cs"><DependentUpon>FoodItemCard.cs</DependentUpon></Compile>
+    <EmbeddedResource Update="UIHelpers\FoodItemCard.resx"><DependentUpon>FoodItemCard.cs</DependentUpon><ManifestResourceName>HeThongRapChieuPhim.UIHelpers.FoodItemCard</ManifestResourceName></EmbeddedResource>
+    <Compile Update="UIHelpers\MovieItemCard.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Update="UIHelpers\MovieItemCard.Designer.cs"><DependentUpon>MovieItemCard.cs</DependentUpon></Compile>
+    <EmbeddedResource Update="UIHelpers\MovieItemCard.resx"><DependentUpon>MovieItemCard.cs</DependentUpon><ManifestResourceName>HeThongRapChieuPhim.UIHelpers.MovieItemCard</ManifestResourceName></EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="UIHelpers\ShowtimeOption.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Update="UIHelpers\ShowtimeOption.Designer.cs"><DependentUpon>ShowtimeOption.cs</DependentUpon></Compile>
+    <EmbeddedResource Update="UIHelpers\ShowtimeOption.resx"><DependentUpon>ShowtimeOption.cs</DependentUpon><ManifestResourceName>HeThongRapChieuPhim.UIHelpers.ShowtimeOption</ManifestResourceName></EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="UserControls\ucBanHangFood.cs"><SubType>UserControl</SubType></Compile>
+    <Compile Update="UserControls\ucBanHangFood.Designer.cs"><DependentUpon>ucBanHangFood.cs</DependentUpon></Compile>
+    <EmbeddedResource Update="UserControls\ucBanHangFood.resx"><DependentUpon>ucBanHangFood.cs</DependentUpon><ManifestResourceName>HeThongRapChieuPhim.UserControls.ucBanHangFood</ManifestResourceName></EmbeddedResource>
+  </ItemGroup>
 </Project>

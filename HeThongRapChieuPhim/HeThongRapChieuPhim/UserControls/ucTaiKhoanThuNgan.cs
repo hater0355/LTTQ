@@ -11,7 +11,6 @@ namespace HeThongRapChieuPhim.UserControls
         public ucTaiKhoanThuNgan()
         {
             InitializeComponent();
-            ThemeHelper.StyleDataGridView(dgvAccounts);
             if (DesignTimeHelper.IsDesignTime(this)) return;
             if (!AccessRoles.IsAllowedToManageAccounts(CurrentUser.VaiTro)) throw new UnauthorizedAccessException("Chỉ Admin tổng hoặc Admin Nhân sự được quản lý tài khoản.");
             cboRole.DisplayMember = "Text";
@@ -54,6 +53,11 @@ namespace HeThongRapChieuPhim.UserControls
             if (!Function.ChangeManagedAccountPassword(username, txtPassword.Text, out string error)) { lblStatus.Text = error; return; }
             lblStatus.Text = $"Đã đổi mật khẩu cho {username}.";
             txtPassword.Clear();
+        }
+
+        private void lblHeading_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

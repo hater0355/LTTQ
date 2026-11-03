@@ -18,7 +18,6 @@ namespace HeThongRapChieuPhim.UserControls
         public ucDoAn()
         {
             InitializeComponent();
-            ThemeHelper.StyleDataGridView(dgvDoAn);
             if (!DesignTimeHelper.IsDesignTime(this)) LoadDoAn();
         }
 
@@ -175,11 +174,6 @@ namespace HeThongRapChieuPhim.UserControls
                     SET XACT_ABORT ON;
                     BEGIN TRANSACTION;
                     INSERT INTO dbo.DoAn (MaDoAn, TenDoAn, Loai, Gia, HinhAnhPath) VALUES (@Ma, @Ten, @Loai, @Gia, @Anh);
-                    INSERT INTO dbo.DoAnKichCo (MaDoAn, MaKichCo, TenKichCo, DonGia)
-                    VALUES
-                        (@Ma, 'S', N'Cỡ nhỏ', CONVERT(DECIMAL(18,0),ROUND(@Gia * 0.8 / 1000.0,0) * 1000)),
-                        (@Ma, 'M', N'Cỡ vừa', @Gia),
-                        (@Ma, 'L', N'Cỡ lớn', CONVERT(DECIMAL(18,0),ROUND(@Gia * 1.2 / 1000.0,0) * 1000));
                     COMMIT TRANSACTION;";
                 var p = new[]
                 {
@@ -220,17 +214,6 @@ namespace HeThongRapChieuPhim.UserControls
                     SET XACT_ABORT ON;
                     BEGIN TRANSACTION;
                     UPDATE dbo.DoAn SET TenDoAn = @Ten, Loai = @Loai, Gia = @Gia, HinhAnhPath = @Anh WHERE MaDoAn = @Ma;
-                    UPDATE dbo.DoAnKichCo SET DonGia=CONVERT(DECIMAL(18,0),ROUND(@Gia * 0.8 / 1000.0,0) * 1000) WHERE MaDoAn=@Ma AND MaKichCo='S';
-                    UPDATE dbo.DoAnKichCo SET TenKichCo=N'Cỡ vừa', DonGia=@Gia WHERE MaDoAn=@Ma AND MaKichCo='M';
-                    UPDATE dbo.DoAnKichCo SET DonGia=CONVERT(DECIMAL(18,0),ROUND(@Gia * 1.2 / 1000.0,0) * 1000) WHERE MaDoAn=@Ma AND MaKichCo='L';
-                    IF NOT EXISTS (SELECT 1 FROM dbo.DoAnKichCo WHERE MaDoAn=@Ma AND MaKichCo='S')
-                        INSERT dbo.DoAnKichCo (MaDoAn,MaKichCo,TenKichCo,DonGia)
-                        VALUES (@Ma,'S',N'Cỡ nhỏ',CONVERT(DECIMAL(18,0),ROUND(@Gia * 0.8 / 1000.0,0) * 1000));
-                    IF NOT EXISTS (SELECT 1 FROM dbo.DoAnKichCo WHERE MaDoAn=@Ma AND MaKichCo='M')
-                        INSERT dbo.DoAnKichCo (MaDoAn,MaKichCo,TenKichCo,DonGia) VALUES (@Ma,'M',N'Cỡ vừa',@Gia);
-                    IF NOT EXISTS (SELECT 1 FROM dbo.DoAnKichCo WHERE MaDoAn=@Ma AND MaKichCo='L')
-                        INSERT dbo.DoAnKichCo (MaDoAn,MaKichCo,TenKichCo,DonGia)
-                        VALUES (@Ma,'L',N'Cỡ lớn',CONVERT(DECIMAL(18,0),ROUND(@Gia * 1.2 / 1000.0,0) * 1000));
                     COMMIT TRANSACTION;";
                 var p = new[]
                 {

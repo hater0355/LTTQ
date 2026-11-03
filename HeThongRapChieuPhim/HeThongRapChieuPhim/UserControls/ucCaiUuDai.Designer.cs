@@ -344,6 +344,45 @@ namespace HeThongRapChieuPhim.UserControls
             this.pnlForm.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numSoLuongGhe)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPhanTramGiam)).EndInit();
+
+
+            dgvCombo.BackgroundColor = Color.White;
+            dgvCombo.GridColor = Color.FromArgb(235, 239, 242);
+            dgvCombo.BorderStyle = BorderStyle.None;
+            dgvCombo.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvCombo.EnableHeadersVisualStyles = false;
+            dgvCombo.RowHeadersVisible = false;
+            dgvCombo.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvCombo.MultiSelect = false;
+            dgvCombo.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvCombo.AllowUserToAddRows = false;
+            dgvCombo.AllowUserToDeleteRows = false;
+            dgvCombo.ReadOnly = true;
+            dgvCombo.RowTemplate.Height = 28;
+
+            // Header Style
+            dgvCombo.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvCombo.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(247, 249, 250);
+            dgvCombo.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(107, 120, 131);
+            dgvCombo.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            dgvCombo.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dgvCombo.ColumnHeadersDefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+            dgvCombo.ColumnHeadersHeight = 36;
+
+            // Rows Style
+            dgvCombo.DefaultCellStyle.BackColor = Color.White;
+            dgvCombo.DefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvCombo.DefaultCellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Regular);
+            dgvCombo.DefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvCombo.DefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+            dgvCombo.DefaultCellStyle.Padding = new Padding(6, 2, 6, 2);
+
+            // Alternating Row Style
+            dgvCombo.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 251, 252);
+            dgvCombo.AlternatingRowsDefaultCellStyle.ForeColor = Color.FromArgb(35, 48, 59);
+            dgvCombo.AlternatingRowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 244, 239);
+            dgvCombo.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(35, 48, 59);
+
             this.ResumeLayout(false);
 
         }

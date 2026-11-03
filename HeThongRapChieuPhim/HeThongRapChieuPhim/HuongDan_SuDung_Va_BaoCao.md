@@ -29,21 +29,12 @@ Hai tài khoản mẫu yêu cầu đổi mật khẩu ngay lần đăng nhập �
 ---
 
 ## 3. CƠ SỞ DỮ LIỆU SQL SERVER
-- Script SQL hoàn chỉnh được đặt tại: `Database/Install_QuanLyRapChieuPhim.sql`.
-- **Cài mới:** Sao lưu nếu cần, sau đó chạy `Database/Install_QuanLyRapChieuPhim.sql` trên SQL Server. Script tạo các bảng còn thiếu và tài khoản demo; hai tài khoản mẫu đều buộc đổi mật khẩu ở lần đăng nhập đầu.
-- **Nâng cấp database đã có dữ liệu:** Tạo bản sao lưu có thể khôi phục trước. Mở SSMS và chạy lần lượt từng script sau trong `Database/Migrations`:
-  1. `20261014_RolesAndPasswordStorage.sql`
-  2. `20261014_SalesAndPayOsSafety.sql`
-  3. `20261015_SpecializedAdminRoles.sql`
-  4. `20261015_AdminTong.sql`
-  5. `20261022_DataIntegrityAndTypedParameters.sql`
-  6. `20261022_FoodSizesAndImages.sql`
-  7. `20261023_MovieReleaseWindow.sql`
-  8. `20261023_CashierWorkShifts.sql`
-- `20261022_DataIntegrityAndTypedParameters.sql` kiểm tra dữ liệu cũ trước khi thêm `CHECK`/khóa ghép; nếu không tương thích, script báo mã bản ghi rồi rollback để bạn xử lý thủ công sau khi sao lưu. `20261022_FoodSizesAndImages.sql` giữ nguyên giá và số lượng lịch sử, thêm giá theo cỡ cho thực đơn và ghi cỡ vào các giao dịch mới. Có thể chạy lại migration sau khi đã thành công.
-- `20261023_MovieReleaseWindow.sql` thêm ngày bắt đầu/kết thúc chiếu mà không sửa hoặc xóa suất chiếu, hóa đơn cũ. Phim cũ chưa có thời hạn được giữ nguyên hoạt động cho đến khi quản lý đặt khoảng chiếu; phim thêm mới phải chọn đủ ngày bắt đầu và ngày kết thúc.
-- `20261023_CashierWorkShifts.sql` thêm 3 ca cố định (09:00–13:00, 13:00–17:00, 17:00–21:00) và bảng lịch phân ca; không thay đổi hồ sơ nhân viên hay lịch sử bán vé. Admin Nhân sự/Admin tổng được phân, đổi và hủy ca; Thu ngân chỉ xem lịch của mình. Số ca “đã làm” chỉ tăng khi ca kết thúc và được đánh dấu hoàn thành; ca sắp tới và ca đã hủy không được tính.
-- Không dùng `Database/ResetDemoDatabase.sql` với dữ liệu cần giữ: script này xóa toàn bộ database demo trước khi tạo lại.
+- Chỉ sử dụng **Database/NHHcinema.sql** cho cả cài mới và nâng cấp database.
+- Mở file trong SSMS và Execute toàn bộ; hoặc chạy `sqlcmd -f 65001 -I -b -i Database/NHHcinema.sql`.
+- File tạo database `QuanLyRapChieuPhim` nếu chưa có và cập nhật schema hiện có, gồm phân quyền, thanh toán, lịch làm việc, thời hạn phim, voucher và ghế VIP. Không đổi cấu hình API.
+- Sao lưu database trước khi nâng cấp. Script không xóa database hoặc dữ liệu hiện có; khi dữ liệu cũ không hợp lệ, phần kiểm tra ràng buộc báo lỗi để xử lý.
+- Không kèm dữ liệu kiểm thử. Chỉ khởi tạo tài khoản `admin` (mật khẩu ban đầu `admin`, buộc đổi khi đăng nhập lần đầu), hồ sơ quản trị liên kết và ba ca làm cố định.
+- Không cần chạy file migration, seed hoặc reset riêng.
 - Chuỗi kết nối nằm tại class `Classes/DataProcesser.cs`:
   ```csharp
   Server=.;Database=QuanLyRapChieuPhim;Integrated Security=True;TrustServerCertificate=True;
@@ -136,7 +127,7 @@ HeThongRapChieuPhim/
 │   ├── P01.jpg
 │   └── P03.jpg
 ├── Database/
-│   ├── Install_QuanLyRapChieuPhim.sql # Script cài đặt SQL Server
+│   ├── NHHcinema.sql # Script cài đặt SQL Server
 │   └── Migrations/                # Script nâng cấp database đang dùng
 ├── Data/
 │   └── CurrentUser.cs             # Quản lý phiên đăng nhập
@@ -150,7 +141,7 @@ HeThongRapChieuPhim/
 │   ├── FormInHoaDon.cs            # In & xem trước hóa đơn
 │   └── FormQRPayment.cs           # Cửa sổ thanh toán VietQR
 ├── UserControls/
-│   ├── ucDashboard.cs             # Trang chính & Biểu đồ doanh thu
+│   ├── FormMain.Dashboard.cs      # Trang chính & Biểu đồ doanh thu
 │   ├── ucNhanVien.cs              # Quản lý hồ sơ nhân viên
 │   ├── ucTaiKhoanThuNgan.cs       # Tạo tài khoản thu ngân/đặt lại mật khẩu
 │   ├── ucPhim.cs                  # Quản lý phim & Poster

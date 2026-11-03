@@ -7,29 +7,25 @@ using HeThongRapChieuPhim.UIHelpers;
 namespace HeThongRapChieuPhim.UserControls
 {
     /// <summary>Employee shift roster. HR/Admin can schedule and update shifts; cashiers see their own roster.</summary>
-    public sealed class ucLichLamViec : UserControl
+    public partial class ucLichLamViec : UserControl
     {
         private readonly bool _canManage;
-        private readonly TableLayoutPanel _layout = new();
-        private readonly DateTimePicker _dtpMonth = new();
-        private readonly DateTimePicker _dtpWorkDay = new();
-        private readonly ComboBox _cboEmployee = new();
-        private readonly ComboBox _cboShift = new();
-        private readonly DataGridView _dgvSchedule = new();
-        private readonly DataGridView _dgvMonthlyTotals = new();
-        private readonly Panel _managementPanel = new();
-        private readonly Label _lblReadOnly = new();
-        private readonly Button _btnAdd = new();
-        private readonly Button _btnChange = new();
-        private readonly Button _btnComplete = new();
-        private readonly Button _btnCancel = new();
         private long? _selectedAssignmentId;
         private bool _isLoading;
 
         public ucLichLamViec()
         {
             _canManage = CurrentUser.IsHumanResourcesAdmin || CurrentUser.IsSuperAdmin;
-            BuildLayout();
+            _isLoading = true;
+            InitializeComponent();
+            _dtpMonth.Value = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            _isLoading = false;
+            if (!DesignTimeHelper.IsDesignTime(this))
+            {
+                _managementPanel.Visible = _canManage;
+                _lblReadOnly.Visible = !_canManage;
+                _layout.RowStyles[2].Height = _canManage ? 76 : 8;
+            }
             if (!DesignTimeHelper.IsDesignTime(this))
             {
                 LoadLookups();
@@ -37,180 +33,18 @@ namespace HeThongRapChieuPhim.UserControls
             }
         }
 
-        private void BuildLayout()
+        private void MonthChanged(object? sender, EventArgs e)
         {
-            Dock = DockStyle.Fill;
-            BackColor = ThemeHelper.AppBackground;
-            Font = new Font("Segoe UI", 9.5f);
-
-            _layout.Dock = DockStyle.Fill;
-            _layout.Padding = new Padding(14, 10, 14, 12);
-            _layout.ColumnCount = 1;
-            _layout.RowCount = 4;
-            _layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 54));
-            _layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
-            _layout.RowStyles.Add(new RowStyle(SizeType.Absolute, _canManage ? 76 : 8));
-            _layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            Controls.Add(_layout);
-
-            var header = new Label
-            {
-                Text = "LỊCH LÀM VIỆC & THAY CA",
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 16f, FontStyle.Bold),
-                ForeColor = ThemeHelper.PrimaryDark,
-                TextAlign = ContentAlignment.MiddleLeft
-            };
-            _layout.Controls.Add(header, 0, 0);
-
-            var filterPanel = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false,
-                Padding = new Padding(0, 7, 0, 0)
-            };
-            filterPanel.Controls.Add(new Label { Text = "Tháng xem:", AutoSize = true, Margin = new Padding(0, 8, 8, 0) });
-            _dtpMonth.Format = DateTimePickerFormat.Custom;
-            _dtpMonth.CustomFormat = "MM/yyyy";
-            _dtpMonth.ShowUpDown = true;
-            _dtpMonth.Width = 110;
-            _dtpMonth.Value = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            _dtpMonth.ValueChanged += (_, _) => { if (!_isLoading) LoadRoster(); };
-            filterPanel.Controls.Add(_dtpMonth);
-            var btnReload = CreateButton("Tải lại", ThemeHelper.PrimaryGreen, 92);
-            btnReload.Click += (_, _) => { LoadLookups(); LoadRoster(); };
-            filterPanel.Controls.Add(btnReload);
-            _lblReadOnly.Text = "Thu ngân chỉ xem lịch và số ca của tài khoản đang đăng nhập; liên hệ Admin Nhân sự nếu cần đổi ca.";
-            _lblReadOnly.AutoSize = true;
-            _lblReadOnly.ForeColor = ThemeHelper.TextMuted;
-            _lblReadOnly.Margin = new Padding(16, 8, 0, 0);
-            _lblReadOnly.Visible = !_canManage;
-            filterPanel.Controls.Add(_lblReadOnly);
-            _layout.Controls.Add(filterPanel, 0, 1);
-
-            BuildManagementPanel();
-            _layout.Controls.Add(_managementPanel, 0, 2);
-
-            var split = new SplitContainer
-            {
-                Dock = DockStyle.Fill,
-                Orientation = Orientation.Horizontal,
-                Panel1MinSize = 150,
-                Panel2MinSize = 120,
-                BorderStyle = BorderStyle.FixedSingle
-            };
-            split.SizeChanged += (_, _) =>
-            {
-                int desiredDistance = (int)(split.Height * 0.58);
-                if (desiredDistance >= split.Panel1MinSize
-                    && split.Height - desiredDistance - split.SplitterWidth >= split.Panel2MinSize
-                    && split.SplitterDistance != desiredDistance)
-                    split.SplitterDistance = desiredDistance;
-            };
-            BuildGridSection(split.Panel1, "Lịch phân ca trong tháng", _dgvSchedule);
-            BuildGridSection(split.Panel2, "Số ca theo nhân viên trong tháng", _dgvMonthlyTotals);
-            _layout.Controls.Add(split, 0, 3);
-
-            _dtpMonth.ValueChanged += (_, _) => UpdateMonthHeader();
             UpdateMonthHeader();
+            if (!_isLoading && !DesignTimeHelper.IsDesignTime(this)) LoadRoster();
         }
-
-        private void BuildManagementPanel()
-        {
-            _managementPanel.Dock = DockStyle.Fill;
-            _managementPanel.Visible = _canManage;
-            _managementPanel.Padding = new Padding(0, 5, 0, 4);
-            var flow = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false,
-                AutoScroll = true,
-                Padding = new Padding(0, 7, 0, 0)
-            };
-            _managementPanel.Controls.Add(flow);
-
-            flow.Controls.Add(new Label { Text = "Nhân viên:", AutoSize = true, Margin = new Padding(0, 8, 5, 0) });
-            _cboEmployee.DropDownStyle = ComboBoxStyle.DropDownList;
-            _cboEmployee.Width = 185;
-            _cboEmployee.Margin = new Padding(0, 2, 8, 0);
-            flow.Controls.Add(_cboEmployee);
-
-            flow.Controls.Add(new Label { Text = "Ngày:", AutoSize = true, Margin = new Padding(0, 8, 5, 0) });
-            _dtpWorkDay.Format = DateTimePickerFormat.Short;
-            _dtpWorkDay.Width = 110;
-            _dtpWorkDay.Margin = new Padding(0, 2, 8, 0);
-            _dtpWorkDay.ValueChanged += (_, _) => SyncMonthToWorkDay();
-            flow.Controls.Add(_dtpWorkDay);
-
-            flow.Controls.Add(new Label { Text = "Ca:", AutoSize = true, Margin = new Padding(0, 8, 5, 0) });
-            _cboShift.DropDownStyle = ComboBoxStyle.DropDownList;
-            _cboShift.Width = 175;
-            _cboShift.Margin = new Padding(0, 2, 8, 0);
-            flow.Controls.Add(_cboShift);
-
-            _btnAdd.Text = "Phân ca";
-            _btnAdd.Click += (_, _) => AddAssignment();
-            flow.Controls.Add(_btnAdd);
-            _btnChange.Text = "Đổi ca/người";
-            _btnChange.Click += (_, _) => ChangeAssignment();
-            flow.Controls.Add(_btnChange);
-            _btnComplete.Text = "Đánh dấu đã làm";
-            _btnComplete.Click += (_, _) => CompleteAssignment();
-            flow.Controls.Add(_btnComplete);
-            _btnCancel.Text = "Hủy ca";
-            _btnCancel.Click += (_, _) => CancelAssignment();
-            flow.Controls.Add(_btnCancel);
-
-            foreach (var button in new[] { _btnAdd, _btnChange, _btnComplete, _btnCancel })
-            {
-                button.Width = button == _btnComplete ? 128 : button == _btnChange ? 112 : button == _btnCancel ? 76 : 82;
-                button.Height = 32;
-                button.Margin = new Padding(0, 0, 5, 0);
-                button.Font = new Font("Segoe UI", 8.5f, FontStyle.Bold);
-                button.FlatStyle = FlatStyle.Flat;
-                button.FlatAppearance.BorderSize = 0;
-                button.ForeColor = Color.White;
-            }
-            _btnAdd.BackColor = ThemeHelper.AccentGreen;
-            _btnChange.BackColor = ThemeHelper.AccentBlue;
-            _btnComplete.BackColor = ThemeHelper.AccentGold;
-            _btnCancel.BackColor = ThemeHelper.AccentRed;
-        }
-
-        private void BuildGridSection(Control parent, string title, DataGridView grid)
-        {
-            var label = new Label
-            {
-                Text = title,
-                Dock = DockStyle.Top,
-                Height = 32,
-                Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
-                ForeColor = ThemeHelper.PrimaryDark,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(7, 0, 0, 0)
-            };
-            grid.Dock = DockStyle.Fill;
-            ThemeHelper.StyleDataGridView(grid);
-            parent.Controls.Add(grid);
-            parent.Controls.Add(label);
-            grid.SelectionChanged += (_, _) => ReadSelectedAssignment();
-        }
-
-        private static Button CreateButton(string text, Color color, int width)
-        {
-            return new Button
-            {
-                Text = text,
-                Width = width,
-                Height = 30,
-                BackColor = color,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Margin = new Padding(10, 1, 0, 0)
-            };
-        }
+        private void ReloadClicked(object? sender, EventArgs e) { LoadLookups(); LoadRoster(); }
+        private void WorkDayChanged(object? sender, EventArgs e) { if (!_isLoading) SyncMonthToWorkDay(); }
+        private void AssignmentChanged(object? sender, EventArgs e) => ReadSelectedAssignment();
+        private void AddClicked(object? sender, EventArgs e) => AddAssignment();
+        private void ChangeClicked(object? sender, EventArgs e) => ChangeAssignment();
+        private void CompleteClicked(object? sender, EventArgs e) => CompleteAssignment();
+        private void CancelClicked(object? sender, EventArgs e) => CancelAssignment();
 
         private void UpdateMonthHeader()
         {
@@ -232,7 +66,7 @@ namespace HeThongRapChieuPhim.UserControls
                 _isLoading = true;
                 var employees = Function.Query(@"
                     SELECT MaNV, CONCAT(MaNV, N' - ', HoTen) AS TenHienThi
-                    FROM dbo.NhanVien ORDER BY MaNV");
+                    FROM dbo.NhanVien WHERE ChucVu=N'Thu ngân' ORDER BY MaNV");
                 _cboEmployee.DataSource = employees;
                 _cboEmployee.DisplayMember = "TenHienThi";
                 _cboEmployee.ValueMember = "MaNV";
@@ -276,7 +110,7 @@ namespace HeThongRapChieuPhim.UserControls
                     INNER JOIN dbo.NhanVien nv ON nv.MaNV = pc.MaNV
                     INNER JOIN dbo.CaLamViec ca ON ca.MaCa = pc.MaCa
                     WHERE pc.NgayLam >= @start AND pc.NgayLam < @end
-                      AND (@maNV IS NULL OR pc.MaNV = @maNV)
+                      AND nv.ChucVu=N'Thu ngân' AND (@maNV IS NULL OR pc.MaNV = @maNV)
                     ORDER BY pc.NgayLam, ca.GioBatDau, nv.MaNV",
                     new[] { DbArg.Date("@start", start), DbArg.Date("@end", end), DbArg.VarChar20("@maNV", maNV) });
                 SetColumnVisible(_dgvSchedule, "MaPhanCa", false);
@@ -294,7 +128,7 @@ namespace HeThongRapChieuPhim.UserControls
                     LEFT JOIN dbo.LichLamViec pc
                       ON pc.MaNV = nv.MaNV AND pc.NgayLam >= @start AND pc.NgayLam < @end
                      AND pc.TrangThai IN ('Scheduled', 'Completed')
-                    WHERE (@maNV IS NULL OR nv.MaNV = @maNV)
+                    WHERE nv.ChucVu=N'Thu ngân' AND (@maNV IS NULL OR nv.MaNV = @maNV)
                     GROUP BY nv.MaNV, nv.HoTen, nv.ChucVu
                     ORDER BY nv.MaNV",
                     new[] { DbArg.Date("@start", start), DbArg.Date("@end", end), DbArg.VarChar20("@maNV", maNV) });
@@ -305,7 +139,7 @@ namespace HeThongRapChieuPhim.UserControls
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Không tải được lịch ca. Hãy chạy migration Database/Migrations/20261023_CashierWorkShifts.sql.\n" + ex.Message,
+                MessageBox.Show("Không tải được lịch ca. Hãy chạy Database/NHHcinema.sql.\n" + ex.Message,
                     "Lỗi CSDL", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally { _isLoading = false; }
@@ -356,7 +190,7 @@ namespace HeThongRapChieuPhim.UserControls
             ngay = _dtpWorkDay.Value.Date;
             if (maNV.Length == 0 || _cboEmployee.SelectedValue == null)
             {
-                MessageBox.Show("Hãy thêm hồ sơ nhân viên trước khi phân ca.", "Thiếu nhân viên", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Hãy chọn hồ sơ thu ngân trước khi phân ca.", "Thiếu nhân viên", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
             if (!byte.TryParse(Convert.ToString(_cboShift.SelectedValue), out maCa))
@@ -369,13 +203,16 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void AddAssignment()
         {
+            if (!CurrentUser.IsSuperAdmin && !CurrentUser.IsHumanResourcesAdmin) return;
             if (!TryReadInputs(out string maNV, out byte maCa, out DateTime ngay)) return;
             try
             {
-                Function.Execute(@"
+                int affected = Function.Execute(@"
                     INSERT dbo.LichLamViec (MaNV, NgayLam, MaCa, TrangThai)
-                    VALUES (@maNV, @ngay, @maCa, 'Scheduled')",
+                    SELECT MaNV, @ngay, @maCa, 'Scheduled' FROM dbo.NhanVien WITH (UPDLOCK, HOLDLOCK)
+                    WHERE MaNV=@maNV AND ChucVu=N'Thu ngân'",
                     new[] { DbArg.VarChar20("@maNV", maNV), DbArg.Date("@ngay", ngay), DbArg.TinyInt("@maCa", maCa) });
+                if (affected != 1) throw new InvalidOperationException("Chỉ có thể phân ca cho thu ngân. Hãy tải lại danh sách.");
                 LoadRoster();
             }
             catch (DuplicateRecordException)
@@ -387,13 +224,15 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void ChangeAssignment()
         {
+            if (!CurrentUser.IsSuperAdmin && !CurrentUser.IsHumanResourcesAdmin) return;
             if (!_selectedAssignmentId.HasValue || !TryReadInputs(out string maNV, out byte maCa, out DateTime ngay)) return;
             try
             {
                 int affected = Function.Execute(@"
                     UPDATE dbo.LichLamViec
                     SET MaNV=@maNV, NgayLam=@ngay, MaCa=@maCa
-                    WHERE MaPhanCa=@id AND TrangThai='Scheduled'",
+                    WHERE MaPhanCa=@id AND TrangThai='Scheduled'
+                      AND EXISTS (SELECT 1 FROM dbo.NhanVien nv WITH (UPDLOCK, HOLDLOCK) WHERE nv.MaNV=@maNV AND nv.ChucVu=N'Thu ngân')",
                     new[] { DbArg.VarChar20("@maNV", maNV), DbArg.Date("@ngay", ngay), DbArg.TinyInt("@maCa", maCa), DbArg.BigInt("@id", _selectedAssignmentId.Value) });
                 if (affected != 1) throw new InvalidOperationException("Ca đã hoàn thành/hủy hoặc đã thay đổi. Tải lại danh sách rồi thử lại.");
                 LoadRoster();
@@ -407,6 +246,7 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void CompleteAssignment()
         {
+            if (!CurrentUser.IsSuperAdmin && !CurrentUser.IsHumanResourcesAdmin) return;
             if (!_selectedAssignmentId.HasValue) return;
             try
             {
@@ -426,6 +266,7 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void CancelAssignment()
         {
+            if (!CurrentUser.IsSuperAdmin && !CurrentUser.IsHumanResourcesAdmin) return;
             if (!_selectedAssignmentId.HasValue) return;
             if (MessageBox.Show("Đánh dấu ca này đã hủy? Lịch vẫn được lưu để đối chiếu.", "Xác nhận hủy ca",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;

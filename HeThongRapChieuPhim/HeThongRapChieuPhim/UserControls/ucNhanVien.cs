@@ -14,7 +14,6 @@ namespace HeThongRapChieuPhim.UserControls
         public ucNhanVien()
         {
             InitializeComponent();
-            ThemeHelper.StyleDataGridView(dgvNhanVien);
             if (!DesignTimeHelper.IsDesignTime(this)) LoadNhanVien();
         }
 

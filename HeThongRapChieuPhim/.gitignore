@@ -4,3 +4,5 @@
 **/appsettings.Local.json
 *.user
 *.suo
+
+artifacts/

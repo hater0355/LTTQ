@@ -1,0 +1,1 @@
+namespace HeThongRapChieuPhim.UserControls; public partial class ucBanHangFood : UserControl { public ucBanHangFood() { InitializeComponent(); } }

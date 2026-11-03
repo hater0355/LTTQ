@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "Chay ung dung rap chieu phim",
+    "Projects": [
+      {
+        "Path": "HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

@@ -14,7 +14,6 @@ namespace HeThongRapChieuPhim.UserControls
         public ucCaiUuDai()
         {
             InitializeComponent();
-            ThemeHelper.StyleDataGridView(dgvCombo);
             if (!DesignTimeHelper.IsDesignTime(this)) RefreshData();
         }
 

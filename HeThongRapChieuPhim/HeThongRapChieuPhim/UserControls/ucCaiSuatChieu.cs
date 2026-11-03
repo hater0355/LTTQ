@@ -16,86 +16,21 @@ namespace HeThongRapChieuPhim.UserControls
         private bool _isLoading = false;
         private bool _isSelectingFromSlot = false;
         private int _currentThoiLuong = 120;
-        private readonly ComboBox _cboFilterPhong = new();
-        private readonly CheckBox _chkFilterGio = new();
-        private readonly DateTimePicker _dtpFilterGioTu = new();
-        private readonly DateTimePicker _dtpFilterGioDen = new();
+        private string? _editingShowId;
+        private string _pricedMovieId = "";
 
         public ucCaiSuatChieu()
         {
             InitializeComponent();
-            ThemeHelper.StyleDataGridView(dgvSuatChieu);
-            ConfigureScheduleFilters();
+            _dtpFilterGioTu.Value = DateTime.Today.AddHours(10);
+            _dtpFilterGioDen.Value = DateTime.Today.AddHours(23).AddMinutes(59);
             if (!DesignTimeHelper.IsDesignTime(this)) RefreshData();
         }
 
-        private void ConfigureScheduleFilters()
+        private void FilterTimeChanged(object? sender, EventArgs e)
         {
-            pnlActions.Height = 96;
-            lblFPhim.Location = new Point(450, 16);
-            cboFilterPhim.Location = new Point(520, 12);
-            cboFilterPhim.Size = new Size(160, 29);
-            dtpFilterNgay.Location = new Point(520, 55);
-            dtpFilterNgay.Size = new Size(115, 29);
-            btnFilter.Location = new Point(1020, 54);
-            btnFilter.Size = new Size(80, 30);
-
-            var lblPhongFilter = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.Black,
-                Location = new Point(690, 16),
-                Text = "Lọc phòng:"
-            };
-            _cboFilterPhong.DropDownStyle = ComboBoxStyle.DropDownList;
-            _cboFilterPhong.Font = new Font("Segoe UI", 9.5F);
-            _cboFilterPhong.Location = new Point(765, 12);
-            _cboFilterPhong.Size = new Size(180, 29);
-
-            var lblNgayFilter = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.Black,
-                Location = new Point(450, 59),
-                Text = "Ngày:"
-            };
-            _chkFilterGio.AutoSize = true;
-            _chkFilterGio.Font = new Font("Segoe UI", 9F);
-            _chkFilterGio.Location = new Point(650, 59);
-            _chkFilterGio.Text = "Lọc giờ:";
-            _chkFilterGio.CheckedChanged += (_, _) =>
-            {
-                _dtpFilterGioTu.Enabled = _chkFilterGio.Checked;
-                _dtpFilterGioDen.Enabled = _chkFilterGio.Checked;
-            };
-
-            ConfigureTimePicker(_dtpFilterGioTu, new Point(730, 55), "10:00");
-            ConfigureTimePicker(_dtpFilterGioDen, new Point(860, 55), "23:59");
-            var lblGioDen = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.Black,
-                Location = new Point(824, 59),
-                Text = "đến"
-            };
-
-            pnlActions.Controls.AddRange([lblPhongFilter, _cboFilterPhong, lblNgayFilter, _chkFilterGio, _dtpFilterGioTu, lblGioDen, _dtpFilterGioDen]);
-            _dtpFilterGioTu.Enabled = false;
-            _dtpFilterGioDen.Enabled = false;
-        }
-
-        private static void ConfigureTimePicker(DateTimePicker picker, Point location, string initialValue)
-        {
-            picker.Format = DateTimePickerFormat.Custom;
-            picker.CustomFormat = "HH:mm";
-            picker.ShowUpDown = true;
-            picker.Font = new Font("Segoe UI", 9.5F);
-            picker.Location = location;
-            picker.Size = new Size(82, 29);
-            picker.Value = DateTime.Today.Add(TimeSpan.Parse(initialValue));
+            _dtpFilterGioTu.Enabled = _chkFilterGio.Checked;
+            _dtpFilterGioDen.Enabled = _chkFilterGio.Checked;
         }
 
         public void RefreshData()
@@ -130,7 +65,7 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void DtpGioChieu_ValueChanged(object? sender, EventArgs e)
         {
-            if (!_isSelectingFromSlot) ValidateAndDisplayTimes();
+            if (!_isLoading && !_isSelectingFromSlot) ValidateAndDisplayTimes();
         }
 
         private void BtnLamMoi_Click(object? sender, EventArgs e)
@@ -201,8 +136,8 @@ namespace HeThongRapChieuPhim.UserControls
                 SELECT MaPhim, TenPhim, GiaPhim, ISNULL(ThoiLuong, 120) AS ThoiLuong,
                        CAST(1 AS bit) AS TrongThoiHan
                 FROM dbo.Phim
-                WHERE (NgayBatDauChieu IS NULL AND NgayKetThucChieu IS NULL)
-                   OR (@Ngay BETWEEN NgayBatDauChieu AND NgayKetThucChieu)
+                WHERE (NgayBatDauChieu IS NULL OR @Ngay >= NgayBatDauChieu)
+                  AND (NgayKetThucChieu IS NULL OR @Ngay <= NgayKetThucChieu)
                 ORDER BY TenPhim ASC", new[] { DbArg.Date("@Ngay", scheduleDate.Date) });
 
             if (!string.IsNullOrWhiteSpace(includeMovieId) &&
@@ -247,6 +182,7 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void BtnAutoMa_Click(object? sender, EventArgs e)
         {
+            if (_editingShowId != null) return;
             try
             {
                 var dt = Function.Query("SELECT MaSuatChieu FROM SuatChieu");
@@ -274,6 +210,7 @@ namespace HeThongRapChieuPhim.UserControls
         private void OnCriteriaChanged()
         {
             if (_isLoading) return;
+            btnSua.Enabled = false;
 
             // 1. Cập nhật thời lượng và giá vé từ phim
             if (cboPhim.SelectedItem is DataRowView drv)
@@ -288,10 +225,12 @@ namespace HeThongRapChieuPhim.UserControls
                 }
                 lblThoiLuong.Text = $"⏱️ {_currentThoiLuong}p";
 
-                if (decimal.TryParse(drv["GiaPhim"]?.ToString(), out decimal gia))
+                string movieId = Convert.ToString(drv["MaPhim"]) ?? "";
+                if (_pricedMovieId != movieId && decimal.TryParse(drv["GiaPhim"]?.ToString(), out decimal gia))
                 {
                     numGiaSuatChieu.Value = Math.Max(numGiaSuatChieu.Minimum, Math.Min(numGiaSuatChieu.Maximum, gia));
                 }
+                _pricedMovieId = movieId;
             }
             else
             {
@@ -345,7 +284,7 @@ namespace HeThongRapChieuPhim.UserControls
         {
             string maPhong = cboPhongChieu.SelectedValue?.ToString() ?? "";
             DateTime ngayChieu = dtpNgayChieu.Value.Date;
-            string currentMaSC = txtMaSuatChieu.Text.Trim();
+            string currentMaSC = _editingShowId ?? "";
 
             cboKhungGio.Items.Clear();
 
@@ -361,46 +300,24 @@ namespace HeThongRapChieuPhim.UserControls
             if (_scheduleLookupFailed) return;
 
             var slotList = new List<TimeSlotItem>();
-            TimeSpan openTime = TimeSpan.FromHours(10);  // 10:00 sáng
-            TimeSpan closeTime = TimeSpan.FromHours(24); // 00:00 đêm (24:00)
+            TimeSpan openTime = ShowtimeService.OpeningTime;  // 10:00 sáng
+            TimeSpan closeTime = ShowtimeService.ClosingTime; // 00:00 đêm (24:00)
             int movieMinutes = _currentThoiLuong;
-            int cleanMinutes = 60; // 1 tiếng dọn phòng
+            int cleanMinutes = ShowtimeService.CleaningMinutes; // 1 tiếng dọn phòng
             int totalOccupy = movieMinutes + cleanMinutes;
 
-            // Sinh các mốc slot bắt đầu từ 10:00
-            TimeSpan cur = openTime;
-            while (cur.Add(TimeSpan.FromMinutes(totalOccupy)) <= closeTime)
+            // Offer every quarter-hour that can fit the complete screening and cleaning.
+            for (TimeSpan cur = openTime; cur.Add(TimeSpan.FromMinutes(totalOccupy)) <= closeTime;
+                 cur = cur.Add(TimeSpan.FromMinutes(15)))
             {
                 var slot = CreateSlotItem(cur, movieMinutes, cleanMinutes, existingShows);
+                if (ngayChieu.Add(cur) <= DateTime.Now)
+                {
+                    slot.IsAvailable = false;
+                    slot.Note = "Giờ chiếu đã qua";
+                }
                 slotList.Add(slot);
-
-                // Nếu slot này bị trùng với 1 suất đã có E:
-                // Ta có thể nhảy tiếp sau khi suất đó dọn phòng xong (E.CleanEnd) hoặc nhảy chu kỳ slot
-                var conflict = FindFirstConflict(slot.StartTime, slot.CleanEndTime, existingShows);
-                if (conflict != null && conflict.CleanEndTime > cur)
-                {
-                    cur = conflict.CleanEndTime;
-                }
-                else
-                {
-                    cur = cur.Add(TimeSpan.FromMinutes(totalOccupy));
-                }
             }
-
-            // Kiểm tra thêm các mốc bắt đầu ngay sau khi mỗi suất đã có dọn phòng xong (nếu chưa có trong list)
-            foreach (var ex in existingShows)
-            {
-                if (ex.CleanEndTime >= openTime && ex.CleanEndTime.Add(TimeSpan.FromMinutes(totalOccupy)) <= closeTime)
-                {
-                    bool alreadyExists = slotList.Exists(s => Math.Abs((s.StartTime - ex.CleanEndTime).TotalMinutes) < 15);
-                    if (!alreadyExists)
-                    {
-                        var extraSlot = CreateSlotItem(ex.CleanEndTime, movieMinutes, cleanMinutes, existingShows);
-                        slotList.Add(extraSlot);
-                    }
-                }
-            }
-
             // Sắp xếp các slot theo giờ bắt đầu tăng dần
             slotList.Sort((a, b) => a.StartTime.CompareTo(b.StartTime));
 
@@ -416,16 +333,8 @@ namespace HeThongRapChieuPhim.UserControls
                 cboKhungGio.Items.Add(slot);
             }
 
-            // Mặc định chọn slot trống đầu tiên nếu có
-            int firstAvailableIndex = slotList.FindIndex(s => s.IsAvailable);
-            if (firstAvailableIndex >= 0)
-            {
-                cboKhungGio.SelectedIndex = firstAvailableIndex;
-            }
-            else
-            {
-                cboKhungGio.SelectedIndex = 0;
-            }
+            // Suggestions must never overwrite the time entered or loaded for editing.
+            cboKhungGio.SelectedIndex = -1;
         }
 
         private class ExistingShow
@@ -463,7 +372,7 @@ namespace HeThongRapChieuPhim.UserControls
                     {
                         int tl = Convert.ToInt32(row["ThoiLuong"]);
                         var end = start.Add(TimeSpan.FromMinutes(tl));
-                        var clean = end.Add(TimeSpan.FromMinutes(60));
+                        var clean = end.Add(TimeSpan.FromMinutes(ShowtimeService.CleaningMinutes));
                         list.Add(new ExistingShow
                         {
                             MaSC = row["MaSuatChieu"]?.ToString() ?? "",
@@ -489,7 +398,7 @@ namespace HeThongRapChieuPhim.UserControls
             var end = start.Add(TimeSpan.FromMinutes(movieMinutes));
             var clean = end.Add(TimeSpan.FromMinutes(cleanMinutes));
 
-            if (clean > TimeSpan.FromHours(24))
+            if (clean > ShowtimeService.ClosingTime)
             {
                 return new TimeSlotItem
                 {
@@ -530,7 +439,7 @@ namespace HeThongRapChieuPhim.UserControls
             foreach (var ex in existingShows)
             {
                 // Xung đột khi khoảng chiếm dụng [newStart, newClean) giao với [ex.StartTime, ex.CleanEndTime)
-                if (newStart < ex.CleanEndTime && ex.StartTime < newClean)
+                if (ShowtimeService.Overlaps(newStart, newClean, ex.StartTime, ex.CleanEndTime))
                 {
                     return ex;
                 }
@@ -540,12 +449,13 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void CboKhungGio_SelectedIndexChanged(object? sender, EventArgs e)
         {
+            if (_isLoading) return;
             if (cboKhungGio.SelectedItem is TimeSlotItem item)
             {
                 if (!item.IsAvailable)
                 {
                     MessageBox.Show(
-                        $"Khung giờ này không thể chọn vì phòng chiếu đã kín!\n\nLý do: {item.Note}\n\nQuy tắc rạp: Cần khoảng cách 1 tiếng giữa các lần chiếu để dọn phòng vệ sinh.",
+                        $"Khung giờ này không thể chọn!\n\nLý do: {item.Note}\n\nQuy tắc rạp: Cần khoảng cách 1 tiếng giữa các lần chiếu để dọn phòng vệ sinh.",
                         "Khung giờ đã có suất chiếu",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning
@@ -575,19 +485,27 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void ValidateAndDisplayTimes()
         {
+            btnSua.Enabled = false;
             TimeSpan start = dtpGioChieu.Value.TimeOfDay;
             TimeSpan end = start.Add(TimeSpan.FromMinutes(_currentThoiLuong));
-            TimeSpan clean = end.Add(TimeSpan.FromMinutes(60));
+            TimeSpan clean = end.Add(TimeSpan.FromMinutes(ShowtimeService.CleaningMinutes));
 
             lblKetThucVal.Text = FormatTimeSpan(end);
             lblDonPhongVal.Text = FormatTimeSpan(clean);
 
             string maPhong = cboPhongChieu.SelectedValue?.ToString() ?? "";
             DateTime ngay = dtpNgayChieu.Value.Date;
-            string currentMa = txtMaSuatChieu.Text.Trim();
+            string currentMa = _editingShowId ?? "";
+            if (ngay.Add(start) <= DateTime.Now)
+            {
+                lblStatus.Text = "Không thể tạo hoặc sửa suất chiếu đã bắt đầu.";
+                lblStatus.ForeColor = ThemeHelper.AccentRed;
+                btnThem.Enabled = false;
+                return;
+            }
 
             // 1. Kiểm tra giờ mở cửa 10:00
-            if (start < TimeSpan.FromHours(10))
+            if (start < ShowtimeService.OpeningTime)
             {
                 lblStatus.Text = $"⛔ Rạp chỉ hoạt động từ 10:00 sáng! Giờ bắt đầu ({FormatTimeSpan(start)}) không hợp lệ.";
                 lblStatus.ForeColor = ThemeHelper.AccentRed;
@@ -596,7 +514,7 @@ namespace HeThongRapChieuPhim.UserControls
             }
 
             // Phim phải kết thúc và phòng phải được dọn xong trước giờ đóng cửa.
-            if (clean > TimeSpan.FromHours(24))
+            if (clean > ShowtimeService.ClosingTime)
             {
                 lblStatus.Text = $"⛔ Dọn phòng xong lúc {FormatTimeSpan(clean)}, vượt quá giờ đóng cửa rạp (00:00)! Vui lòng chọn giờ sớm hơn.";
                 lblStatus.ForeColor = ThemeHelper.AccentRed;
@@ -640,7 +558,8 @@ namespace HeThongRapChieuPhim.UserControls
             string tenPhong = cboPhongChieu.Text;
             lblStatus.Text = $"✅ HỢP LỆ: {tenPhong} trống từ {FormatTimeSpan(start)} đến {FormatTimeSpan(clean)}. Sẵn sàng tạo suất chiếu!";
             lblStatus.ForeColor = ThemeHelper.AccentGreen;
-            btnThem.Enabled = true;
+            btnThem.Enabled = _editingShowId == null;
+            btnSua.Enabled = _editingShowId != null;
         }
 
         private string FormatTimeSpan(TimeSpan ts)
@@ -724,7 +643,7 @@ namespace HeThongRapChieuPhim.UserControls
                     if (row["GioChieuRaw"] is TimeSpan start && int.TryParse(row["Thời Lượng"]?.ToString(), out int tl))
                     {
                         var end = start.Add(TimeSpan.FromMinutes(tl));
-                        var clean = end.Add(TimeSpan.FromMinutes(60));
+                        var clean = end.Add(TimeSpan.FromMinutes(ShowtimeService.CleaningMinutes));
                         row["Giờ Kết Thúc"] = FormatTimeSpan(end);
                         row["Dọn Xong Lúc"] = FormatTimeSpan(clean);
                     }
@@ -759,8 +678,12 @@ namespace HeThongRapChieuPhim.UserControls
 
             var row = dgvSuatChieu.Rows[e.RowIndex];
             txtMaSuatChieu.Text = row.Cells["Mã Suất Chiếu"].Value?.ToString() ?? "";
+            _editingShowId = txtMaSuatChieu.Text;
+            txtMaSuatChieu.ReadOnly = true;
+            lblTitle.Text = "CHỈNH SỬA SUẤT CHIẾU";
 
             string maPhim = row.Cells["MaPhim"].Value?.ToString() ?? "";
+            _pricedMovieId = maPhim;
             _isLoading = true;
             try
             {
@@ -793,6 +716,7 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void BtnThem_Click(object? sender, EventArgs e)
         {
+            if (_editingShowId != null) return;
             string maSC = txtMaSuatChieu.Text.Trim();
             if (string.IsNullOrEmpty(maSC))
             {
@@ -812,15 +736,15 @@ namespace HeThongRapChieuPhim.UserControls
             TimeSpan gio = dtpGioChieu.Value.TimeOfDay;
 
             // Kiểm tra giờ mở/đóng cửa và trùng phòng có 1 tiếng dọn dẹp
-            if (gio < TimeSpan.FromHours(10))
+            if (gio < ShowtimeService.OpeningTime)
             {
                 MessageBox.Show("Rạp chỉ hoạt động từ 10:00 sáng đến 00:00 đêm!\nGiờ bắt đầu không được sớm hơn 10:00.", "Giờ chiếu ngoài giờ rạp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             TimeSpan end = gio.Add(TimeSpan.FromMinutes(_currentThoiLuong));
-            TimeSpan clean = end.Add(TimeSpan.FromMinutes(60));
-            if (clean > TimeSpan.FromHours(24))
+            TimeSpan clean = end.Add(TimeSpan.FromMinutes(ShowtimeService.CleaningMinutes));
+            if (clean > ShowtimeService.ClosingTime)
             {
                 MessageBox.Show($"Dọn phòng xong lúc {FormatTimeSpan(clean)}, vượt quá 00:00 đêm (giờ đóng cửa rạp)!\nVui lòng chọn giờ bắt đầu sớm hơn.", "Vượt quá giờ rạp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -866,6 +790,7 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void BtnSua_Click(object? sender, EventArgs e)
         {
+            if (_editingShowId == null) return;
             string maSC = txtMaSuatChieu.Text.Trim();
             if (string.IsNullOrEmpty(maSC))
             {
@@ -878,15 +803,15 @@ namespace HeThongRapChieuPhim.UserControls
             DateTime ngay = dtpNgayChieu.Value.Date;
             TimeSpan gio = dtpGioChieu.Value.TimeOfDay;
 
-            if (gio < TimeSpan.FromHours(10))
+            if (gio < ShowtimeService.OpeningTime)
             {
                 MessageBox.Show("Rạp chỉ hoạt động từ 10:00 sáng đến 00:00 đêm!\nGiờ bắt đầu không được sớm hơn 10:00.", "Giờ chiếu ngoài giờ rạp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             TimeSpan end = gio.Add(TimeSpan.FromMinutes(_currentThoiLuong));
-            TimeSpan clean = end.Add(TimeSpan.FromMinutes(60));
-            if (clean > TimeSpan.FromHours(24))
+            TimeSpan clean = end.Add(TimeSpan.FromMinutes(ShowtimeService.CleaningMinutes));
+            if (clean > ShowtimeService.ClosingTime)
             {
                 MessageBox.Show($"Dọn phòng xong lúc {FormatTimeSpan(clean)}, vượt quá 00:00 đêm (giờ đóng cửa rạp)!", "Vượt quá giờ rạp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -924,6 +849,7 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void BtnXoa_Click(object? sender, EventArgs e)
         {
+            if (_editingShowId == null) return;
             string maSC = txtMaSuatChieu.Text.Trim();
             if (string.IsNullOrEmpty(maSC))
             {
@@ -936,8 +862,7 @@ namespace HeThongRapChieuPhim.UserControls
 
             try
             {
-                string deleteQuery = "DELETE FROM SuatChieu WHERE MaSuatChieu = @Ma";
-                Function.Execute(deleteQuery, new[] { DbArg.VarChar20("@Ma", maSC) });
+                ShowtimeService.Delete(maSC);
                 MessageBox.Show("Đã xóa suất chiếu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearForm();
                 LoadSuatChieu();
@@ -950,6 +875,10 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void ClearForm()
         {
+            _editingShowId = null;
+            _pricedMovieId = "";
+            txtMaSuatChieu.ReadOnly = false;
+            lblTitle.Text = "THÊM SUẤT CHIẾU MỚI";
             BtnAutoMa_Click(null, EventArgs.Empty);
             _isLoading = true;
             try

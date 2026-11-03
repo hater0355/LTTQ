@@ -14,8 +14,9 @@ namespace HeThongRapChieuPhim.UserControls
         public ucPhongChieu()
         {
             InitializeComponent();
-            ThemeHelper.StyleDataGridView(dgvPhongChieu);
             ConfigureSeatPreviewGrid();
+            clbVipRows.ItemCheck += (_, _) => { if (IsHandleCreated) BeginInvoke(new Action(UpdateTotalSeatsAndPreview)); };
+            numVipPercent.ValueChanged += (_, _) => UpdateTotalSeatsAndPreview();
             if (!DesignTimeHelper.IsDesignTime(this)) LoadPhongChieu();
             UpdateTotalSeatsAndPreview();
         }
@@ -39,6 +40,16 @@ namespace HeThongRapChieuPhim.UserControls
         {
             int rows = (int)numSoHangGhe.Value;
             int cols = (int)numSoGheMoiHang.Value;
+            if (clbVipRows != null && clbVipRows.Items.Count != rows)
+            {
+                var selected = clbVipRows.CheckedItems.Cast<string>().ToHashSet();
+                clbVipRows.Items.Clear();
+                for (int i=0;i<rows;i++)
+                {
+                    string letter = ((char)('A'+i)).ToString();
+                    clbVipRows.Items.Add(letter, selected.Contains(letter));
+                }
+            }
             char lastRowChar = (char)('A' + rows - 1);
             lblTongGhe.Text = $"⚡ Tổng số ghế: {rows * cols} ghế (Hàng A - {lastRowChar}, Ghế 1 - {cols})";
 
@@ -58,7 +69,8 @@ namespace HeThongRapChieuPhim.UserControls
                     bool visibleSeat = row < rows && column < cols;
                     pnlSeatPreview.Columns[column].Visible = column < cols;
                     cell.Value = visibleSeat ? (column + 1).ToString() : string.Empty;
-                    cell.Style.BackColor = ThemeHelper.SeatAvailable;
+                    cell.Style.BackColor = clbVipRows != null && clbVipRows.CheckedItems.Contains(((char)('A' + row)).ToString())
+                        ? Color.FromArgb(255, 229, 153) : ThemeHelper.SeatAvailable;
                     cell.Style.ForeColor = ThemeHelper.TextPrimary;
                     cell.Style.SelectionBackColor = cell.Style.BackColor;
                     cell.Style.SelectionForeColor = cell.Style.ForeColor;
@@ -68,24 +80,7 @@ namespace HeThongRapChieuPhim.UserControls
 
         private void ConfigureSeatPreviewGrid()
         {
-            pnlSeatPreview.AutoGenerateColumns = false;
-            pnlSeatPreview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
-            pnlSeatPreview.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
-            pnlSeatPreview.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            pnlSeatPreview.RowTemplate.Height = 32;
-            pnlSeatPreview.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            pnlSeatPreview.Columns.Clear();
             pnlSeatPreview.Rows.Clear();
-            for (int column = 1; column <= 30; column++)
-            {
-                pnlSeatPreview.Columns.Add(new DataGridViewTextBoxColumn
-                {
-                    Name = $"colPreviewSeat{column}",
-                    HeaderText = column.ToString(),
-                    Width = 38,
-                    SortMode = DataGridViewColumnSortMode.NotSortable
-                });
-            }
             for (int row = 0; row < 26; row++) pnlSeatPreview.Rows.Add();
             RenderSeatPreview((int)numSoHangGhe.Value, (int)numSoGheMoiHang.Value);
         }
@@ -94,13 +89,16 @@ namespace HeThongRapChieuPhim.UserControls
         {
             try
             {
+                RoomVipService.EnsureSchema();
                 string query = @"
                     SELECT 
                         MaPhong AS [Mã Phòng],
                         TenPhong AS [Tên Phòng],
                         SoHangGhe AS [Số Hàng Ghế (A-Z)],
                         SoGheMoiHang AS [Số Ghế/Hàng],
-                        (SoHangGhe * SoGheMoiHang) AS [Tổng Số Ghế]
+                        (SoHangGhe * SoGheMoiHang) AS [Tổng Số Ghế],
+                        ISNULL((SELECT HangVip FROM dbo.PhongChieuVip v WHERE v.MaPhong=PhongChieu.MaPhong),'') AS [Hàng VIP],
+                        ISNULL((SELECT PhanTramTang FROM dbo.PhongChieuVip v WHERE v.MaPhong=PhongChieu.MaPhong),0) AS [Tăng giá VIP (%)]
                     FROM PhongChieu
                     ORDER BY MaPhong ASC";
 
@@ -120,6 +118,8 @@ namespace HeThongRapChieuPhim.UserControls
             numSoHangGhe.Value = 6;
             numSoGheMoiHang.Value = 10;
             txtMaPhong.Enabled = true;
+            for (int i=0;i<clbVipRows.Items.Count;i++) clbVipRows.SetItemChecked(i,false);
+            numVipPercent.Value = 0;
             UpdateTotalSeatsAndPreview();
             LoadPhongChieu();
         }
@@ -138,9 +138,19 @@ namespace HeThongRapChieuPhim.UserControls
             if (int.TryParse(row.Cells["Số Ghế/Hàng"].Value?.ToString(), out int cols))
                 numSoGheMoiHang.Value = Math.Min(Math.Max(cols, numSoGheMoiHang.Minimum), numSoGheMoiHang.Maximum);
 
+            try
+            {
+                var vip = RoomVipService.Get(txtMaPhong.Text);
+                for (int i=0;i<clbVipRows.Items.Count;i++)
+                    clbVipRows.SetItemChecked(i, vip.IsVip(Convert.ToString(clbVipRows.Items[i]) ?? ""));
+                numVipPercent.Value = vip.Percent;
+            }
+            catch (Exception ex) { MessageBox.Show("Không tải được cấu hình VIP: " + ex.Message); return; }
             txtMaPhong.Enabled = false;
             UpdateTotalSeatsAndPreview();
         }
+
+        private RoomVipSettings ReadVipSettings() => new(string.Join(",", clbVipRows.CheckedItems.Cast<string>()), numVipPercent.Value);
 
         private void BtnThem_Click(object? sender, EventArgs e)
         {
@@ -166,18 +176,7 @@ namespace HeThongRapChieuPhim.UserControls
                     return;
                 }
 
-                string insert = @"
-                    INSERT INTO PhongChieu (MaPhong, TenPhong, SoHangGhe, SoGheMoiHang)
-                    VALUES (@Ma, @Ten, @Rows, @Cols)";
-
-                var p = new[]
-                {
-                    DbArg.VarChar20("@Ma", ma),
-                    DbArg.NVarChar100("@Ten", ten),
-                    DbArg.Int("@Rows", rows),
-                    DbArg.Int("@Cols", cols)
-                };
-                Function.Execute(insert, p);
+                RoomVipService.SaveRoom(ma, ten, rows, cols, ReadVipSettings(), update: false);
 
                 MessageBox.Show("Thêm phòng chiếu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearForm();
@@ -203,19 +202,7 @@ namespace HeThongRapChieuPhim.UserControls
 
             try
             {
-                string update = @"
-                    UPDATE PhongChieu
-                    SET TenPhong = @Ten, SoHangGhe = @Rows, SoGheMoiHang = @Cols
-                    WHERE MaPhong = @Ma";
-
-                var p = new[]
-                {
-                    DbArg.VarChar20("@Ma", ma),
-                    DbArg.NVarChar100("@Ten", ten),
-                    DbArg.Int("@Rows", rows),
-                    DbArg.Int("@Cols", cols)
-                };
-                Function.Execute(update, p);
+                RoomVipService.SaveRoom(ma, ten, rows, cols, ReadVipSettings(), update: true);
 
                 MessageBox.Show("Cập nhật phòng chiếu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearForm();

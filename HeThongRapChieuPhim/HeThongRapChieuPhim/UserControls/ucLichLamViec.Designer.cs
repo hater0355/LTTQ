@@ -11,8 +11,10 @@ namespace HeThongRapChieuPhim.UserControls
             _dtpMonth = new DateTimePicker();
             btnReload = new Button();
             _lblReadOnly = new Label();
-            _managementPanel = new Panel();
+            _managementPanel = new GroupBox();
             flow = new FlowLayoutPanel();
+            accountLabel = new Label();
+            _cboCashierAccount = new ComboBox();
             employeeLabel = new Label();
             _cboEmployee = new ComboBox();
             dayLabel = new Label();
@@ -52,11 +54,11 @@ namespace HeThongRapChieuPhim.UserControls
             _layout.Dock = DockStyle.Fill;
             _layout.Location = new Point(0, 0);
             _layout.Name = "_layout";
-            _layout.Padding = new Padding(14, 10, 14, 12);
+            _layout.Padding = new Padding(20, 15, 20, 20);
             _layout.RowCount = 4;
             _layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 54F));
-            _layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
-            _layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 76F));
+            _layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 58F));
+            _layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 126F));
             _layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             _layout.Size = new Size(1250, 800);
             _layout.TabIndex = 0;
@@ -81,6 +83,8 @@ namespace HeThongRapChieuPhim.UserControls
             filterPanel.Controls.Add(btnReload);
             filterPanel.Controls.Add(_lblReadOnly);
             filterPanel.Dock = DockStyle.Fill;
+            filterPanel.BackColor = Color.White;
+            filterPanel.BorderStyle = BorderStyle.FixedSingle;
             filterPanel.Location = new Point(17, 67);
             filterPanel.Name = "filterPanel";
             filterPanel.Padding = new Padding(0, 7, 0, 0);
@@ -102,6 +106,7 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             _dtpMonth.CustomFormat = "MM/yyyy";
             _dtpMonth.Format = DateTimePickerFormat.Custom;
+            _dtpMonth.Font = new Font("Segoe UI", 9.5F);
             _dtpMonth.Location = new Point(100, 10);
             _dtpMonth.Name = "_dtpMonth";
             _dtpMonth.ShowUpDown = true;
@@ -116,6 +121,8 @@ namespace HeThongRapChieuPhim.UserControls
             btnReload.Size = new Size(92, 30);
             btnReload.TabIndex = 2;
             btnReload.Text = "Tải lại";
+            btnReload.Cursor = Cursors.Hand;
+            btnReload.Font = new Font("Segoe UI", 9.5F);
             btnReload.Click += ReloadClicked;
             // 
             // _lblReadOnly
@@ -134,12 +141,19 @@ namespace HeThongRapChieuPhim.UserControls
             _managementPanel.Dock = DockStyle.Fill;
             _managementPanel.Location = new Point(17, 115);
             _managementPanel.Name = "_managementPanel";
-            _managementPanel.Size = new Size(1216, 70);
+            _managementPanel.Size = new Size(1216, 126);
             _managementPanel.TabIndex = 2;
+            _managementPanel.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            _managementPanel.ForeColor = Color.FromArgb(20, 83, 45);
+            _managementPanel.Padding = new Padding(12, 8, 12, 8);
+            _managementPanel.TabStop = false;
+            _managementPanel.Text = "Phân công và điều chỉnh ca";
             // 
             // flow
             // 
-            flow.AutoScroll = true;
+            flow.AutoScroll = false;
+            flow.Controls.Add(accountLabel);
+            flow.Controls.Add(_cboCashierAccount);
             flow.Controls.Add(employeeLabel);
             flow.Controls.Add(_cboEmployee);
             flow.Controls.Add(dayLabel);
@@ -153,10 +167,10 @@ namespace HeThongRapChieuPhim.UserControls
             flow.Dock = DockStyle.Fill;
             flow.Location = new Point(0, 0);
             flow.Name = "flow";
-            flow.Padding = new Padding(0, 7, 0, 0);
+            flow.Padding = new Padding(4, 8, 4, 2);
             flow.Size = new Size(1216, 70);
             flow.TabIndex = 0;
-            flow.WrapContents = false;
+            flow.WrapContents = true;
             // 
             // employeeLabel
             // 
@@ -166,15 +180,35 @@ namespace HeThongRapChieuPhim.UserControls
             employeeLabel.Name = "employeeLabel";
             employeeLabel.Size = new Size(78, 21);
             employeeLabel.TabIndex = 0;
-            employeeLabel.Text = "Thu ngân:";
+            employeeLabel.Text = "Nhân viên:";
             // 
             // _cboEmployee
             // 
             _cboEmployee.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboEmployee.Font = new Font("Segoe UI", 9.5F);
             _cboEmployee.Location = new Point(89, 10);
             _cboEmployee.Name = "_cboEmployee";
             _cboEmployee.Size = new Size(230, 29);
             _cboEmployee.TabIndex = 1;
+            // 
+            // accountLabel
+            // 
+            accountLabel.AutoSize = true;
+            accountLabel.Location = new Point(0, 15);
+            accountLabel.Margin = new Padding(0, 8, 8, 0);
+            accountLabel.Name = "accountLabel";
+            accountLabel.Size = new Size(75, 21);
+            accountLabel.TabIndex = 9;
+            accountLabel.Text = "Tài khoản:";
+            // 
+            // _cboCashierAccount
+            // 
+            _cboCashierAccount.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboCashierAccount.Font = new Font("Segoe UI", 9.5F);
+            _cboCashierAccount.Location = new Point(80, 10);
+            _cboCashierAccount.Name = "_cboCashierAccount";
+            _cboCashierAccount.Size = new Size(180, 29);
+            _cboCashierAccount.TabIndex = 10;
             // 
             // dayLabel
             // 
@@ -189,6 +223,7 @@ namespace HeThongRapChieuPhim.UserControls
             // _dtpWorkDay
             // 
             _dtpWorkDay.Format = DateTimePickerFormat.Short;
+            _dtpWorkDay.Font = new Font("Segoe UI", 9.5F);
             _dtpWorkDay.Location = new Point(383, 10);
             _dtpWorkDay.Name = "_dtpWorkDay";
             _dtpWorkDay.Size = new Size(120, 29);
@@ -208,6 +243,7 @@ namespace HeThongRapChieuPhim.UserControls
             // _cboShift
             // 
             _cboShift.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboShift.Font = new Font("Segoe UI", 9.5F);
             _cboShift.Location = new Point(548, 10);
             _cboShift.Name = "_cboShift";
             _cboShift.Size = new Size(190, 29);
@@ -215,54 +251,54 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             // _btnAdd
             // 
-            _btnAdd.BackColor = Color.SeaGreen;
-            _btnAdd.FlatStyle = FlatStyle.Flat;
-            _btnAdd.ForeColor = Color.White;
+            _btnAdd.Cursor = Cursors.Hand;
+            _btnAdd.FlatStyle = FlatStyle.Standard;
+            _btnAdd.ForeColor = Color.Black;
             _btnAdd.Location = new Point(744, 10);
             _btnAdd.Name = "_btnAdd";
             _btnAdd.Size = new Size(82, 32);
             _btnAdd.TabIndex = 6;
             _btnAdd.Text = "Phân ca";
-            _btnAdd.UseVisualStyleBackColor = false;
+            _btnAdd.UseVisualStyleBackColor = true;
             _btnAdd.Click += AddClicked;
             // 
             // _btnChange
             // 
-            _btnChange.BackColor = Color.SteelBlue;
-            _btnChange.FlatStyle = FlatStyle.Flat;
-            _btnChange.ForeColor = Color.White;
+            _btnChange.Cursor = Cursors.Hand;
+            _btnChange.FlatStyle = FlatStyle.Standard;
+            _btnChange.ForeColor = Color.Black;
             _btnChange.Location = new Point(832, 10);
             _btnChange.Name = "_btnChange";
             _btnChange.Size = new Size(112, 32);
             _btnChange.TabIndex = 7;
             _btnChange.Text = "Đổi ca/người";
-            _btnChange.UseVisualStyleBackColor = false;
+            _btnChange.UseVisualStyleBackColor = true;
             _btnChange.Click += ChangeClicked;
             // 
             // _btnComplete
             // 
-            _btnComplete.BackColor = Color.DarkGoldenrod;
-            _btnComplete.FlatStyle = FlatStyle.Flat;
-            _btnComplete.ForeColor = Color.White;
+            _btnComplete.Cursor = Cursors.Hand;
+            _btnComplete.FlatStyle = FlatStyle.Standard;
+            _btnComplete.ForeColor = Color.Black;
             _btnComplete.Location = new Point(950, 10);
             _btnComplete.Name = "_btnComplete";
             _btnComplete.Size = new Size(132, 32);
             _btnComplete.TabIndex = 8;
             _btnComplete.Text = "Đánh dấu đã làm";
-            _btnComplete.UseVisualStyleBackColor = false;
+            _btnComplete.UseVisualStyleBackColor = true;
             _btnComplete.Click += CompleteClicked;
             // 
             // _btnCancel
             // 
-            _btnCancel.BackColor = Color.IndianRed;
-            _btnCancel.FlatStyle = FlatStyle.Flat;
-            _btnCancel.ForeColor = Color.White;
+            _btnCancel.Cursor = Cursors.Hand;
+            _btnCancel.FlatStyle = FlatStyle.Standard;
+            _btnCancel.ForeColor = Color.Black;
             _btnCancel.Location = new Point(1088, 10);
             _btnCancel.Name = "_btnCancel";
             _btnCancel.Size = new Size(76, 32);
             _btnCancel.TabIndex = 9;
             _btnCancel.Text = "Hủy ca";
-            _btnCancel.UseVisualStyleBackColor = false;
+            _btnCancel.UseVisualStyleBackColor = true;
             _btnCancel.Click += CancelClicked;
             // 
             // gridLayout
@@ -285,6 +321,8 @@ namespace HeThongRapChieuPhim.UserControls
             schedulePanel.Controls.Add(_dgvSchedule);
             schedulePanel.Controls.Add(scheduleTitle);
             schedulePanel.Dock = DockStyle.Fill;
+            schedulePanel.BackColor = Color.White;
+            schedulePanel.BorderStyle = BorderStyle.FixedSingle;
             schedulePanel.Location = new Point(3, 3);
             schedulePanel.Name = "schedulePanel";
             schedulePanel.Size = new Size(1210, 338);
@@ -308,6 +346,9 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             scheduleTitle.Dock = DockStyle.Top;
             scheduleTitle.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+            scheduleTitle.ForeColor = Color.FromArgb(0, 51, 102);
+            scheduleTitle.Padding = new Padding(8, 0, 0, 0);
+            scheduleTitle.TextAlign = ContentAlignment.MiddleLeft;
             scheduleTitle.Location = new Point(0, 0);
             scheduleTitle.Name = "scheduleTitle";
             scheduleTitle.Size = new Size(1210, 32);
@@ -319,6 +360,8 @@ namespace HeThongRapChieuPhim.UserControls
             totalsPanel.Controls.Add(_dgvMonthlyTotals);
             totalsPanel.Controls.Add(totalsTitle);
             totalsPanel.Dock = DockStyle.Fill;
+            totalsPanel.BackColor = Color.White;
+            totalsPanel.BorderStyle = BorderStyle.FixedSingle;
             totalsPanel.Location = new Point(3, 347);
             totalsPanel.Name = "totalsPanel";
             totalsPanel.Size = new Size(1210, 244);
@@ -341,11 +384,14 @@ namespace HeThongRapChieuPhim.UserControls
             // 
             totalsTitle.Dock = DockStyle.Top;
             totalsTitle.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+            totalsTitle.ForeColor = Color.FromArgb(0, 51, 102);
+            totalsTitle.Padding = new Padding(8, 0, 0, 0);
+            totalsTitle.TextAlign = ContentAlignment.MiddleLeft;
             totalsTitle.Location = new Point(0, 0);
             totalsTitle.Name = "totalsTitle";
             totalsTitle.Size = new Size(1210, 32);
             totalsTitle.TabIndex = 1;
-            totalsTitle.Text = "Số ca theo thu ngân trong tháng";
+            totalsTitle.Text = "Số ca theo nhân viên trong tháng";
             // 
             // ucLichLamViec
             // 
@@ -450,8 +496,10 @@ namespace HeThongRapChieuPhim.UserControls
         internal DateTimePicker _dtpMonth;
         internal Button btnReload;
         internal Label _lblReadOnly;
-        internal Panel _managementPanel;
+        internal GroupBox _managementPanel;
         internal FlowLayoutPanel flow;
+        internal Label accountLabel;
+        internal ComboBox _cboCashierAccount;
         internal Label employeeLabel;
         internal ComboBox _cboEmployee;
         internal Label dayLabel;

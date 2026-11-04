@@ -233,7 +233,9 @@ namespace HeThongRapChieuPhim.UserControls
             if (DesignMode || System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
                 return;
 
-            lblCashierInfo.Text = $"👤 Nhân viên: {CurrentUser.HoTen} (Mã: {CurrentUser.MaNV})";
+            lblCashierInfo.Text = CurrentUser.IsCashier && string.IsNullOrWhiteSpace(CurrentUser.MaNV)
+                ? $"👤 Tài khoản thu ngân: {CurrentUser.TenDangNhap} (chưa có ca đang diễn ra)"
+                : $"👤 Nhân viên: {CurrentUser.HoTen} (Mã: {CurrentUser.MaNV})";
             LoadMovies();
             LoadCombos();
             LoadFoods();

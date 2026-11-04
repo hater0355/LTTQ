@@ -37,19 +37,8 @@ Set `PAYMENTS_API_URL` to the API base URL (HTTPS in deployment) and set `PAYMEN
 
 ## Database rollout
 
-Back up the database, then run the additive migrations in order:
+Back up the database first. Run `Database/NHHcinema.sql` in full in SSMS, or with `sqlcmd -f 65001 -I -b -i Database/NHHcinema.sql`; it is the project's repeatable schema creation/upgrade script and includes the migrations in order. On a database that already applied `20261103_CashierAccountShiftAssignments.sql`, run the corrective `Database/Migrations/20261103_CashierShiftEmployees.sql` after it.
 
-1. `Database/Migrations/20261014_RolesAndPasswordStorage.sql`
-2. `Database/Migrations/20261014_SalesAndPayOsSafety.sql`
-3. `Database/Migrations/20261015_SpecializedAdminRoles.sql`
-4. `Database/Migrations/20261015_AdminTong.sql`
-5. `Database/Migrations/20261022_DataIntegrityAndTypedParameters.sql`
-6. `Database/Migrations/20261022_FoodSizesAndImages.sql`
-7. `Database/Migrations/20261023_MovieReleaseWindow.sql`
-8. `Database/Migrations/20261023_CashierWorkShifts.sql`
-
-Back up the database before rollout. `20261022_DataIntegrityAndTypedParameters.sql` preflights legacy values and cross-show seat references, reports incompatible record keys, and rolls back without modifying or deleting historical sales. It also reports invoice seat-count/list differences for manual review. `Database/Install_QuanLyRapChieuPhim.sql` is the schema initializer for a new database; it sets both sample logins to require a password change on first login. `Database/ResetDemoDatabase.sql` is destructive and is only for disposable demo data.
-
-The first migration adds roles and password storage, the second adds sales/payment safety tables and columns, the next two finalize admin roles, and the following migrations add integrity constraints, food sizes/images, movie release dates, and employee shifts. Run all eight in this order on an existing database. Sample accounts on an existing database are also marked to require a password change once by the integrity migration.
+Cashier accounts have no fixed employee link or count limit. Each shift stores both the cashier account and the employee responsible for that shift, so the same account can be staffed by different employees across shifts. The corrective migration preserves the employee and account values already stored on shift rows, removes the old fixed account-to-employee relationship, and keeps the historical invoice employee IDs intact.
 
 The API can start and serve `/health` before credentials are available. Payment routes return HTTP 503 until PayOS credentials and return/cancel URLs are configured. No payment can be completed in a local deployment unless PayOS credentials are configured and PayOS can reach the HTTPS webhook. The payment endpoint deliberately fails closed when these settings are missing.

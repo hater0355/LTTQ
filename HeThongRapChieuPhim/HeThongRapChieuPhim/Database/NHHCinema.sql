@@ -46,6 +46,7 @@ GO
 IF OBJECT_ID(N'dbo.LichLamViec', N'U') IS NULL CREATE TABLE dbo.LichLamViec (
     MaPhanCa BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_LichLamViec PRIMARY KEY,
     MaNV VARCHAR(20) NOT NULL,
+    TenDangNhapThuNgan VARCHAR(50) NULL,
     NgayLam DATE NOT NULL,
     MaCa TINYINT NOT NULL,
     TrangThai VARCHAR(20) NOT NULL CONSTRAINT DF_LichLamViec_TrangThai DEFAULT ('Scheduled'),
@@ -1030,6 +1031,183 @@ IF NOT EXISTS (SELECT 1 FROM TaiKhoan WHERE TenDangNhap = 'admin')
     INSERT INTO TaiKhoan (TenDangNhap, MatKhau, MaNV, VaiTro, TrangThai, YeuCauDoiMatKhau) VALUES
     ('admin', 'admin', 'QL01', N'AdminTong', 1, 1);
 
+
+-- PHẦN MIGRATION: 20261103_CashierAccountShiftAssignments.sql
+-- Migration lịch sử: thêm tài khoản vào ca; migration tiếp theo điều chỉnh nhân viên theo từng ca.
+USE QuanLyRapChieuPhim;
+GO
+
+SET XACT_ABORT ON;
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+GO
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    IF OBJECT_ID(N'dbo.TaiKhoan', N'U') IS NULL
+       OR OBJECT_ID(N'dbo.NhanVien', N'U') IS NULL
+       OR OBJECT_ID(N'dbo.LichLamViec', N'U') IS NULL
+        THROW 51140, N'Thiếu bảng TaiKhoan, NhanVien hoặc LichLamViec. Hãy chạy schema và migration lịch ca trước.', 1;
+
+    IF COL_LENGTH(N'dbo.LichLamViec', N'TenDangNhapThuNgan') IS NULL
+        ALTER TABLE dbo.LichLamViec ADD TenDangNhapThuNgan VARCHAR(50) NULL;
+
+    IF EXISTS
+    (
+        SELECT 1 FROM dbo.TaiKhoan
+        WHERE VaiTro = 'Cashier' AND MaNV IS NOT NULL
+        GROUP BY MaNV HAVING COUNT(*) > 1
+    )
+    BEGIN
+        SELECT MaNV AS [Mã nhân viên], TenDangNhap AS [Tài khoản thu ngân bị trùng]
+        FROM dbo.TaiKhoan
+        WHERE VaiTro = 'Cashier' AND MaNV IN
+        (
+            SELECT MaNV FROM dbo.TaiKhoan
+            WHERE VaiTro = 'Cashier' AND MaNV IS NOT NULL
+            GROUP BY MaNV HAVING COUNT(*) > 1
+        )
+        ORDER BY MaNV, TenDangNhap;
+        THROW 51141, N'Một nhân viên đang được gắn với nhiều tài khoản thu ngân. Hãy xử lý danh sách ở trên rồi chạy lại migration.', 1;
+    END;
+
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TaiKhoan') AND name=N'UX_TaiKhoan_TenDangNhap_MaNV')
+        CREATE UNIQUE INDEX UX_TaiKhoan_TenDangNhap_MaNV ON dbo.TaiKhoan (TenDangNhap, MaNV);
+
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TaiKhoan') AND name=N'UX_TaiKhoan_Cashier_MaNV')
+        CREATE UNIQUE INDEX UX_TaiKhoan_Cashier_MaNV ON dbo.TaiKhoan (MaNV)
+            WHERE VaiTro = 'Cashier' AND MaNV IS NOT NULL;
+
+    EXEC sys.sp_executesql N'
+        UPDATE pc SET pc.TenDangNhapThuNgan=tk.TenDangNhap
+        FROM dbo.LichLamViec pc
+        INNER JOIN dbo.TaiKhoan tk ON tk.MaNV=pc.MaNV AND tk.VaiTro=''Cashier''
+        WHERE pc.TenDangNhapThuNgan IS NULL;';
+
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE parent_object_id=OBJECT_ID(N'dbo.LichLamViec') AND name=N'FK_LichLamViec_TaiKhoanNhanVien')
+        EXEC sys.sp_executesql N'
+            ALTER TABLE dbo.LichLamViec WITH CHECK ADD CONSTRAINT FK_LichLamViec_TaiKhoanNhanVien
+                FOREIGN KEY (TenDangNhapThuNgan, MaNV) REFERENCES dbo.TaiKhoan (TenDangNhap, MaNV);';
+
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.LichLamViec') AND name=N'UX_LichLamViec_Ngay_TaiKhoan_Active')
+        EXEC sys.sp_executesql N'
+            CREATE UNIQUE INDEX UX_LichLamViec_Ngay_TaiKhoan_Active
+                ON dbo.LichLamViec (NgayLam, TenDangNhapThuNgan)
+                WHERE TenDangNhapThuNgan IS NOT NULL AND TrangThai IN (''Scheduled'', ''Completed'');';
+
+    IF OBJECT_ID(N'dbo.SchemaMigration', N'U') IS NULL
+        CREATE TABLE dbo.SchemaMigration
+        (
+            MigrationId VARCHAR(128) NOT NULL CONSTRAINT PK_SchemaMigration PRIMARY KEY,
+            AppliedAt DATETIME2(0) NOT NULL CONSTRAINT DF_SchemaMigration_AppliedAt DEFAULT (SYSUTCDATETIME())
+        );
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.SchemaMigration WHERE MigrationId='20261103_CashierAccountShiftAssignments')
+        INSERT dbo.SchemaMigration (MigrationId) VALUES ('20261103_CashierAccountShiftAssignments');
+
+    COMMIT TRANSACTION;
+END TRY
+BEGIN CATCH
+    IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+    THROW;
+END CATCH;
+GO
+
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+GO
+
+-- PHẦN MIGRATION: 20261103_CashierShiftEmployees.sql
+-- Tài khoản là quầy đăng nhập; nhân viên được chọn riêng cho từng ca.
+USE QuanLyRapChieuPhim;
+GO
+
+SET XACT_ABORT ON;
+SET QUOTED_IDENTIFIER ON;
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+GO
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    IF OBJECT_ID(N'dbo.TaiKhoan', N'U') IS NULL
+       OR OBJECT_ID(N'dbo.NhanVien', N'U') IS NULL
+       OR OBJECT_ID(N'dbo.LichLamViec', N'U') IS NULL
+        THROW 51320, N'Thiếu bảng TaiKhoan, NhanVien hoặc LichLamViec. Hãy chạy schema và migration lịch ca trước.', 1;
+
+    IF COL_LENGTH(N'dbo.LichLamViec', N'TenDangNhapThuNgan') IS NULL
+        ALTER TABLE dbo.LichLamViec ADD TenDangNhapThuNgan VARCHAR(50) NULL;
+
+    IF EXISTS
+    (
+        SELECT 1 FROM dbo.LichLamViec pc
+        WHERE pc.TenDangNhapThuNgan IS NOT NULL
+          AND NOT EXISTS (SELECT 1 FROM dbo.TaiKhoan tk WHERE tk.TenDangNhap=pc.TenDangNhapThuNgan)
+    )
+    BEGIN
+        SELECT pc.MaPhanCa, pc.NgayLam, pc.MaCa, pc.TenDangNhapThuNgan, pc.MaNV
+        FROM dbo.LichLamViec pc
+        WHERE pc.TenDangNhapThuNgan IS NOT NULL
+          AND NOT EXISTS (SELECT 1 FROM dbo.TaiKhoan tk WHERE tk.TenDangNhap=pc.TenDangNhapThuNgan)
+        ORDER BY pc.NgayLam, pc.MaCa, pc.MaPhanCa;
+        THROW 51321, N'Có lịch ca tham chiếu tài khoản không tồn tại. Hãy xử lý các mã lịch ở trên rồi chạy lại.', 1;
+    END;
+
+    IF EXISTS
+    (
+        SELECT 1 FROM dbo.LichLamViec
+        WHERE TenDangNhapThuNgan IS NOT NULL AND TrangThai IN ('Scheduled','Completed')
+        GROUP BY NgayLam, MaCa, TenDangNhapThuNgan HAVING COUNT(*) > 1
+    )
+    BEGIN
+        SELECT NgayLam, MaCa, TenDangNhapThuNgan, COUNT(*) AS SoLichTrung
+        FROM dbo.LichLamViec
+        WHERE TenDangNhapThuNgan IS NOT NULL AND TrangThai IN ('Scheduled','Completed')
+        GROUP BY NgayLam, MaCa, TenDangNhapThuNgan HAVING COUNT(*) > 1;
+        THROW 51322, N'Một tài khoản đang có nhiều nhân viên trong cùng ca. Hãy xử lý trước khi chạy lại migration.', 1;
+    END;
+
+    IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE parent_object_id=OBJECT_ID(N'dbo.LichLamViec') AND name=N'FK_LichLamViec_TaiKhoanNhanVien')
+        ALTER TABLE dbo.LichLamViec DROP CONSTRAINT FK_LichLamViec_TaiKhoanNhanVien;
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.LichLamViec') AND name=N'UX_LichLamViec_Ngay_TaiKhoan_Active')
+        DROP INDEX UX_LichLamViec_Ngay_TaiKhoan_Active ON dbo.LichLamViec;
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TaiKhoan') AND name=N'UX_TaiKhoan_Cashier_MaNV')
+        DROP INDEX UX_TaiKhoan_Cashier_MaNV ON dbo.TaiKhoan;
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TaiKhoan') AND name=N'UX_TaiKhoan_TenDangNhap_MaNV')
+        DROP INDEX UX_TaiKhoan_TenDangNhap_MaNV ON dbo.TaiKhoan;
+
+    UPDATE dbo.TaiKhoan SET MaNV=NULL WHERE VaiTro='Cashier' AND MaNV IS NOT NULL;
+
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE parent_object_id=OBJECT_ID(N'dbo.LichLamViec') AND name=N'FK_LichLamViec_TaiKhoanThuNgan')
+        EXEC sys.sp_executesql N'
+            ALTER TABLE dbo.LichLamViec WITH CHECK ADD CONSTRAINT FK_LichLamViec_TaiKhoanThuNgan
+                FOREIGN KEY (TenDangNhapThuNgan) REFERENCES dbo.TaiKhoan (TenDangNhap);';
+
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.LichLamViec') AND name=N'UX_LichLamViec_Ngay_Ca_TaiKhoan_Active')
+        EXEC sys.sp_executesql N'
+            CREATE UNIQUE INDEX UX_LichLamViec_Ngay_Ca_TaiKhoan_Active
+                ON dbo.LichLamViec (NgayLam, MaCa, TenDangNhapThuNgan)
+                WHERE TenDangNhapThuNgan IS NOT NULL AND TrangThai IN (''Scheduled'', ''Completed'');';
+
+    IF OBJECT_ID(N'dbo.SchemaMigration', N'U') IS NULL
+        CREATE TABLE dbo.SchemaMigration
+        (
+            MigrationId VARCHAR(128) NOT NULL CONSTRAINT PK_SchemaMigration PRIMARY KEY,
+            AppliedAt DATETIME2(0) NOT NULL CONSTRAINT DF_SchemaMigration_AppliedAt DEFAULT (SYSUTCDATETIME())
+        );
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.SchemaMigration WHERE MigrationId='20261103_CashierShiftEmployees')
+        INSERT dbo.SchemaMigration (MigrationId) VALUES ('20261103_CashierShiftEmployees');
+
+    COMMIT TRANSACTION;
+END TRY
+BEGIN CATCH
+    IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+    THROW;
+END CATCH;
+GO
+
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+GO
 
 
 

@@ -1,5 +1,6 @@
 using HeThongRapChieuPhim.Classes;
 using HeThongRapChieuPhim.Data;
+using Microsoft.Data.SqlClient;
 using System.Threading.RateLimiting;
 using PayOS;
 using PayOS.Models;
@@ -71,12 +72,22 @@ app.MapPost("/api/payments", async (HttpRequest http, CreateSaleRequest request)
     string? authenticatedUser = GetSessionUser(http);
     if (authenticatedUser is null) return Results.Unauthorized();
     if (!PayOsConfiguration.IsConfigured) return Results.Problem("PayOS chưa được cấu hình trên máy chủ.", statusCode: StatusCodes.Status503ServiceUnavailable);
+    string returnUrl;
+    string cancelUrl;
+    try
+    {
+        returnUrl = RequiredSetting("PAYOS_RETURN_URL", "Payments:ReturnUrl");
+        cancelUrl = RequiredSetting("PAYOS_CANCEL_URL", "Payments:CancelUrl");
+    }
+    catch (InvalidOperationException ex)
+    {
+        app.Logger.LogError(ex, "PayOS return/cancel URL configuration is missing");
+        return Results.Problem("Dịch vụ thanh toán chưa được cấu hình đầy đủ.", statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
     try
     {
         // Khóa PayOS chỉ được đọc ở API phía máy chủ, không gửi xuống ứng dụng WinForms.
         var payOs = PayOsConfiguration.CreateClient();
-        string returnUrl = RequiredSetting("PAYOS_RETURN_URL", "Payments:ReturnUrl");
-        string cancelUrl = RequiredSetting("PAYOS_CANCEL_URL", "Payments:CancelUrl");
         // Lưu hóa đơn Pending và giữ ghế trước khi gọi PayOS để tránh ghế bị bán cho giao dịch khác.
         var sale = SalesService.CreatePendingPayOsSale(request.Sale with { TenDangNhapNguoiBan = authenticatedUser });
         CreatePaymentLinkResponse? createdPayment = null;
@@ -91,6 +102,8 @@ app.MapPost("/api/payments", async (HttpRequest http, CreateSaleRequest request)
                 ReturnUrl = returnUrl,
                 CancelUrl = cancelUrl
             });
+            if (string.IsNullOrWhiteSpace(createdPayment.QrCode) || string.IsNullOrWhiteSpace(createdPayment.CheckoutUrl))
+                throw new InvalidOperationException("PayOS không trả mã QR hoặc liên kết thanh toán cho đơn hàng này.");
             SalesService.SetPayOsLink(sale.PayOSOrderCode.Value, createdPayment.PaymentLinkId);
             return Results.Ok(new
             {
@@ -117,6 +130,12 @@ app.MapPost("/api/payments", async (HttpRequest http, CreateSaleRequest request)
     }
     catch (InvalidOperationException ex) { return Results.BadRequest(new { error = ex.Message }); }
     catch (UnauthorizedAccessException) { return Results.StatusCode(StatusCodes.Status403Forbidden); }
+    catch (SqlException ex) when (ex.Number is 51050 or 51112 or 51130)
+    {
+        // These SQL THROW codes are expected checkout validations, not server faults.
+        app.Logger.LogInformation(ex, "Payment checkout rejected by sale validation {SqlErrorNumber}", ex.Number);
+        return Results.Conflict(new { error = ex.Message });
+    }
     catch (Exception ex) { app.Logger.LogError(ex, "Failed to create PayOS payment"); return Results.Problem("Không thể tạo giao dịch thanh toán."); }
 });
 
@@ -152,31 +171,57 @@ app.MapPost("/api/payments/{orderCode:long}/cancel", async (HttpRequest http, lo
 // ReturnUrl chỉ đưa khách quay lại ứng dụng; webhook đã xác minh mới được phép xác nhận đã thanh toán.
 app.MapPost("/webhooks/payos", async (Webhook webhook) =>
 {
+    if (!PayOsConfiguration.IsConfigured) return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+    WebhookData data;
     try
     {
-        if (!PayOsConfiguration.IsConfigured) return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
         var payOs = PayOsConfiguration.CreateClient();
-        var data = await payOs.Webhooks.VerifyAsync(webhook);
-        // SDK xác minh chữ ký webhook; kiểm tra mã giao dịch và tiền tệ trong phần dữ liệu đã ký.
-        if (!string.Equals(webhook.Code, "00", StringComparison.Ordinal) ||
-            !string.Equals(data.Code, "00", StringComparison.Ordinal) ||
-            !string.Equals(data.Currency, "VND", StringComparison.OrdinalIgnoreCase))
-            return Results.BadRequest(new { error = "Webhook không báo giao dịch thanh toán thành công bằng VND." });
+        data = await payOs.Webhooks.VerifyAsync(webhook);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "PayOS webhook signature verification failed");
+        return Results.BadRequest(new { error = "Webhook không hợp lệ hoặc không khớp giao dịch." });
+    }
 
-        // PayOS gửi giao dịch mẫu khi kiểm tra URL webhook; chỉ phản hồi thành công, không sửa hóa đơn thật.
-        if (data.OrderCode == 123 && data.Amount == 3000 &&
-            string.Equals(data.PaymentLinkId, "124c33293c43417ab7879e14c8d9eb18", StringComparison.Ordinal))
-            return Results.Ok(new { success = true });
+    // PayOS yêu cầu success ở envelope, code trong envelope và code của data đều báo thành công.
+    if (!webhook.Success ||
+        !string.Equals(webhook.Code, "00", StringComparison.Ordinal) ||
+        !string.Equals(data.Code, "00", StringComparison.Ordinal) ||
+        !string.Equals(data.Currency, "VND", StringComparison.OrdinalIgnoreCase))
+        return Results.BadRequest(new { error = "Webhook không báo giao dịch thanh toán thành công bằng VND." });
 
-        // Đối chiếu order code, số tiền và payment link với hóa đơn trước khi chuyển trạng thái sang Paid.
+    // Số tiền hóa đơn lưu bằng int; từ chối giá trị ngoài miền trước khi ép kiểu.
+    if (data.Amount < 0 || data.Amount > int.MaxValue)
+        return Results.BadRequest(new { error = "Số tiền webhook không hợp lệ." });
+
+    // PayOS gửi giao dịch mẫu khi kiểm tra URL webhook; chỉ phản hồi thành công, không sửa hóa đơn thật.
+    if (data.OrderCode == 123 && data.Amount == 3000 &&
+        string.Equals(data.PaymentLinkId, "124c33293c43417ab7879e14c8d9eb18", StringComparison.Ordinal))
+        return Results.Ok(new { success = true });
+
+    try
+    {
+        // Đối chiếu order code, số tiền và payment link trước khi chuyển trạng thái sang Paid.
         if (!SalesService.CompletePayOsPayment(data.OrderCode, checked((int)data.Amount), data.PaymentLinkId))
             return Results.Conflict(new { error = "Không thể xác nhận giao dịch." });
         return Results.Ok(new { success = true });
     }
+    catch (KeyNotFoundException ex)
+    {
+        app.Logger.LogWarning(ex, "Verified PayOS webhook references an unknown order {OrderCode}", data.OrderCode);
+        return Results.Conflict(new { error = "Không tìm thấy hóa đơn tương ứng với webhook." });
+    }
+    catch (InvalidOperationException ex)
+    {
+        app.Logger.LogWarning(ex, "Verified PayOS webhook did not match order {OrderCode}", data.OrderCode);
+        return Results.Conflict(new { error = "Thông tin webhook không khớp hóa đơn." });
+    }
     catch (Exception ex)
     {
-        app.Logger.LogWarning(ex, "PayOS webhook verification or processing failed");
-        return Results.BadRequest(new { error = "Webhook không hợp lệ hoặc không khớp giao dịch." });
+        app.Logger.LogError(ex, "Could not persist verified PayOS webhook for order {OrderCode}", data.OrderCode);
+        return Results.Problem("Chưa lưu được kết quả thanh toán. Vui lòng gửi lại webhook.", statusCode: StatusCodes.Status503ServiceUnavailable);
     }
 });
 

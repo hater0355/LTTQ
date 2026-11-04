@@ -31,10 +31,11 @@ Hai tài khoản mẫu yêu cầu đổi mật khẩu ngay lần đăng nhập �
 ## 3. CƠ SỞ DỮ LIỆU SQL SERVER
 - Chỉ sử dụng **Database/NHHcinema.sql** cho cả cài mới và nâng cấp database.
 - Mở file trong SSMS và Execute toàn bộ; hoặc chạy `sqlcmd -f 65001 -I -b -i Database/NHHcinema.sql`.
-- File tạo database `QuanLyRapChieuPhim` nếu chưa có và cập nhật schema hiện có, gồm phân quyền, thanh toán, lịch làm việc, thời hạn phim, voucher và ghế VIP. Không đổi cấu hình API.
+- File tạo database `QuanLyRapChieuPhim` nếu chưa có và cập nhật schema hiện có, gồm phân quyền, thanh toán, lịch làm việc, tài khoản thu ngân và phân công nhân viên theo từng ca, thời hạn phim, voucher và ghế VIP. Không đổi cấu hình API.
 - Sao lưu database trước khi nâng cấp. Script không xóa database hoặc dữ liệu hiện có; khi dữ liệu cũ không hợp lệ, phần kiểm tra ràng buộc báo lỗi để xử lý.
 - Không kèm dữ liệu kiểm thử. Chỉ khởi tạo tài khoản `admin` (mật khẩu ban đầu `admin`, buộc đổi khi đăng nhập lần đầu), hồ sơ quản trị liên kết và ba ca làm cố định.
 - Không cần chạy file migration, seed hoặc reset riêng.
+- Không giới hạn số tài khoản thu ngân. Tài khoản đại diện cho quầy đăng nhập; tại **Lịch & Thay Ca**, quản lý chọn tài khoản và nhân viên phụ trách riêng cho từng ca. Một tài khoản có thể được các nhân viên khác nhau đảm nhiệm ở các ca khác nhau. Hóa đơn ghi nhận nhân viên được phân công cho ca tại thời điểm bán.
 - Chuỗi kết nối nằm tại class `Classes/DataProcesser.cs`:
   ```csharp
   Server=.;Database=QuanLyRapChieuPhim;Integrated Security=True;TrustServerCertificate=True;

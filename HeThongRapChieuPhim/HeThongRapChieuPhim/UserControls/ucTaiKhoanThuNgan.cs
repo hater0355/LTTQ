@@ -41,7 +41,10 @@ namespace HeThongRapChieuPhim.UserControls
         private void CreateAccount()
         {
             if (!Function.CreateManagedAccount(txtUsername.Text, txtPassword.Text, Convert.ToString(cboRole.SelectedValue) ?? string.Empty, out string error)) { lblStatus.Text = error; return; }
-            lblStatus.Text = $"Đã tạo tài khoản {Convert.ToString(cboRole.Text)}. Tài khoản sẽ cần đổi mật khẩu khi đăng nhập lần đầu.";
+            lblStatus.Text = AccessRoles.Normalize(Convert.ToString(cboRole.SelectedValue) ?? string.Empty) == AccessRoles.Cashier
+                ? "Đã tạo tài khoản thu ngân. Nhân viên phụ trách được chọn riêng ở từng ca."
+                : $"Đã tạo tài khoản {Convert.ToString(cboRole.Text)}. Tài khoản sẽ cần đổi mật khẩu khi đăng nhập lần đầu.";
+            txtUsername.Clear();
             txtPassword.Clear();
             LoadAccounts();
         }

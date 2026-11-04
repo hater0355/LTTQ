@@ -115,7 +115,14 @@ namespace HeThongRapChieuPhim.Forms
                 if (CurrentUser.IsCashier)
                 {
                     try { PaymentsApiClient.CreateSession(user, paymentSessionPassword); }
-                    catch { PaymentsApiClient.ClearSession(); }
+                    catch
+                    {
+                        PaymentsApiClient.ClearSession();
+                        MessageBox.Show(this,
+                            "Đăng nhập vẫn dùng được cho bán vé tiền mặt, nhưng chưa kết nối được Payments API để tạo phiên PayOS. " +
+                            "Muốn thanh toán QR, hãy chạy API, kiểm tra cấu hình PayOS, rồi đăng xuất và đăng nhập lại.",
+                            "PayOS chưa sẵn sàng", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
 
                 DialogResult = DialogResult.OK;

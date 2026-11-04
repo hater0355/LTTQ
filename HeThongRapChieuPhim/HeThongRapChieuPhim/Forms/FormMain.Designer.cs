@@ -150,11 +150,11 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // _sidebarToggle
             // 
+            _sidebarToggle.AutoSize = false;
             _sidebarToggle.BackColor = Color.White;
             _sidebarToggle.DisplayStyle = ToolStripItemDisplayStyle.Text;
             _sidebarToggle.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
             _sidebarToggle.ForeColor = Color.Navy;
-            _sidebarToggle.AutoSize = false;
             _sidebarToggle.Name = "_sidebarToggle";
             _sidebarToggle.Padding = new Padding(10, 8, 8, 8);
             _sidebarToggle.Size = new Size(225, 50);
@@ -165,11 +165,11 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // _menuHome
             // 
+            _menuHome.AutoSize = false;
             _menuHome.BackColor = Color.White;
             _menuHome.DisplayStyle = ToolStripItemDisplayStyle.Text;
             _menuHome.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             _menuHome.ForeColor = Color.Black;
-            _menuHome.AutoSize = false;
             _menuHome.Name = "_menuHome";
             _menuHome.Padding = new Padding(10, 8, 8, 8);
             _menuHome.Size = new Size(225, 43);
@@ -178,9 +178,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuPhim
             // 
+            menuPhim.AutoSize = false;
             menuPhim.BackColor = Color.White;
             menuPhim.ForeColor = Color.Black;
-            menuPhim.AutoSize = false;
             menuPhim.Name = "menuPhim";
             menuPhim.Padding = new Padding(10, 8, 8, 8);
             menuPhim.Size = new Size(225, 41);
@@ -189,9 +189,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuPhongChieu
             // 
+            menuPhongChieu.AutoSize = false;
             menuPhongChieu.BackColor = Color.White;
             menuPhongChieu.ForeColor = Color.Black;
-            menuPhongChieu.AutoSize = false;
             menuPhongChieu.Name = "menuPhongChieu";
             menuPhongChieu.Padding = new Padding(10, 8, 8, 8);
             menuPhongChieu.Size = new Size(225, 41);
@@ -200,9 +200,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuSuatChieu
             // 
+            menuSuatChieu.AutoSize = false;
             menuSuatChieu.BackColor = Color.White;
             menuSuatChieu.ForeColor = Color.Black;
-            menuSuatChieu.AutoSize = false;
             menuSuatChieu.Name = "menuSuatChieu";
             menuSuatChieu.Padding = new Padding(10, 8, 8, 8);
             menuSuatChieu.Size = new Size(225, 41);
@@ -211,9 +211,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuBanHang
             // 
+            menuBanHang.AutoSize = false;
             menuBanHang.BackColor = Color.White;
             menuBanHang.ForeColor = Color.Black;
-            menuBanHang.AutoSize = false;
             menuBanHang.Name = "menuBanHang";
             menuBanHang.Padding = new Padding(10, 8, 8, 8);
             menuBanHang.Size = new Size(225, 41);
@@ -222,9 +222,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuHoaDon
             // 
+            menuHoaDon.AutoSize = false;
             menuHoaDon.BackColor = Color.White;
             menuHoaDon.ForeColor = Color.Black;
-            menuHoaDon.AutoSize = false;
             menuHoaDon.Name = "menuHoaDon";
             menuHoaDon.Padding = new Padding(10, 8, 8, 8);
             menuHoaDon.Size = new Size(225, 41);
@@ -233,9 +233,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuDoAn
             // 
+            menuDoAn.AutoSize = false;
             menuDoAn.BackColor = Color.White;
             menuDoAn.ForeColor = Color.Black;
-            menuDoAn.AutoSize = false;
             menuDoAn.Name = "menuDoAn";
             menuDoAn.Padding = new Padding(10, 8, 8, 8);
             menuDoAn.Size = new Size(225, 41);
@@ -244,9 +244,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuCombo
             // 
+            menuCombo.AutoSize = false;
             menuCombo.BackColor = Color.White;
             menuCombo.ForeColor = Color.Black;
-            menuCombo.AutoSize = false;
             menuCombo.Name = "menuCombo";
             menuCombo.Padding = new Padding(10, 8, 8, 8);
             menuCombo.Size = new Size(225, 41);
@@ -255,9 +255,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuVoucher
             // 
+            menuVoucher.AutoSize = false;
             menuVoucher.BackColor = Color.White;
             menuVoucher.ForeColor = Color.Black;
-            menuVoucher.AutoSize = false;
             menuVoucher.Name = "menuVoucher";
             menuVoucher.Padding = new Padding(10, 8, 8, 8);
             menuVoucher.Size = new Size(225, 41);
@@ -266,9 +266,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuNhanVien
             // 
+            menuNhanVien.AutoSize = false;
             menuNhanVien.BackColor = Color.White;
             menuNhanVien.ForeColor = Color.Black;
-            menuNhanVien.AutoSize = false;
             menuNhanVien.Name = "menuNhanVien";
             menuNhanVien.Padding = new Padding(10, 8, 8, 8);
             menuNhanVien.Size = new Size(225, 41);
@@ -277,9 +277,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuLichLamViec
             // 
+            menuLichLamViec.AutoSize = false;
             menuLichLamViec.BackColor = Color.White;
             menuLichLamViec.ForeColor = Color.Black;
-            menuLichLamViec.AutoSize = false;
             menuLichLamViec.Name = "menuLichLamViec";
             menuLichLamViec.Padding = new Padding(10, 8, 8, 8);
             menuLichLamViec.Size = new Size(225, 41);
@@ -288,9 +288,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuTaiKhoanThuNgan
             // 
+            menuTaiKhoanThuNgan.AutoSize = false;
             menuTaiKhoanThuNgan.BackColor = Color.White;
             menuTaiKhoanThuNgan.ForeColor = Color.Black;
-            menuTaiKhoanThuNgan.AutoSize = false;
             menuTaiKhoanThuNgan.Name = "menuTaiKhoanThuNgan";
             menuTaiKhoanThuNgan.Padding = new Padding(10, 8, 8, 8);
             menuTaiKhoanThuNgan.Size = new Size(225, 41);
@@ -299,9 +299,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuDoanhThu
             // 
+            menuDoanhThu.AutoSize = false;
             menuDoanhThu.BackColor = Color.White;
             menuDoanhThu.ForeColor = Color.Black;
-            menuDoanhThu.AutoSize = false;
             menuDoanhThu.Name = "menuDoanhThu";
             menuDoanhThu.Padding = new Padding(10, 8, 8, 8);
             menuDoanhThu.Size = new Size(225, 41);
@@ -363,9 +363,9 @@ namespace HeThongRapChieuPhim.Forms
             // 
             // menuHeThong
             // 
+            menuHeThong.AutoSize = false;
             menuHeThong.BackColor = Color.White;
             menuHeThong.ForeColor = Color.Black;
-            menuHeThong.AutoSize = false;
             menuHeThong.Name = "menuHeThong";
             menuHeThong.Padding = new Padding(10, 8, 8, 8);
             menuHeThong.Size = new Size(225, 41);
@@ -726,6 +726,7 @@ namespace HeThongRapChieuPhim.Forms
             chartWeekly.Series.Add(series1);
             chartWeekly.Size = new Size(370, 189);
             chartWeekly.TabIndex = 0;
+            chartWeekly.Click += chartWeekly_Click;
             // 
             // pnlchartWeeklyTitle
             // 
@@ -737,6 +738,7 @@ namespace HeThongRapChieuPhim.Forms
             pnlchartWeeklyTitle.TabIndex = 1;
             pnlchartWeeklyTitle.Text = "Doanh thu 7 ngày qua (VNĐ)";
             pnlchartWeeklyTitle.TextAlign = ContentAlignment.MiddleLeft;
+            pnlchartWeeklyTitle.Click += pnlchartWeeklyTitle_Click;
             // 
             // pnlchartMovieRevenue
             // 

@@ -14,7 +14,57 @@ namespace HeThongRapChieuPhim.UserControls
         public ucNhanVien()
         {
             InitializeComponent();
+            txtSDT.MaxLength = 15;
+            txtCCCD.MaxLength = 20;
+            txtSDT.KeyPress += NumericTextBox_KeyPress;
+            txtCCCD.KeyPress += NumericTextBox_KeyPress;
+            txtSDT.TextChanged += NumericTextBox_TextChanged;
+            txtCCCD.TextChanged += NumericTextBox_TextChanged;
             if (!DesignTimeHelper.IsDesignTime(this)) LoadNhanVien();
+        }
+
+        private static bool IsAsciiDigit(char value) => value >= '0' && value <= '9';
+
+        private static bool ContainsOnlyDigits(string value)
+        {
+            foreach (char character in value)
+                if (!IsAsciiDigit(character)) return false;
+            return true;
+        }
+
+        private static void NumericTextBox_KeyPress(object? sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !IsAsciiDigit(e.KeyChar)) e.Handled = true;
+        }
+
+        // KeyPress does not see pasted text, so sanitize paste/input-method changes too.
+        private static void NumericTextBox_TextChanged(object? sender, EventArgs e)
+        {
+            if (sender is not TextBox textBox) return;
+
+            string original = textBox.Text;
+            int originalCaret = textBox.SelectionStart;
+            var digits = new System.Text.StringBuilder(original.Length);
+            int filteredCaret = 0;
+            for (int i = 0; i < original.Length; i++)
+            {
+                if (!IsAsciiDigit(original[i])) continue;
+                digits.Append(original[i]);
+                if (i < originalCaret) filteredCaret++;
+            }
+
+            string filtered = digits.ToString();
+            if (filtered == original) return;
+            textBox.Text = filtered;
+            textBox.SelectionStart = Math.Min(filteredCaret, filtered.Length);
+        }
+
+        private static bool ValidateNumericIdentity(string phone, string citizenId)
+        {
+            if (ContainsOnlyDigits(phone) && ContainsOnlyDigits(citizenId)) return true;
+            MessageBox.Show("Số điện thoại và CCCD chỉ được chứa chữ số 0–9.", "Dữ liệu không hợp lệ",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return false;
         }
 
         private void BtnLamMoi_Click(object? sender, EventArgs e)
@@ -115,6 +165,7 @@ namespace HeThongRapChieuPhim.UserControls
                 MessageBox.Show("Vui lòng điền đủ Mã NV, Họ Tên và Số điện thoại!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+            if (!ValidateNumericIdentity(sdt, cccd)) return;
 
             try
             {
@@ -165,6 +216,7 @@ namespace HeThongRapChieuPhim.UserControls
                 MessageBox.Show("Vui lòng chọn nhân viên cần sửa từ bảng!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+            if (!ValidateNumericIdentity(sdt, cccd)) return;
 
             try
             {

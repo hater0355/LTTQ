@@ -93,7 +93,7 @@ namespace HeThongRapChieuPhim.UserControls
             lblHint.Name = "lblHint";
             lblHint.Size = new Size(1049, 30);
             lblHint.TabIndex = 1;
-            lblHint.Text = "Admin Nhân sự cấp tài khoản theo nhiệm vụ. Mật khẩu được lưu dạng băm và cần đổi ở lần đăng nhập đầu.";
+            lblHint.Text = "Không giới hạn số tài khoản thu ngân. Nhân viên phụ trách được phân theo từng ca; mật khẩu cần đổi ở lần đăng nhập đầu.";
             lblHint.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // pnlAccountList
@@ -190,7 +190,7 @@ namespace HeThongRapChieuPhim.UserControls
             cboRole.Location = new Point(16, 89);
             cboRole.Margin = new Padding(3, 4, 3, 4);
             cboRole.Name = "cboRole";
-            cboRole.Size = new Size(431, 29);
+            cboRole.Size = new Size(280, 29);
             cboRole.TabIndex = 2;
             // 
             // lblUsername
@@ -213,7 +213,7 @@ namespace HeThongRapChieuPhim.UserControls
             txtUsername.Margin = new Padding(3, 4, 3, 4);
             txtUsername.Name = "txtUsername";
             txtUsername.PlaceholderText = "Nhập tên tài khoản";
-            txtUsername.Size = new Size(432, 30);
+            txtUsername.Size = new Size(280, 30);
             txtUsername.TabIndex = 4;
             // 
             // lblPassword
@@ -236,7 +236,7 @@ namespace HeThongRapChieuPhim.UserControls
             txtPassword.Margin = new Padding(3, 4, 3, 4);
             txtPassword.Name = "txtPassword";
             txtPassword.PlaceholderText = "Tối thiểu 6 ký tự";
-            txtPassword.Size = new Size(432, 30);
+            txtPassword.Size = new Size(280, 30);
             txtPassword.TabIndex = 6;
             txtPassword.UseSystemPasswordChar = true;
             // 
@@ -247,7 +247,7 @@ namespace HeThongRapChieuPhim.UserControls
             btnCreate.Location = new Point(16, 311);
             btnCreate.Margin = new Padding(3, 4, 3, 4);
             btnCreate.Name = "btnCreate";
-            btnCreate.Size = new Size(432, 45);
+            btnCreate.Size = new Size(280, 40);
             btnCreate.TabIndex = 7;
             btnCreate.Text = "Tạo Tài Khoản";
             btnCreate.UseVisualStyleBackColor = true;
@@ -259,7 +259,7 @@ namespace HeThongRapChieuPhim.UserControls
             btnChange.Location = new Point(16, 367);
             btnChange.Margin = new Padding(3, 4, 3, 4);
             btnChange.Name = "btnChange";
-            btnChange.Size = new Size(432, 40);
+            btnChange.Size = new Size(280, 36);
             btnChange.TabIndex = 8;
             btnChange.Text = "Đổi Mật Khẩu Đã Chọn";
             btnChange.UseVisualStyleBackColor = true;
@@ -271,7 +271,7 @@ namespace HeThongRapChieuPhim.UserControls
             btnReload.Location = new Point(16, 419);
             btnReload.Margin = new Padding(3, 4, 3, 4);
             btnReload.Name = "btnReload";
-            btnReload.Size = new Size(432, 40);
+            btnReload.Size = new Size(280, 36);
             btnReload.TabIndex = 9;
             btnReload.Text = "Làm Mới Danh Sách";
             btnReload.UseVisualStyleBackColor = true;
@@ -283,9 +283,8 @@ namespace HeThongRapChieuPhim.UserControls
             lblStatus.ForeColor = Color.FromArgb(0, 51, 102);
             lblStatus.Location = new Point(16, 471);
             lblStatus.Name = "lblStatus";
-            lblStatus.Size = new Size(432, 66);
+            lblStatus.Size = new Size(280, 66);
             lblStatus.TabIndex = 10;
-            // 
             // ucTaiKhoanThuNgan
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);

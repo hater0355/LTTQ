@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Data;
 using System.Windows.Forms;
 using HeThongRapChieuPhim.Classes;
 using HeThongRapChieuPhim.Data;
@@ -24,7 +25,7 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 _managementPanel.Visible = _canManage;
                 _lblReadOnly.Visible = !_canManage;
-                _layout.RowStyles[2].Height = _canManage ? 76 : 8;
+                _layout.RowStyles[2].Height = _canManage ? 126 : 8;
             }
             if (!DesignTimeHelper.IsDesignTime(this))
             {
@@ -64,9 +65,20 @@ namespace HeThongRapChieuPhim.UserControls
             try
             {
                 _isLoading = true;
+                var cashierAccounts = Function.Query(@"
+                    SELECT TenDangNhap, TenDangNhap AS TenHienThi
+                    FROM dbo.TaiKhoan
+                    WHERE VaiTro='Cashier' AND TrangThai=1
+                    ORDER BY TenDangNhap");
+                _cboCashierAccount.DataSource = cashierAccounts;
+                _cboCashierAccount.DisplayMember = "TenHienThi";
+                _cboCashierAccount.ValueMember = "TenDangNhap";
+
                 var employees = Function.Query(@"
                     SELECT MaNV, CONCAT(MaNV, N' - ', HoTen) AS TenHienThi
-                    FROM dbo.NhanVien WHERE ChucVu=N'Thu ngân' ORDER BY MaNV");
+                    FROM dbo.NhanVien
+                    WHERE ChucVu IN (N'Thu ngân', N'Nhân viên')
+                    ORDER BY MaNV");
                 _cboEmployee.DataSource = employees;
                 _cboEmployee.DisplayMember = "TenHienThi";
                 _cboEmployee.ValueMember = "MaNV";
@@ -81,7 +93,7 @@ namespace HeThongRapChieuPhim.UserControls
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Không tải được danh sách nhân viên/ca làm. Hãy kiểm tra migration lịch ca đã chạy chưa.\n" + ex.Message,
+                MessageBox.Show("Không tải được danh sách tài khoản thu ngân, nhân viên hoặc ca làm. Hãy chạy Database/NHHcinema.sql để cập nhật database.\n" + ex.Message,
                     "Lỗi CSDL", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally { _isLoading = false; }
@@ -93,7 +105,7 @@ namespace HeThongRapChieuPhim.UserControls
             {
                 DateTime start = new(_dtpMonth.Value.Year, _dtpMonth.Value.Month, 1);
                 DateTime end = start.AddMonths(1);
-                string? maNV = _canManage ? null : CurrentUser.MaNV;
+                string? username = _canManage ? null : CurrentUser.TenDangNhap;
                 _isLoading = true;
 
                 _dgvSchedule.DataSource = Function.Query(@"
@@ -103,6 +115,7 @@ namespace HeThongRapChieuPhim.UserControls
                            ca.TenCa AS [Ca],
                            CONVERT(CHAR(5), ca.GioBatDau, 108) AS [Bắt đầu],
                            CONVERT(CHAR(5), ca.GioKetThuc, 108) AS [Kết thúc],
+                           ISNULL(pc.TenDangNhapThuNgan, N'(ca cũ - chưa gán tài khoản)') AS [Tài khoản thu ngân],
                            nv.MaNV AS [Mã NV], nv.HoTen AS [Họ tên],
                            CASE pc.TrangThai WHEN 'Scheduled' THEN N'Đã phân' WHEN 'Completed' THEN N'Đã làm' ELSE N'Đã hủy' END AS [Trạng thái],
                            pc.TrangThai AS TrangThaiCode
@@ -110,9 +123,10 @@ namespace HeThongRapChieuPhim.UserControls
                     INNER JOIN dbo.NhanVien nv ON nv.MaNV = pc.MaNV
                     INNER JOIN dbo.CaLamViec ca ON ca.MaCa = pc.MaCa
                     WHERE pc.NgayLam >= @start AND pc.NgayLam < @end
-                      AND nv.ChucVu=N'Thu ngân' AND (@maNV IS NULL OR pc.MaNV = @maNV)
+                      AND nv.ChucVu IN (N'Thu ngân', N'Nhân viên')
+                      AND (@username IS NULL OR pc.TenDangNhapThuNgan = @username)
                     ORDER BY pc.NgayLam, ca.GioBatDau, nv.MaNV",
-                    new[] { DbArg.Date("@start", start), DbArg.Date("@end", end), DbArg.VarChar20("@maNV", maNV) });
+                    new[] { DbArg.Date("@start", start), DbArg.Date("@end", end), DbArg.VarChar50("@username", username) });
                 SetColumnVisible(_dgvSchedule, "MaPhanCa", false);
                 SetColumnVisible(_dgvSchedule, "NgayLam", false);
                 SetColumnVisible(_dgvSchedule, "MaCa", false);
@@ -121,17 +135,19 @@ namespace HeThongRapChieuPhim.UserControls
                 if (GetColumn(_dgvSchedule, "Trạng thái") is { } statusColumn) statusColumn.FillWeight = 75;
 
                 _dgvMonthlyTotals.DataSource = Function.Query(@"
-                    SELECT nv.MaNV AS [Mã NV], nv.HoTen AS [Họ tên], nv.ChucVu AS [Chức vụ],
+                    SELECT tk.TenDangNhap AS [Tài khoản thu ngân], nv.MaNV AS [Mã NV], nv.HoTen AS [Họ tên],
                            SUM(CASE WHEN pc.TrangThai = 'Completed' THEN 1 ELSE 0 END) AS [Số ca đã làm],
                            SUM(CASE WHEN pc.TrangThai = 'Scheduled' THEN 1 ELSE 0 END) AS [Số ca sắp tới]
-                    FROM dbo.NhanVien nv
-                    LEFT JOIN dbo.LichLamViec pc
-                      ON pc.MaNV = nv.MaNV AND pc.NgayLam >= @start AND pc.NgayLam < @end
-                     AND pc.TrangThai IN ('Scheduled', 'Completed')
-                    WHERE nv.ChucVu=N'Thu ngân' AND (@maNV IS NULL OR nv.MaNV = @maNV)
-                    GROUP BY nv.MaNV, nv.HoTen, nv.ChucVu
-                    ORDER BY nv.MaNV",
-                    new[] { DbArg.Date("@start", start), DbArg.Date("@end", end), DbArg.VarChar20("@maNV", maNV) });
+                    FROM dbo.LichLamViec pc
+                    INNER JOIN dbo.TaiKhoan tk ON tk.TenDangNhap=pc.TenDangNhapThuNgan
+                    INNER JOIN dbo.NhanVien nv ON nv.MaNV=pc.MaNV
+                    WHERE tk.VaiTro='Cashier'
+                      AND pc.NgayLam >= @start AND pc.NgayLam < @end
+                      AND pc.TrangThai IN ('Scheduled', 'Completed')
+                      AND (@username IS NULL OR tk.TenDangNhap=@username)
+                    GROUP BY tk.TenDangNhap, nv.MaNV, nv.HoTen
+                    ORDER BY tk.TenDangNhap, nv.MaNV",
+                    new[] { DbArg.Date("@start", start), DbArg.Date("@end", end), DbArg.VarChar50("@username", username) });
                 if (GetColumn(_dgvMonthlyTotals, "Số ca đã làm") is { } countColumn)
                     countColumn.DefaultCellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
                 _selectedAssignmentId = null;
@@ -168,8 +184,12 @@ namespace HeThongRapChieuPhim.UserControls
             string status = Convert.ToString(row.Cells["TrangThaiCode"].Value) ?? string.Empty;
             if (DateTime.TryParse(Convert.ToString(row.Cells["NgayLam"].Value), out DateTime workDay))
                 _dtpWorkDay.Value = workDay;
+            string cashierUsername = Convert.ToString(row.Cells["Tài khoản thu ngân"].Value) ?? string.Empty;
+            if (_cboCashierAccount.DataSource != null && !cashierUsername.StartsWith("(", StringComparison.Ordinal))
+                _cboCashierAccount.SelectedValue = cashierUsername;
             string employeeId = Convert.ToString(row.Cells["Mã NV"].Value) ?? string.Empty;
-            if (_cboEmployee.DataSource != null) _cboEmployee.SelectedValue = employeeId;
+            if (_cboEmployee.DataSource != null && !string.IsNullOrWhiteSpace(employeeId))
+                _cboEmployee.SelectedValue = employeeId;
             if (_cboShift.DataSource != null && row.Cells["MaCa"].Value is object shiftId && shiftId != DBNull.Value)
                 _cboShift.SelectedValue = shiftId;
             UpdateActionButtons(status);
@@ -183,14 +203,15 @@ namespace HeThongRapChieuPhim.UserControls
             _btnCancel.Enabled = selectedScheduled;
         }
 
-        private bool TryReadInputs(out string maNV, out byte maCa, out DateTime ngay)
+        private bool TryReadInputs(out string username, out string maNV, out byte maCa, out DateTime ngay)
         {
+            username = Convert.ToString(_cboCashierAccount.SelectedValue) ?? string.Empty;
             maNV = Convert.ToString(_cboEmployee.SelectedValue) ?? string.Empty;
             maCa = 0;
             ngay = _dtpWorkDay.Value.Date;
-            if (maNV.Length == 0 || _cboEmployee.SelectedValue == null)
+            if (username.Length == 0 || maNV.Length == 0 || _cboCashierAccount.SelectedValue == null || _cboEmployee.SelectedValue == null)
             {
-                MessageBox.Show("Hãy chọn hồ sơ thu ngân trước khi phân ca.", "Thiếu nhân viên", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Hãy chọn tài khoản thu ngân và nhân viên phụ trách ca.", "Thiếu phân công", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
             if (!byte.TryParse(Convert.ToString(_cboShift.SelectedValue), out maCa))
@@ -204,20 +225,23 @@ namespace HeThongRapChieuPhim.UserControls
         private void AddAssignment()
         {
             if (!CurrentUser.IsSuperAdmin && !CurrentUser.IsHumanResourcesAdmin) return;
-            if (!TryReadInputs(out string maNV, out byte maCa, out DateTime ngay)) return;
+            if (!TryReadInputs(out string username, out string maNV, out byte maCa, out DateTime ngay)) return;
             try
             {
                 int affected = Function.Execute(@"
-                    INSERT dbo.LichLamViec (MaNV, NgayLam, MaCa, TrangThai)
-                    SELECT MaNV, @ngay, @maCa, 'Scheduled' FROM dbo.NhanVien WITH (UPDLOCK, HOLDLOCK)
-                    WHERE MaNV=@maNV AND ChucVu=N'Thu ngân'",
-                    new[] { DbArg.VarChar20("@maNV", maNV), DbArg.Date("@ngay", ngay), DbArg.TinyInt("@maCa", maCa) });
-                if (affected != 1) throw new InvalidOperationException("Chỉ có thể phân ca cho thu ngân. Hãy tải lại danh sách.");
+                    INSERT dbo.LichLamViec (MaNV, TenDangNhapThuNgan, NgayLam, MaCa, TrangThai)
+                    SELECT nv.MaNV, tk.TenDangNhap, @ngay, @maCa, 'Scheduled'
+                    FROM dbo.TaiKhoan tk WITH (UPDLOCK, HOLDLOCK)
+                    INNER JOIN dbo.NhanVien nv WITH (UPDLOCK, HOLDLOCK) ON nv.MaNV=@maNV
+                    WHERE tk.TenDangNhap=@username AND tk.VaiTro='Cashier' AND tk.TrangThai=1
+                      AND nv.ChucVu IN (N'Thu ngân', N'Nhân viên')",
+                    new[] { DbArg.VarChar50("@username", username), DbArg.VarChar20("@maNV", maNV), DbArg.Date("@ngay", ngay), DbArg.TinyInt("@maCa", maCa) });
+                if (affected != 1) throw new InvalidOperationException("Tài khoản thu ngân hoặc hồ sơ nhân viên không còn hoạt động/đủ điều kiện. Hãy tải lại danh sách.");
                 LoadRoster();
             }
             catch (DuplicateRecordException)
             {
-                MessageBox.Show("Nhân viên này đã được xếp một ca trong ngày đã chọn.", "Trùng lịch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Tài khoản đã được gán cho ca này hoặc nhân viên đã có ca khác trong ngày.", "Trùng lịch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex) { ShowDatabaseError("Không thể phân ca", ex); }
         }
@@ -225,21 +249,25 @@ namespace HeThongRapChieuPhim.UserControls
         private void ChangeAssignment()
         {
             if (!CurrentUser.IsSuperAdmin && !CurrentUser.IsHumanResourcesAdmin) return;
-            if (!_selectedAssignmentId.HasValue || !TryReadInputs(out string maNV, out byte maCa, out DateTime ngay)) return;
+            if (!_selectedAssignmentId.HasValue || !TryReadInputs(out string username, out string maNV, out byte maCa, out DateTime ngay)) return;
             try
             {
                 int affected = Function.Execute(@"
-                    UPDATE dbo.LichLamViec
-                    SET MaNV=@maNV, NgayLam=@ngay, MaCa=@maCa
-                    WHERE MaPhanCa=@id AND TrangThai='Scheduled'
-                      AND EXISTS (SELECT 1 FROM dbo.NhanVien nv WITH (UPDLOCK, HOLDLOCK) WHERE nv.MaNV=@maNV AND nv.ChucVu=N'Thu ngân')",
-                    new[] { DbArg.VarChar20("@maNV", maNV), DbArg.Date("@ngay", ngay), DbArg.TinyInt("@maCa", maCa), DbArg.BigInt("@id", _selectedAssignmentId.Value) });
+                    UPDATE pc SET pc.MaNV=nv.MaNV, pc.TenDangNhapThuNgan=tk.TenDangNhap,
+                                  pc.NgayLam=@ngay, pc.MaCa=@maCa
+                    FROM dbo.LichLamViec pc
+                    INNER JOIN dbo.TaiKhoan tk WITH (UPDLOCK, HOLDLOCK) ON tk.TenDangNhap=@username
+                    INNER JOIN dbo.NhanVien nv WITH (UPDLOCK, HOLDLOCK) ON nv.MaNV=@maNV
+                    WHERE pc.MaPhanCa=@id AND pc.TrangThai='Scheduled'
+                      AND tk.VaiTro='Cashier' AND tk.TrangThai=1
+                      AND nv.ChucVu IN (N'Thu ngân', N'Nhân viên')",
+                    new[] { DbArg.VarChar50("@username", username), DbArg.VarChar20("@maNV", maNV), DbArg.Date("@ngay", ngay), DbArg.TinyInt("@maCa", maCa), DbArg.BigInt("@id", _selectedAssignmentId.Value) });
                 if (affected != 1) throw new InvalidOperationException("Ca đã hoàn thành/hủy hoặc đã thay đổi. Tải lại danh sách rồi thử lại.");
                 LoadRoster();
             }
             catch (DuplicateRecordException)
             {
-                MessageBox.Show("Nhân viên đã có ca khác trong ngày mới. Mỗi người chỉ nhận một ca/ngày.", "Trùng lịch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Tài khoản đã được gán cho ca này hoặc nhân viên đã có ca khác trong ngày.", "Trùng lịch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex) { ShowDatabaseError("Không thể đổi ca", ex); }
         }

@@ -23,7 +23,7 @@ namespace HeThongRapChieuPhim.Forms
             _checkout = checkout ?? throw new ArgumentNullException(nameof(checkout));
             GenerateQr();
             btnConfirm.Text = "Mở trang PayOS";
-            lblInfo.Text = $"Hóa đơn: {checkout.MaHD}\nSố tiền: {checkout.TongTien:N0} VNĐ\n" +
+            lblInfo.Text = $"Mã thanh toán PayOS: {checkout.OrderCode}\nHóa đơn: {checkout.MaHD}\nSố tiền: {checkout.TongTien:N0} VNĐ\n" +
                 "Mở ứng dụng ngân hàng để quét QR. Hóa đơn chỉ được xác nhận sau khi PayOS báo thanh toán thành công.";
             _pollTimer.Tick += PollTimer_Tick;
             Shown += (_, _) => _pollTimer.Start();
@@ -77,7 +77,7 @@ namespace HeThongRapChieuPhim.Forms
                 else if (status is "Cancelled" or "Expired")
                 {
                     _pollTimer.Stop();
-                    lblInfo.Text += $"\n\nGiao dịch đã { (status == "Expired" ? "hết hạn" : "bị hủy") }.";
+                    lblInfo.Text += $"\n\nGiao dịch đã {(status == "Expired" ? "hết hạn" : "bị hủy")}.";
                 }
             }
             catch (Exception ex)
@@ -98,6 +98,11 @@ namespace HeThongRapChieuPhim.Forms
             if (_checkout is null) return;
             try { picQr.Image = QrCodeHelper.GenerateQrCode(_checkout.QrCode, 8); }
             catch (Exception ex) { lblInfo.Text = "Không thể tạo mã QR PayOS: " + ex.Message; }
+        }
+
+        private void picQr_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

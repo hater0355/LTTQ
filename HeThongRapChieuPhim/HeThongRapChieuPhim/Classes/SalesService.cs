@@ -113,10 +113,9 @@ public static class SalesService
         long? orderCode = pendingPayOs ? sequence : null;
         string seller = draft.TenDangNhapNguoiBan.Trim();
         if (seller.Length == 0) throw new InvalidOperationException("Không xác định được tài khoản thu ngân.");
-        var sellerRows = DataProcesser.Query("SELECT MaNV,VaiTro FROM dbo.TaiKhoan WHERE TenDangNhap=@user AND TrangThai=1", DbArg.VarChar50("@user", seller));
+        var sellerRows = DataProcesser.Query("SELECT VaiTro FROM dbo.TaiKhoan WHERE TenDangNhap=@user AND TrangThai=1", DbArg.VarChar50("@user", seller));
         if (sellerRows.Rows.Count != 1 || !new[] { "Cashier", "Thu ngân", "Nhân viên" }.Contains(Convert.ToString(sellerRows.Rows[0]["VaiTro"]), StringComparer.OrdinalIgnoreCase))
             throw new UnauthorizedAccessException("Chỉ tài khoản thu ngân đang hoạt động mới được tạo giao dịch.");
-        object maNv = sellerRows.Rows[0]["MaNV"] is DBNull ? DBNull.Value : sellerRows.Rows[0]["MaNV"];
 
         string paymentState = pendingPayOs ? "Pending" : "Paid";
         var statements = new List<TransactionCommand>
@@ -146,15 +145,34 @@ public static class SalesService
                     THROW 51050, N'Phim đã ngoài thời hạn phát hành; không thể hoàn tất giao dịch.', 1;
                  END;",
                 [DbArg.VarChar20("@show", draft.MaSuatChieu)]),
-            new(@"INSERT INTO dbo.HoaDon
-                (MaHD, NgayLap, MaNV, MaSuatChieu, MaCombo, MaVoucher, DanhSachGhe, SoLuongVe, TienVe, TienGiamGia, TienDoAn, TongTien, PhuongThucTT, GhiChu, TenDangNhapNguoiBan, TrangThaiThanhToan, PayOSOrderCode)
-                VALUES (@bill, GETDATE(), @employee, @show, @combo, @voucher, @seats, @qty, @tickets, @discount, @food, @total, @method, @note, @seller, @state, @orderCode)",
-                [DbArg.VarChar20("@bill", maHD), DbArg.VarChar20("@employee", maNv), DbArg.VarChar20("@show", draft.MaSuatChieu), DbArg.VarChar20("@combo", (object?)draft.MaCombo ?? DBNull.Value),
+            new(@"DECLARE @now DATETIME=GETDATE();
+                IF NOT EXISTS
+                (
+                    SELECT 1
+                    FROM dbo.LichLamViec pc WITH (UPDLOCK,HOLDLOCK)
+                    INNER JOIN dbo.CaLamViec ca ON ca.MaCa=pc.MaCa
+                    INNER JOIN dbo.TaiKhoan tk ON tk.TenDangNhap=pc.TenDangNhapThuNgan
+                    WHERE pc.TenDangNhapThuNgan=@seller AND pc.NgayLam=CONVERT(date,@now)
+                      AND pc.TrangThai='Scheduled' AND tk.TrangThai=1 AND tk.VaiTro='Cashier'
+                      AND ca.GioBatDau<=CONVERT(time(0),@now) AND ca.GioKetThuc>CONVERT(time(0),@now)
+                )
+                    THROW 51130, N'Tài khoản này chưa được phân công cho ca hiện tại; hóa đơn chưa được tạo.', 1;
+
+                INSERT INTO dbo.HoaDon
+                    (MaHD, NgayLap, MaNV, MaSuatChieu, MaCombo, MaVoucher, DanhSachGhe, SoLuongVe, TienVe, TienGiamGia, TienDoAn, TongTien, PhuongThucTT, GhiChu, TenDangNhapNguoiBan, TrangThaiThanhToan, PayOSOrderCode)
+                SELECT @bill, @now, pc.MaNV, @show, @combo, @voucher, @seats, @qty, @tickets, @discount, @food, @total, @method, @note, @seller, @state, @orderCode
+                FROM dbo.LichLamViec pc WITH (UPDLOCK,HOLDLOCK)
+                INNER JOIN dbo.CaLamViec ca ON ca.MaCa=pc.MaCa
+                INNER JOIN dbo.TaiKhoan tk ON tk.TenDangNhap=pc.TenDangNhapThuNgan
+                WHERE pc.TenDangNhapThuNgan=@seller AND pc.NgayLam=CONVERT(date,@now)
+                  AND pc.TrangThai='Scheduled' AND tk.TrangThai=1 AND tk.VaiTro='Cashier'
+                  AND ca.GioBatDau<=CONVERT(time(0),@now) AND ca.GioKetThuc>CONVERT(time(0),@now)",
+                [DbArg.VarChar20("@bill", maHD), DbArg.VarChar20("@show", draft.MaSuatChieu), DbArg.VarChar20("@combo", (object?)draft.MaCombo ?? DBNull.Value),
                  DbArg.VarChar20("@voucher", (object?)draft.MaVoucher ?? DBNull.Value), DbArg.NVarChar255("@seats", string.Join(", ", seats)), DbArg.Int("@qty", seats.Length),
                  DbArg.Decimal18_0("@tickets", Math.Round(tickets, 0)), DbArg.Decimal18_0("@discount", Math.Round(totalDiscount, 0)), DbArg.Decimal18_0("@food", Math.Round(foodTotal, 0)),
                  DbArg.Decimal18_0("@total", Math.Round(total, 0)), DbArg.NVarChar50("@method", pendingPayOs ? "PayOS" : "Tiền mặt"),
                  DbArg.NVarChar255("@note", (object?)(!string.IsNullOrEmpty(draft.MaVoucher) ? $"Voucher {draft.MaVoucher}: {voucherName}" : null) ?? DBNull.Value),
-                 DbArg.VarChar50("@seller", seller), DbArg.VarChar20("@state", paymentState), DbArg.BigInt("@orderCode", (object?)orderCode ?? DBNull.Value)]),
+                 DbArg.VarChar50("@seller", seller), DbArg.VarChar20("@state", paymentState), DbArg.BigInt("@orderCode", (object?)orderCode ?? DBNull.Value)], ExpectedRows: 1),
         };
         foreach (var seat in seats)
         {

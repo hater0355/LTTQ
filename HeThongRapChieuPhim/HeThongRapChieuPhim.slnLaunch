@@ -5,6 +5,10 @@
       {
         "Path": "HeThongRapChieuPhim\\HeThongRapChieuPhim.csproj",
         "Action": "Start"
+      },
+      {
+        "Path": "HeThongRapChieuPhim\\PaymentsApi\\PaymentsApi.csproj",
+        "Action": "Start"
       }
     ]
   }

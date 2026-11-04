@@ -71,6 +71,26 @@ namespace HeThongRapChieuPhim.Classes
                 return false;
             }
 
+            if (role == AccessRoles.Cashier)
+            {
+                var activeShift = DataProcesser.Query(@"
+                    SELECT TOP (1) nv.MaNV, nv.HoTen
+                    FROM dbo.LichLamViec pc
+                    INNER JOIN dbo.CaLamViec ca ON ca.MaCa=pc.MaCa
+                    INNER JOIN dbo.NhanVien nv ON nv.MaNV=pc.MaNV
+                    WHERE pc.TenDangNhapThuNgan=@user
+                      AND pc.NgayLam=CONVERT(date, SYSDATETIME())
+                      AND pc.TrangThai='Scheduled'
+                      AND ca.GioBatDau<=CONVERT(time(0), SYSDATETIME())
+                      AND ca.GioKetThuc>CONVERT(time(0), SYSDATETIME())
+                    ORDER BY ca.GioBatDau",
+                    DbArg.VarChar50("@user", username));
+                row["MaNV"] = activeShift.Rows.Count == 0 ? string.Empty : Convert.ToString(activeShift.Rows[0]["MaNV"]) ?? string.Empty;
+                row["HoTen"] = activeShift.Rows.Count == 0
+                    ? Convert.ToString(row["TenDangNhap"]) ?? username
+                    : Convert.ToString(activeShift.Rows[0]["HoTen"]) ?? username;
+            }
+
             if (legacyPassword)
             {
                 DataProcesser.Execute("UPDATE TaiKhoan SET MatKhau = @password WHERE TenDangNhap = @user",
@@ -117,9 +137,10 @@ namespace HeThongRapChieuPhim.Classes
             try
             {
                 DataProcesser.Execute(@"
-                    INSERT INTO TaiKhoan (TenDangNhap, MatKhau, VaiTro, MaNV, TrangThai, YeuCauDoiMatKhau)
+                    INSERT INTO dbo.TaiKhoan (TenDangNhap, MatKhau, VaiTro, MaNV, TrangThai, YeuCauDoiMatKhau)
                     VALUES (@user, @password, @role, NULL, 1, 1)",
-                    DbArg.VarChar50("@user", username), DbArg.NVarChar255("@password", HashPassword(password)), DbArg.NVarChar50("@role", role));
+                    DbArg.VarChar50("@user", username), DbArg.NVarChar255("@password", HashPassword(password)),
+                    DbArg.NVarChar50("@role", role));
                 return true;
             }
             catch (DuplicateRecordException)
@@ -153,10 +174,14 @@ namespace HeThongRapChieuPhim.Classes
             if (!AccessRoles.IsAllowedToManageAccounts(CurrentUser.VaiTro))
                 throw new UnauthorizedAccessException("Chỉ Admin Nhân sự được quản lý tài khoản.");
             var accounts = DataProcesser.Query(@"
-                SELECT TenDangNhap AS [Tên đăng nhập], VaiTro AS [Mã vai trò],
-                       CASE WHEN TrangThai = 1 THEN N'Đang hoạt động' ELSE N'Đã khóa' END AS [Trạng thái]
-                FROM TaiKhoan WHERE VaiTro IN ('AdminTong','AdminPhim','AdminNhanSu','AdminDoAn','AdminDoanhThu','Cashier')
-                ORDER BY VaiTro, TenDangNhap");
+                SELECT tk.TenDangNhap AS [Tên đăng nhập],
+                       ISNULL(tk.MaNV,'') AS [Mã NV],
+                       CASE WHEN tk.VaiTro='Cashier' THEN N'Phân theo từng ca' ELSE ISNULL(nv.HoTen,N'—') END AS [Nhân viên / phân ca],
+                       tk.VaiTro AS [Mã vai trò],
+                       CASE WHEN tk.TrangThai = 1 THEN N'Đang hoạt động' ELSE N'Đã khóa' END AS [Trạng thái]
+                FROM dbo.TaiKhoan tk LEFT JOIN dbo.NhanVien nv ON nv.MaNV=tk.MaNV
+                WHERE tk.VaiTro IN ('AdminTong','AdminPhim','AdminNhanSu','AdminDoAn','AdminDoanhThu','Cashier')
+                ORDER BY tk.VaiTro, tk.TenDangNhap");
             accounts.Columns.Add("Vai trò", typeof(string));
             foreach (DataRow row in accounts.Rows)
                 row["Vai trò"] = AccessRoles.DisplayName(Convert.ToString(row["Mã vai trò"]) ?? string.Empty);

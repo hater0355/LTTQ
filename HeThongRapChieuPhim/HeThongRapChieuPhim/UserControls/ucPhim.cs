@@ -119,6 +119,7 @@ namespace HeThongRapChieuPhim.UserControls
             picPoster.Image = null;
             txtSearch.Clear();
             txtMaPhim.Enabled = true;
+            btnThem.Enabled = true;
             LoadPhim();
         }
 
@@ -165,6 +166,7 @@ namespace HeThongRapChieuPhim.UserControls
             }
 
             txtMaPhim.Enabled = false;
+            btnThem.Enabled = false;
         }
 
         private static void SetDatePickerFromCell(DateTimePicker picker, object? value)

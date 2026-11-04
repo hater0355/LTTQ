@@ -16,9 +16,6 @@
     <Compile Update="Forms\FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\FormMain.Dashboard.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="Forms\FormQRPayment.cs">
       <SubType>Form</SubType>
     </Compile>
